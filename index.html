@@ -381,6 +381,25 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
 .user-dropdown-item{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:background .2s}
 .user-dropdown-item:hover{background:var(--navy-700);color:var(--text-primary)}
 .user-dropdown-item.danger{color:#f87171}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:20px;gap:12px}
+@media(max-width:480px){.plan-grid{grid-template-columns:1fr}}
+.plan-card{background:var(--navy-700);border:1px solid var(--navy-600);border-radius:14px;padding:20px;position:relative}
+.plan-card-premium{background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(212,163,57,.04));border-color:var(--gold-500)}
+.plan-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--gold-400);color:var(--navy-900);font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;white-space:nowrap}
+.plan-name{font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:8px}
+.plan-price{font-family:'DM Mono',monospace;font-size:28px;font-weight:600;color:var(--gold-300);margin-bottom:16px}
+.plan-features{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:8px}
+.plan-features li{font-size:13px;color:var(--text-muted);padding-left:20px;position:relative;line-height:1.4}
+.plan-features li::before{content:'';position:absolute;left:0;top:3px;width:14px;height:14px;border-radius:50%}
+.feature-ok::before{background:var(--gold-400);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M5 13l4 4L19 7%22 stroke=%22currentColor%22 stroke-width=%222.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M5 13l4 4L19 7%22 stroke=%22currentColor%22 stroke-width=%222.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center/contain no-repeat}
+.feature-ng::before{background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat}
+.feature-gold{color:var(--text-primary)}
+.btn-premium-cta{display:block;background:var(--gold-400);color:var(--navy-900);text-align:center;padding:12px;border-radius:10px;font-weight:700;font-size:14px;text-decoration:none;transition:background .2s;margin-top:auto}
+.btn-premium-cta:hover{background:var(--gold-300)}
+.premium-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--gold-400);cursor:pointer;background:rgba(212,163,57,.1);border:1px solid rgba(212,163,57,.2);border-radius:6px;padding:4px 10px;margin-left:8px;vertical-align:middle}
+.premium-teaser{background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(212,163,57,.02));border:1px solid rgba(212,163,57,.2);border-radius:12px;padding:16px;text-align:center;margin:12px 0}
+.premium-teaser p{font-size:13px;color:var(--text-muted);margin-bottom:12px}
+.premium-teaser strong{color:var(--gold-300);display:block;font-size:15px;margin-bottom:6px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -397,6 +416,7 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <div class="header-badge"><span class="dot-live"></span>制度データ更新中</div>
+      <button class="auth-btn" onclick="openPremium()" style="border-color:var(--gold-500);color:var(--gold-300);margin-right:8px">プレミアム</button>
       <div class="user-menu">
         <button class="auth-btn" id="authBtn" onclick="openAuth()">ログイン</button>
         <div class="user-dropdown" id="userDropdown">
@@ -559,7 +579,7 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
       <div class="results-banner">
         <div>
           <div class="results-count-label">あなたに対象の制度</div>
-          <div class="results-count-main"><strong id="result-count">0</strong>件 見つかりました</div>
+          <div class="results-count-main"><strong id="result-count">0</strong>件 見つかりました<span class="premium-lock" onclick="openPremium()"><span style="display:inline-block;width:12px;height:12px;background:var(--gold-400);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>プレミアム機能を見る</span></div>
         </div>
         <div class="loss-badge">
           <div class="loss-label">活用しない場合の推定損失</div>
@@ -616,6 +636,11 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
         <div class="sim-total-row">
           <div class="sim-total-label">年間の推定損失合計</div>
           <div class="sim-total-value">約<span id="sim-total">0</span>万円</div>
+        </div>
+        <div class="premium-teaser">
+          <strong>より詳細なシミュレーションはプレミアムで</strong>
+          <p>申請期限通知・詳細申請ガイド・市区町村制度の完全表示が利用できます</p>
+          <button class="btn-premium-cta" onclick="openPremium()" style="display:inline-block;width:auto;padding:10px 24px">プレミアムを見る</button>
         </div>
       </div>
     </section>
@@ -2299,5 +2324,64 @@ function hidePwaBanner() {
     </div>
   </div>
 </div>
+<!-- Premium Modal -->
+<div class="legal-modal-overlay" id="premiumOverlay" role="dialog" aria-modal="true">
+  <div class="legal-modal" style="max-width:520px">
+    <div class="legal-modal-header">
+      <h2 style="color:var(--gold-300)">プレミアムプラン</h2>
+      <button class="modal-close" onclick="closePremium()" aria-label="閉じる">
+        <span style="display:block;width:18px;height:18px;background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>
+      </button>
+    </div>
+    <div class="legal-modal-body" style="padding:0">
+      <!-- Plan comparison -->
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-name">フリープラン</div>
+          <div class="plan-price">無料</div>
+          <ul class="plan-features">
+            <li class="feature-ok">基本診断</li>
+            <li class="feature-ok">制度一覧・詳細閲覧</li>
+            <li class="feature-ok">お気に入り保存</li>
+            <li class="feature-ng">損失額シミュレーター</li>
+            <li class="feature-ng">申請期限通知</li>
+            <li class="feature-ng">詳細申請ガイド</li>
+            <li class="feature-ng">市区町村制度の完全表示</li>
+          </ul>
+        </div>
+        <div class="plan-card plan-card-premium">
+          <div class="plan-badge">おすすめ</div>
+          <div class="plan-name">プレミアムプラン</div>
+          <div class="plan-price">¥480<span style="font-size:14px;font-weight:400;color:var(--text-muted)">/月</span></div>
+          <ul class="plan-features">
+            <li class="feature-ok">基本診断</li>
+            <li class="feature-ok">制度一覧・詳細閲覧</li>
+            <li class="feature-ok">お気に入り保存</li>
+            <li class="feature-ok feature-gold">損失額シミュレーター</li>
+            <li class="feature-ok feature-gold">申請期限通知</li>
+            <li class="feature-ok feature-gold">詳細申請ガイド</li>
+            <li class="feature-ok feature-gold">市区町村制度の完全表示</li>
+          </ul>
+          <a href="https://buy.stripe.com/test_7sY9AM0bj1j3gzKcKs6AM01" target="_blank" rel="noopener" class="btn-premium-cta">プレミアムにアップグレード</a>
+          <p style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px">いつでもキャンセル可能</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openPremium() {
+  document.getElementById('premiumOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePremium() {
+  document.getElementById('premiumOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('premiumOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closePremium();
+});
+</script>
 </body>
 </html>
