@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/sitemap.xml

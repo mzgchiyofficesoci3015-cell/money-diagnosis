@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="お金診断">
 <meta name="description" content="補助金・助成金・節税制度を無料で自動診断。あなたが受け取れるお金を見つけます。">
-<title>もらえるお金診断 — 受け取れるお金を、取り逃がさない。</title>
+<title>もらえるお金診断｜補助金・節税・給付金を無料自動診断</title>
 <!-- OGP -->
 <meta property="og:title" content="もらえるお金診断｜補助金・節税・給付金を無料診断">
 <meta property="og:description" content="あなたが受け取れる補助金・助成金・節税制度をAIが自動診断。75種類以上の制度から対象を抽出します。">
@@ -19,6 +19,36 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="もらえるお金診断｜補助金・節税・給付金を無料診断">
 <meta name="twitter:description" content="あなたが受け取れる補助金・助成金・節税制度をAIが自動診断。75種類以上の制度から対象を抽出します。">
+<meta name="robots" content="index, follow">
+<meta name="keywords" content="補助金,助成金,給付金,節税,診断,無料,NISA,iDeCo,住宅ローン控除,子育て支援,移住支援,フリーランス,個人事業主">
+<link rel="canonical" href="https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "もらえるお金診断",
+  "url": "https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/",
+  "description": "補助金・助成金・節税制度を自動診断するWebアプリ。96種類以上の制度からあなたに合った制度を無料で診断します。",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "フリープラン",
+      "price": "0",
+      "priceCurrency": "JPY"
+    },
+    {
+      "@type": "Offer",
+      "name": "プレミアムプラン",
+      "price": "480",
+      "priceCurrency": "JPY",
+      "billingIncrement": "P1M"
+    }
+  ],
+  "inLanguage": "ja"
+}
+</script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y6JCJ1Q0H6"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -2051,7 +2081,7 @@ function getShareText() {
   const amount = amountEl ? amountEl.textContent : '数十万円';
   const countEl = document.getElementById('result-count');
   const count = countEl ? countEl.textContent + '件' : '';
-  return '【もらえるお金診断】\n私は' + amount + 'を損していました！\n' + count + 'の制度が対象と診断されました。\nあなたも無料で診断してみてください👇\nhttps://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/';
+  return '【もらえるお金診断】\n私は' + amount + 'を損していました！\n' + count + 'の制度が対象と診断されました。\nあなたも無料で診断してみてください\nhttps://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/';
 }
 function shareToX() {
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(getShareText()), '_blank', 'noopener');
@@ -2684,7 +2714,7 @@ function hidePwaBanner() {
         <button onclick="toggleAuthMode()" style="background:none;border:none;color:var(--gold-300);cursor:pointer;font-size:13px;text-decoration:underline;padding:0" id="authToggleBtn">新規登録</button>
       </p>
       <div id="authSuccessMsg" style="display:none;text-align:center;padding:16px 0">
-        <div style="font-size:32px;margin-bottom:8px">✓</div>
+        <div style="width:40px;height:40px;margin:0 auto 8px;background:var(--gold-400);border-radius:50%;-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222.5%22><path d=%22M5 13l4 4L19 7%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222.5%22><path d=%22M5 13l4 4L19 7%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>') center/contain no-repeat"></div>
         <p style="color:var(--gold-300);font-weight:600;margin-bottom:4px">確認メールを送信しました</p>
         <p style="font-size:13px;color:var(--text-muted)">メールのリンクをクリックしてログインしてください</p>
       </div>
