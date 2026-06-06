@@ -623,6 +623,9 @@ select option{font-size:16px;padding:8px}
                 <option value="employee">会社員・公務員</option>
                 <option value="part">パート・アルバイト</option>
                 <option value="freelance">個人事業主・フリーランス</option>
+                <option value="leave">休職中</option>
+                <option value="unemployed">無職・求職中</option>
+                <option value="student">学生</option>
                 <option value="other">その他</option>
               </select>
             </div>
@@ -1946,7 +1949,7 @@ const PROGRAMS = [
     conditions:['雇用保険の被保険者（在職中）または離職後1年以内','初回は雇用保険加入1年以上','指定講座への入学'],
     docs:['教育訓練給付金支給申請書','受講証明書または修了証明書','領収書','雇用保険被保険者証'],
     deadline:'講座修了日翌日から1か月以内にハローワークへ申請',deadlineNote:'事前にキャリアコンサルティングが必要な場合あり',icsDate:null,local:null,
-    eligibility:(p)=>['employee','part'].includes(p.job),
+    eligibility:(p)=>['employee','part','unemployed','leave'].includes(p.job),
   },
   {
     id:'kougaku_ryouyohi',name:'高額療養費制度',category:'grant',categoryLabel:'給付金',
@@ -1966,7 +1969,27 @@ const PROGRAMS = [
     conditions:['離職前2年間に雇用保険加入期間が12か月以上（解雇等は6か月以上）','積極的に求職活動中','ハローワークへの求職申込'],
     docs:['離職票','雇用保険被保険者証','マイナンバー確認書類','写真2枚','振込口座情報'],
     deadline:'離職後できるだけ早くハローワークへ',deadlineNote:'申請が遅いほど受給期間が短くなる',icsDate:null,local:null,
-    eligibility:(p)=>p.job==='employee',
+    eligibility:(p)=>['employee','unemployed','leave'].includes(p.job),
+  },
+  {
+    id:'shobyo_teate',name:'傷病手当金',category:'grant',categoryLabel:'給付金',
+    summary:'病気・ケガで休職中の会社員に、標準報酬日額の3分の2が最長1年6か月支給。',
+    desc:'業務外の病気やケガで働けなくなった場合、健康保険から「傷病手当金」が支給されます。支給額は標準報酬日額の3分の2で、最長1年6か月（通算）受け取れます。連続して3日間休んだ後（待期期間）、4日目から支給対象となります。',
+    amount:'標準報酬日額の2/3（最長1年6か月）',amountShort:'月収の約2/3を最長18か月',lossEstimate:120,
+    conditions:['健康保険加入の会社員または休職中','業務外の病気・ケガで働けない','連続3日以上の休業（待期期間）'],
+    docs:['傷病手当金支給申請書','医師の意見書','事業主の証明'],
+    deadline:'休業開始から2年以内に申請',deadlineNote:'遡及申請可能だが早めに手続きを',icsDate:null,local:null,
+    eligibility:(p)=>['employee','leave'].includes(p.job),
+  },
+  {
+    id:'kyushoku_sha_shien',name:'求職者支援制度',category:'grant',categoryLabel:'給付金',
+    summary:'雇用保険を受給できない求職者が、職業訓練受講中に月10万円の給付金を受取れる。',
+    desc:'雇用保険の受給資格がない・受給が終了した方が対象。ハローワーク指定の職業訓練（無料）を受けながら、一定の要件を満たせば「職業訓練受講給付金」として月10万円＋交通費が支給されます。IT・医療事務・介護など様々なコースがあります。',
+    amount:'月10万円＋交通費（訓練期間中）',amountShort:'月10万円',lossEstimate:60,
+    conditions:['雇用保険の受給資格がない','ハローワークに求職申込','世帯収入・資産要件あり'],
+    docs:['求職者支援訓練受講申込書','収入・資産確認書類','ハローワーク受付票'],
+    deadline:'各コースの募集期間内',deadlineNote:'コースにより開始時期が異なる',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='unemployed',
   },
 ];
 
@@ -3084,9 +3107,12 @@ function hidePwaBanner() {
           <label class="form-label">職業</label>
           <select id="edit_job" class="form-control">
             <option value="">選択してください</option>
-            <option value="employee">会社員</option>
+            <option value="employee">会社員・公務員</option>
             <option value="part">パート・アルバイト</option>
             <option value="freelance">個人事業主・フリーランス</option>
+            <option value="leave">休職中</option>
+            <option value="unemployed">無職・求職中</option>
+            <option value="student">学生</option>
             <option value="other">その他</option>
           </select>
         </div>
