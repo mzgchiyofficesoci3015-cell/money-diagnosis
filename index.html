@@ -372,7 +372,17 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
 .pwa-banner-text strong{color:var(--text-primary);display:block;font-size:14px;margin-bottom:2px}
 .pwa-banner-btn{background:var(--gold-400);color:var(--navy-900);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 .pwa-banner-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:0;line-height:1}
+.auth-btn{background:transparent;border:1px solid var(--gold-500);color:var(--gold-300);border-radius:8px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.auth-btn:hover{background:var(--gold-400);color:var(--navy-900)}
+.auth-btn.logged-in{background:rgba(212,163,57,.1);border-color:var(--gold-500)}
+.user-menu{position:relative;display:inline-block}
+.user-dropdown{position:absolute;right:0;top:calc(100% + 8px);background:var(--navy-800);border:1px solid var(--navy-600);border-radius:10px;padding:8px;min-width:180px;z-index:1000;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.user-menu.open .user-dropdown{display:block}
+.user-dropdown-item{display:block;width:100%;text-align:left;background:none;border:none;padding:10px 14px;font-size:13px;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:background .2s}
+.user-dropdown-item:hover{background:var(--navy-700);color:var(--text-primary)}
+.user-dropdown-item.danger{color:#f87171}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="app-wrapper">
@@ -385,7 +395,15 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
         <div class="logo-sub">Money Support AI</div>
       </div>
     </div>
-    <div class="header-badge"><span class="dot-live"></span>制度データ更新中</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="header-badge"><span class="dot-live"></span>制度データ更新中</div>
+      <div class="user-menu">
+        <button class="auth-btn" id="authBtn" onclick="openAuth()">ログイン</button>
+        <div class="user-dropdown" id="userDropdown">
+          <button class="user-dropdown-item" onclick="signOut()">ログアウト</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -727,6 +745,10 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
 <div class="toast" id="toast"></div>
 
 <script>
+const SUPABASE_URL = 'https://qrngefuepybibxkdbkwx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFybmdlZnVlcHliaWJ4a2Ria3d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MzYsImV4cCI6MjA5NjMwOTkzNn0.t14MVCI8Gfr9jXfA8-KuKNO1BT2hDJS3FEOeLNA7Yjc';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let currentUser = null;
 // ── Data ──────────────────────────────────────────────────────
 const PROGRESS_STEPS = ['未着手','制度確認済み','書類準備中','申請完了','審査中','受給完了'];
 
@@ -1829,6 +1851,7 @@ function toggleFav(id,btn){
   const idx=favorites.indexOf(id);
   if(idx>-1) favorites.splice(idx,1); else favorites.push(id);
   localStorage.setItem('msa_favorites',JSON.stringify(favorites));
+  if(currentUser) syncToCloud();
   const isNow=favorites.includes(id);
   btn.classList.toggle('active',isNow);
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
@@ -2029,6 +2052,7 @@ function buildProgressTracker(id){
 function setProgress(id,step){
   progress[id]=step;
   localStorage.setItem('msa_progress',JSON.stringify(progress));
+  if(currentUser) syncToCloud();
   buildProgressTracker(id);
   updateTodoCount();
   if(activeTab==='all'){ currentPrograms=matchedPrograms; applyFilters(); }
@@ -2077,6 +2101,144 @@ document.getElementById('legalOverlay').addEventListener('click', function(e) {
   if(e.target === this) closeLegal();
 });
 
+// ── Auth ──────────────────────────────────────────────────────
+let authMode = 'login';
+
+function openAuth() {
+  if (currentUser) {
+    document.querySelector('.user-menu')?.classList.toggle('open');
+    return;
+  }
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAuth() {
+  document.getElementById('authOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  document.getElementById('authSuccessMsg').style.display = 'none';
+}
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  const isLogin = authMode === 'login';
+  document.getElementById('authModalTitle').textContent = isLogin ? 'ログイン' : '新規登録';
+  document.getElementById('authSubmitBtn').textContent = isLogin ? 'ログイン' : '登録する';
+  document.getElementById('authToggleText').textContent = isLogin ? 'アカウントをお持ちでない方は' : 'すでにアカウントをお持ちの方は';
+  document.getElementById('authToggleBtn').textContent = isLogin ? '新規登録' : 'ログイン';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'メールアドレスとパスワードを入力してください';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+
+  try {
+    if (authMode === 'signup') {
+      const { error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      document.getElementById('authSuccessMsg').style.display = 'block';
+      document.getElementById('authPasswordGroup').style.display = 'none';
+      btn.style.display = 'none';
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      currentUser = data.user;
+      updateAuthUI();
+      closeAuth();
+      await syncFromCloud();
+    }
+  } catch (e) {
+    errEl.textContent = e.message === 'Invalid login credentials' ? 'メールアドレスまたはパスワードが正しくありません' : e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = authMode === 'login' ? 'ログイン' : '登録する';
+  }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  currentUser = null;
+  updateAuthUI();
+  document.querySelector('.user-menu')?.classList.remove('open');
+}
+
+function updateAuthUI() {
+  const btn = document.getElementById('authBtn');
+  if (!btn) return;
+  if (currentUser) {
+    const email = currentUser.email;
+    const short = email.length > 16 ? email.substring(0, 14) + '…' : email;
+    btn.textContent = short;
+    btn.classList.add('logged-in');
+    btn.onclick = () => document.querySelector('.user-menu')?.classList.toggle('open');
+  } else {
+    btn.textContent = 'ログイン';
+    btn.classList.remove('logged-in');
+    btn.onclick = openAuth;
+  }
+}
+
+async function syncToCloud() {
+  if (!currentUser) return;
+  const favs = JSON.parse(localStorage.getItem('msa_favorites') || '[]');
+  const prog = JSON.parse(localStorage.getItem('msa_progress') || '{}');
+  for (const pid of favs) {
+    await sb.from('favorites').upsert({ user_id: currentUser.id, program_id: pid }, { onConflict: 'user_id,program_id' });
+  }
+  for (const [pid, step] of Object.entries(prog)) {
+    await sb.from('progress').upsert({ user_id: currentUser.id, program_id: pid, step }, { onConflict: 'user_id,program_id' });
+  }
+}
+
+async function syncFromCloud() {
+  if (!currentUser) return;
+  const { data: favData } = await sb.from('favorites').select('program_id').eq('user_id', currentUser.id);
+  const { data: progData } = await sb.from('progress').select('program_id,step').eq('user_id', currentUser.id);
+  if (favData) {
+    const favs = favData.map(r => r.program_id);
+    localStorage.setItem('msa_favorites', JSON.stringify(favs));
+  }
+  if (progData) {
+    const prog = {};
+    progData.forEach(r => { prog[r.program_id] = r.step; });
+    localStorage.setItem('msa_progress', JSON.stringify(prog));
+  }
+}
+
+window.addEventListener('load', async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    updateAuthUI();
+    await syncFromCloud();
+  }
+  sb.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user || null;
+    updateAuthUI();
+  });
+});
+
+document.getElementById('authOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeAuth();
+});
+
 // PWA Service Worker registration
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -2104,5 +2266,38 @@ function hidePwaBanner() {
   localStorage.setItem('pwaBannerDismissed','1');
 }
 </script>
+
+<!-- Auth Modal -->
+<div class="legal-modal-overlay" id="authOverlay" role="dialog" aria-modal="true">
+  <div class="legal-modal" style="max-width:420px">
+    <div class="legal-modal-header">
+      <h2 id="authModalTitle">ログイン</h2>
+      <button class="modal-close" onclick="closeAuth()" aria-label="閉じる">
+        <span style="display:block;width:18px;height:18px;background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>
+      </button>
+    </div>
+    <div class="legal-modal-body" style="padding:24px">
+      <div id="authError" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-bottom:16px"></div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label class="form-label">メールアドレス</label>
+        <input type="email" id="authEmail" class="form-control" placeholder="example@email.com" style="font-size:16px">
+      </div>
+      <div class="form-group" id="authPasswordGroup" style="margin-bottom:16px">
+        <label class="form-label">パスワード</label>
+        <input type="password" id="authPassword" class="form-control" placeholder="8文字以上" style="font-size:16px">
+      </div>
+      <button class="btn-diagnose" id="authSubmitBtn" onclick="submitAuth()" style="margin-top:0;margin-bottom:16px">ログイン</button>
+      <p style="text-align:center;font-size:13px;color:var(--text-muted)">
+        <span id="authToggleText">アカウントをお持ちでない方は</span>
+        <button onclick="toggleAuthMode()" style="background:none;border:none;color:var(--gold-300);cursor:pointer;font-size:13px;text-decoration:underline;padding:0" id="authToggleBtn">新規登録</button>
+      </p>
+      <div id="authSuccessMsg" style="display:none;text-align:center;padding:16px 0">
+        <div style="font-size:32px;margin-bottom:8px">✓</div>
+        <p style="color:var(--gold-300);font-weight:600;margin-bottom:4px">確認メールを送信しました</p>
+        <p style="font-size:13px;color:var(--text-muted)">メールのリンクをクリックしてログインしてください</p>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
