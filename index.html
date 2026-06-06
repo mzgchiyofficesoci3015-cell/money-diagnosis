@@ -506,18 +506,26 @@ select option{font-size:16px;padding:8px}
   }
 
   // 申請期限の通知スケジュール登録
-  // icsDate (YYYYMMDD) から 30日前・7日前・前日に通知タグをセット
   async function scheduleDeadlineNotifications(progId, progName, icsDate) {
-    if (!window.OneSignal || !icsDate) return;
-    const permitted = await OneSignal.Notifications.requestPermission();
-    if (!permitted) return;
+    if (!icsDate) return;
 
-    // OneSignalのタグでユーザーの期限情報を管理
-    // サーバー側cron（Supabase）がこのタグを見て通知を送る
-    const tags = {};
-    tags['deadline_' + progId] = icsDate;
-    tags['deadline_name_' + progId] = progName;
-    await OneSignal.User.addTags(tags);
+    // OneSignalタグにも記録
+    if (window.OneSignal) {
+      const tags = {};
+      tags['deadline_' + progId] = icsDate;
+      tags['deadline_name_' + progId] = progName;
+      await OneSignal.User.addTags(tags).catch(()=>{});
+    }
+
+    // Supabaseにも保存（cronが参照）
+    if (currentUser && window._supabase) {
+      await window._supabase.from('user_deadlines').upsert({
+        user_id: currentUser.id,
+        prog_id: progId,
+        prog_name: progName,
+        deadline_date: icsDate,
+      }, { onConflict: 'user_id,prog_id' });
+    }
 
     showToast('申請期限の通知を設定しました（30日前・7日前・前日）', 'success');
   }
@@ -947,6 +955,7 @@ select option{font-size:16px;padding:8px}
 const SUPABASE_URL = 'https://qrngefuepybibxkdbkwx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFybmdlZnVlcHliaWJ4a2Ria3d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzM5MzYsImV4cCI6MjA5NjMwOTkzNn0.t14MVCI8Gfr9jXfA8-KuKNO1BT2hDJS3FEOeLNA7Yjc';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window._supabase = sb;
 let currentUser = null;
 // ── Data ──────────────────────────────────────────────────────
 const PROGRESS_STEPS = ['未着手','制度確認済み','書類準備中','申請完了','審査中','受給完了'];
