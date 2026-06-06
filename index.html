@@ -910,7 +910,7 @@ const PROGRAMS = [
     conditions:['18歳以上の日本在住者','年間360万円まで投資可能','非課税保有限度額 1,800万円'],
     docs:['マイナンバー確認書類','本人確認書類','証券口座開設申込書'],
     deadline:'通年申込可能',deadlineNote:'口座開設後すぐに利用可能',icsDate:null,local:null,
-    eligibility:()=>true,
+    eligibility:(p)=>parseInt(p.age)>=18,
   },
   {
     id:'ideco',name:'iDeCo（個人型確定拠出年金）',category:'pension',categoryLabel:'年金・節税',
@@ -920,7 +920,7 @@ const PROGRAMS = [
     conditions:['20〜65歳の国民年金加入者','会社員：月2.3万円まで','個人事業主：月6.8万円まで'],
     docs:['加入申込書','事業主証明書（会社員の場合）','本人確認書類','マイナンバー確認書類'],
     deadline:'通年申込可能',deadlineNote:'原則60歳まで引き出し不可',icsDate:null,local:null,
-    eligibility:(p)=>['employee','part','freelance','other'].includes(p.job),
+    eligibility:(p)=>['employee','part','freelance','other'].includes(p.job)&&parseInt(p.age)>=20&&parseInt(p.age)<=65,
   },
   {
     id:'housing_loan',name:'住宅ローン控除（住宅借入金等特別控除）',category:'tax',categoryLabel:'税額控除',
@@ -930,7 +930,7 @@ const PROGRAMS = [
     conditions:['住宅ローンを利用した自宅取得','床面積50m²以上','合計所得2,000万円以下','取得後6ヶ月以内に入居'],
     docs:['確定申告書','住宅借入金等特別控除額の計算明細書','登記簿謄本','売買契約書','住宅ローン年末残高証明書'],
     deadline:'取得翌年の確定申告期間（2月〜3月）',deadlineNote:'初年度は確定申告必須',icsDate:'20270315',local:null,
-    eligibility:(p)=>p.housing==='yes',
+    eligibility:(p)=>p.housing==='yes'&&parseInt(p.income)<=2600,
   },
   {
     id:'marriage',name:'結婚新生活支援事業',category:'grant',categoryLabel:'給付金',
@@ -940,7 +940,7 @@ const PROGRAMS = [
     conditions:['婚姻届提出後1年以内','夫婦ともに39歳以下','世帯所得500万円未満','対応する自治体に居住'],
     docs:['婚姻届受理証明書','所得証明書','住民票','賃貸借契約書または売買契約書','引越し業者の領収書'],
     deadline:'婚姻届提出から1年以内',deadlineNote:'自治体によって申請期限・予算上限あり',icsDate:null,local:null,
-    eligibility:(p)=>p.marriage==='yes'&&parseInt(p.income)<=500,
+    eligibility:(p)=>p.marriage==='yes'&&parseInt(p.income)<=500&&parseInt(p.age)<=39,
   },
   {
     id:'child_support',name:'子育て支援制度（児童手当・保育料補助）',category:'grant',categoryLabel:'給付金',
@@ -1837,7 +1837,7 @@ const PROGRAMS = [
     conditions:['日本在住の納税者（所得税・住民税を払っている人）','年収に応じた控除上限あり'],
     docs:['寄附金受領証明書','ワンストップ特例申請書（確定申告不要な会社員）または確定申告書'],
     deadline:'毎年12月31日までの寄附が当年度の控除対象',deadlineNote:'ワンストップ特例は翌年1月10日必着',icsDate:'20261231',local:null,
-    eligibility:(p)=>parseInt(p.income)>0,
+    eligibility:(p)=>parseInt(p.income)>=150,
   },
   {
     id:'iryo_koujo',name:'医療費控除',category:'tax',categoryLabel:'節税',
@@ -2079,10 +2079,23 @@ function applyFilters() {
   const sort = sortEl.value;
   let filtered = currentPrograms.filter(p => {
     if (activeFilters.category !== 'all' && p.category !== activeFilters.category) return false;
-    if (search && !p.name.toLowerCase().includes(search) && !p.summary.toLowerCase().includes(search)) return false;
+    if (search && !p.name.toLowerCase().includes(search) && !p.summary.toLowerCase().includes(search) && !(p.categoryLabel||'').toLowerCase().includes(search)) return false;
     return true;
   });
-  if (sort === 'amount') filtered.sort((a,b) => (b.lossEstimate||0) - (a.lossEstimate||0));
+  if (sort === 'amount') {
+    filtered.sort((a,b) => (b.lossEstimate||0) - (a.lossEstimate||0));
+  } else if (sort === 'deadline') {
+    // icsDateあり（期限明確）を先に、icsDateなしを後ろに
+    filtered.sort((a,b) => {
+      if (!a.icsDate && !b.icsDate) return 0;
+      if (!a.icsDate) return 1;
+      if (!b.icsDate) return -1;
+      return a.icsDate.localeCompare(b.icsDate);
+    });
+  } else {
+    // default: 損失額大きい順
+    filtered.sort((a,b) => (b.lossEstimate||0) - (a.lossEstimate||0));
+  }
   renderCards(filtered);
 }
 
@@ -2096,6 +2109,8 @@ function runDiagnosis(profile){
   showLoading();
   try {
     matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
+    // デフォルト：損失額の大きい順
+    matchedPrograms.sort((a,b)=>(b.lossEstimate||0)-(a.lossEstimate||0));
     currentPrograms = matchedPrograms;
     const totalLoss = matchedPrograms.reduce((s,p)=>s+p.lossEstimate,0);
 
@@ -2291,29 +2306,60 @@ function fmtIcsDate(d){
 function buildSimulator(programs){
   const grid=document.getElementById('sim-grid');
   while(grid.firstChild) grid.removeChild(grid.firstChild);
-  const total=programs.reduce((s,p)=>s+p.lossEstimate,0);
+
+  // 損失額降順でソート
+  const sorted=[...programs].sort((a,b)=>(b.lossEstimate||0)-(a.lossEstimate||0));
+  const total=sorted.reduce((s,p)=>s+p.lossEstimate,0);
   document.getElementById('sim-total').textContent=total;
 
-  // Per-item loss list
-  programs.forEach(prog=>{
+  // カテゴリ別内訳
+  const catTotals={};
+  sorted.forEach(p=>{ catTotals[p.categoryLabel]=(catTotals[p.categoryLabel]||0)+p.lossEstimate; });
+  const catRow=document.createElement('div');
+  catRow.style.cssText='grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px';
+  Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).forEach(([label,amt])=>{
+    const chip=document.createElement('span');
+    chip.style.cssText='font-size:11px;padding:4px 10px;border-radius:20px;background:rgba(27,94,32,0.08);border:1px solid rgba(27,94,32,0.2);color:var(--green-mid);font-family:"DM Mono",monospace';
+    chip.textContent=label+' '+amt+'万円';
+    catRow.appendChild(chip);
+  });
+  grid.appendChild(catRow);
+
+  // TOP3 バッジ付き表示
+  sorted.forEach((prog,i)=>{
     const item=document.createElement('div'); item.className='sim-item';
     item.style.cursor='pointer';
     item.title='クリックして詳細を見る';
-    const n=document.createElement('div'); n.className='sim-name'; n.textContent=prog.name;
+    if(i<3){
+      item.style.cssText='position:relative;cursor:pointer;'+
+        (i===0?'border:2px solid #d4a339;':i===1?'border:2px solid #a0a0a0;':'border:2px solid #b87333;');
+      const badge=document.createElement('span');
+      badge.style.cssText='position:absolute;top:-10px;left:10px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:"DM Mono",monospace;color:#fff;background:'+(i===0?'#d4a339':i===1?'#888':'#b87333');
+      badge.textContent=['TOP1','TOP2','TOP3'][i];
+      item.appendChild(badge);
+    }
     const catSpan=document.createElement('span');
     catSpan.style.cssText='font-size:10px;font-family:"DM Mono",monospace;color:var(--text-muted);display:block;margin-bottom:6px';
     catSpan.textContent=prog.categoryLabel;
+    const n=document.createElement('div'); n.className='sim-name'; n.textContent=prog.name;
     const gain=document.createElement('div'); gain.className='sim-gain'; gain.textContent='−'+prog.lossEstimate+'万円';
     const gl=document.createElement('div'); gl.className='sim-gain-label'; gl.textContent='年間損失額（推定）';
-    const recovery=document.createElement('div');
-    recovery.style.cssText='font-size:11px;color:var(--success);font-family:"DM Mono",monospace;margin-top:6px';
-    recovery.textContent='今すぐ申請 → +'+prog.lossEstimate+'万円回収可';
-    item.appendChild(n); item.appendChild(catSpan); item.appendChild(gain); item.appendChild(gl); item.appendChild(recovery);
+    // 損失割合バー
+    const pct=total>0?Math.round(prog.lossEstimate/total*100):0;
+    const barWrap=document.createElement('div');
+    barWrap.style.cssText='margin-top:8px;background:#e8f5e9;border-radius:4px;height:4px;overflow:hidden';
+    const bar=document.createElement('div');
+    bar.style.cssText='height:100%;background:var(--green-mid);border-radius:4px;width:'+pct+'%';
+    barWrap.appendChild(bar);
+    const pctLabel=document.createElement('div');
+    pctLabel.style.cssText='font-size:10px;color:var(--text-muted);margin-top:3px;font-family:"DM Mono",monospace';
+    pctLabel.textContent='損失全体の'+pct+'%';
+    item.appendChild(catSpan); item.appendChild(n); item.appendChild(gain); item.appendChild(gl); item.appendChild(barWrap); item.appendChild(pctLabel);
     item.addEventListener('click',()=>openModal(prog.id));
     grid.appendChild(item);
   });
 
-  // Recovery summary row
+  // 合計回収額
   const recRow=document.createElement('div');
   recRow.style.cssText='grid-column:1/-1;background:rgba(46,196,160,0.08);border:1px solid rgba(46,196,160,0.25);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:4px';
   const recLabel=document.createElement('div');
