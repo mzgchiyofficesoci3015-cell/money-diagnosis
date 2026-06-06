@@ -10,6 +10,23 @@
 <meta name="apple-mobile-web-app-title" content="お金診断">
 <meta name="description" content="補助金・助成金・節税制度を無料で自動診断。あなたが受け取れるお金を見つけます。">
 <title>もらえるお金診断 — 受け取れるお金を、取り逃がさない。</title>
+<!-- OGP -->
+<meta property="og:title" content="もらえるお金診断｜補助金・節税・給付金を無料診断">
+<meta property="og:description" content="あなたが受け取れる補助金・助成金・節税制度をAIが自動診断。75種類以上の制度から対象を抽出します。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/">
+<meta property="og:image" content="https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="もらえるお金診断｜補助金・節税・給付金を無料診断">
+<meta name="twitter:description" content="あなたが受け取れる補助金・助成金・節税制度をAIが自動診断。75種類以上の制度から対象を抽出します。">
+<!-- Google Analytics (G-XXXXXXXXXXを自分のIDに変更してください) -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script> -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
@@ -400,6 +417,31 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
 .premium-teaser{background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(212,163,57,.02));border:1px solid rgba(212,163,57,.2);border-radius:12px;padding:16px;text-align:center;margin:12px 0}
 .premium-teaser p{font-size:13px;color:var(--text-muted);margin-bottom:12px}
 .premium-teaser strong{color:var(--gold-300);display:block;font-size:15px;margin-bottom:6px}
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(5,12,28,.7);z-index:9998;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.loading-overlay.show{opacity:1;pointer-events:all}
+.loading-spinner{width:44px;height:44px;border:3px solid var(--navy-600);border-top-color:var(--gold-400);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-loading{position:relative;pointer-events:none;opacity:.7}
+/* Toast container (new multi-toast system) */
+.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:calc(100% - 40px);max-width:400px}
+.toast-item{background:var(--navy-800);border:1px solid var(--navy-600);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text-primary);box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s ease;pointer-events:all}
+.toast-item.success{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1)}
+.toast-item.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1);color:#f87171}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* Contact form */
+.contact-form-wrap{display:flex;flex-direction:column;gap:16px}
+.contact-form-wrap textarea{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:14px;font-family:'Noto Sans JP',sans-serif;resize:vertical;min-height:120px;width:100%;box-sizing:border-box}
+.contact-form-wrap textarea:focus{outline:none;border-color:var(--gold-500)}
+/* Share card */
+.share-card{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(212,163,57,.04));border:1px solid rgba(212,163,57,.3);border-radius:16px;padding:24px;text-align:center;margin:20px 0}
+.share-card-text{font-family:'Playfair Display',serif;font-size:20px;color:var(--text-primary);line-height:1.4}
+.share-card-text span{font-family:'DM Mono',monospace;font-size:28px;color:var(--gold-300);font-weight:600}
+.share-btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.share-x{background:#000;color:#fff}
+.share-x:hover{background:#333}
+.share-line{background:#06c755;color:#fff}
+.share-line:hover{background:#05b34d}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -665,6 +707,17 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
           <button class="btn-premium-cta" onclick="openPremium()" style="display:inline-block;width:auto;padding:10px 24px">プレミアムを見る</button>
         </div>
       </div>
+      <!-- Share Card -->
+      <div class="share-card" id="shareCard" style="display:none">
+        <div class="share-card-text">
+          <span id="shareAmountText">年間 約XX万円</span>を損していました
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin:8px 0 16px">もらえるお金診断で判明</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button onclick="shareToX()" class="share-btn share-x">X(Twitter)でシェア</button>
+          <button onclick="shareToLine()" class="share-btn share-line">LINEでシェア</button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -673,6 +726,7 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
       <button class="footer-link" onclick="openLegal('disclaimer')">免責事項</button>
       <button class="footer-link" onclick="openLegal('privacy')">プライバシーポリシー</button>
       <button class="footer-link" onclick="openLegal('terms')">利用規約</button>
+      <button class="footer-link" onclick="openContact()">お問い合わせ</button>
     </div>
     <p class="footer-copy">© 2025 もらえるお金診断 — 情報は参考目的です。申請前に必ず公式窓口をご確認ください。</p>
   </footer>
@@ -1844,31 +1898,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Diagnosis ─────────────────────────────────────────────────
 function runDiagnosis(profile){
-  matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
-  currentPrograms = matchedPrograms;
-  const totalLoss = matchedPrograms.reduce((s,p)=>s+p.lossEstimate,0);
+  showLoading();
+  try {
+    matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
+    currentPrograms = matchedPrograms;
+    const totalLoss = matchedPrograms.reduce((s,p)=>s+p.lossEstimate,0);
 
-  document.getElementById('result-count').textContent = matchedPrograms.length;
-  document.getElementById('loss-amount').textContent = totalLoss;
-  document.getElementById('tab-all-count').textContent = matchedPrograms.length;
-  updateFavCount();
-  updateTodoCount();
+    document.getElementById('result-count').textContent = matchedPrograms.length;
+    document.getElementById('loss-amount').textContent = totalLoss;
+    document.getElementById('tab-all-count').textContent = matchedPrograms.length;
+    updateFavCount();
+    updateTodoCount();
 
-  // Reset filters
-  activeFilters = { category: 'all', search: '' };
-  const filterSearch = document.getElementById('filterSearch');
-  if(filterSearch) filterSearch.value = '';
-  document.querySelectorAll('.filter-chip').forEach(b => {
-    b.classList.toggle('active', b.dataset.value === 'all' && b.dataset.filter === 'category');
-  });
+    // Reset filters
+    activeFilters = { category: 'all', search: '' };
+    const filterSearch = document.getElementById('filterSearch');
+    if(filterSearch) filterSearch.value = '';
+    document.querySelectorAll('.filter-chip').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === 'all' && b.dataset.filter === 'category');
+    });
 
-  const rs = document.getElementById('results-section');
-  rs.style.display = 'block';
-  renderCards(currentPrograms);
-  buildSimulator(matchedPrograms);
-  document.getElementById('simulator-section').style.display = 'block';
+    const rs = document.getElementById('results-section');
+    rs.style.display = 'block';
+    renderCards(currentPrograms);
+    buildSimulator(matchedPrograms);
+    document.getElementById('simulator-section').style.display = 'block';
 
-  setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),100);
+    // Show share card with total loss amount
+    const shareCard = document.getElementById('shareCard');
+    const shareAmountText = document.getElementById('shareAmountText');
+    if (shareCard && shareAmountText) {
+      shareAmountText.textContent = '年間 約' + totalLoss + '万円';
+      shareCard.style.display = '';
+    }
+
+    setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),100);
+  } finally {
+    hideLoading();
+  }
 }
 
 // ── Cards ──────────────────────────────────────────────────────
@@ -1967,6 +2034,7 @@ function toggleFav(id,btn){
   btn.classList.toggle('active',isNow);
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
   updateFavCount();
+  showToast('お気に入りを更新しました', 'success');
   if(activeTab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
 }
 
@@ -1979,19 +2047,22 @@ function updateTodoCount(){
 }
 
 // ── Share ──────────────────────────────────────────────────────
-document.getElementById('btn-share-x').addEventListener('click',function(){
-  const count=document.getElementById('result-count').textContent;
-  const loss=document.getElementById('loss-amount').textContent;
-  const text='【もらえるお金診断】\n対象制度が'+count+'件見つかりました！\n活用しないと年間約'+loss+'万円の損失に\n\nあなたも診断してみて\n#もらえるお金診断 #補助金 #節税';
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
-});
+function getShareText() {
+  const amountEl = document.getElementById('shareAmountText');
+  const amount = amountEl ? amountEl.textContent : '数十万円';
+  const countEl = document.getElementById('result-count');
+  const count = countEl ? countEl.textContent + '件' : '';
+  return '【もらえるお金診断】\n私は' + amount + 'を損していました！\n' + count + 'の制度が対象と診断されました。\nあなたも無料で診断してみてください👇\nhttps://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/';
+}
+function shareToX() {
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(getShareText()), '_blank', 'noopener');
+}
+function shareToLine() {
+  window.open('https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent('https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/') + '&text=' + encodeURIComponent(getShareText()), '_blank', 'noopener');
+}
 
-document.getElementById('btn-share-line').addEventListener('click',function(){
-  const count=document.getElementById('result-count').textContent;
-  const loss=document.getElementById('loss-amount').textContent;
-  const text='【もらえるお金診断】\n対象制度が'+count+'件見つかりました！活用しないと年間約'+loss+'万円の損失になるよ。あなたも診断してみて！';
-  window.open('https://line.me/R/msg/text/?'+encodeURIComponent(text),'_blank');
-});
+document.getElementById('btn-share-x').addEventListener('click', shareToX);
+document.getElementById('btn-share-line').addEventListener('click', shareToLine);
 
 // ── Calendar ICS ──────────────────────────────────────────────
 function downloadIcs(prog){
@@ -2181,10 +2252,21 @@ document.getElementById('modal-close-btn').addEventListener('click',closeModalDi
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
 
 // ── Toast ──────────────────────────────────────────────────────
-function showToast(msg){
-  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast-item ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all .3s';
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
 }
+function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
 
 // Legal modal
 function openLegal(tab) {
@@ -2241,6 +2323,8 @@ function toggleAuthMode() {
   document.getElementById('authToggleText').textContent = isLogin ? 'アカウントをお持ちでない方は' : 'すでにアカウントをお持ちの方は';
   document.getElementById('authToggleBtn').textContent = isLogin ? '新規登録' : 'ログイン';
   document.getElementById('authError').style.display = 'none';
+  const fpl = document.getElementById('forgotPasswordLink');
+  if (fpl) fpl.style.display = isLogin ? '' : 'none';
 }
 
 async function submitAuth() {
@@ -2258,6 +2342,7 @@ async function submitAuth() {
   const btn = document.getElementById('authSubmitBtn');
   btn.disabled = true;
   btn.textContent = '処理中...';
+  showLoading();
 
   try {
     if (authMode === 'signup') {
@@ -2272,12 +2357,15 @@ async function submitAuth() {
       currentUser = data.user;
       updateAuthUI();
       closeAuth();
+      showToast('ログインしました', 'success');
       await syncFromCloud();
     }
   } catch (e) {
     errEl.textContent = e.message === 'Invalid login credentials' ? 'メールアドレスまたはパスワードが正しくありません' : e.message;
     errEl.style.display = 'block';
+    showToast('通信エラーが発生しました', 'error');
   } finally {
+    hideLoading();
     btn.disabled = false;
     btn.textContent = authMode === 'login' ? 'ログイン' : '登録する';
   }
@@ -2288,6 +2376,7 @@ async function signOut() {
   currentUser = null;
   updateAuthUI();
   document.querySelector('.user-menu')?.classList.remove('open');
+  showToast('ログアウトしました', 'info');
 }
 
 function updateAuthUI() {
@@ -2447,6 +2536,52 @@ document.getElementById('authOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeAuth();
 });
 
+// ── Password Reset ─────────────────────────────────────────────
+async function sendPasswordReset() {
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) {
+    showToast('メールアドレスを入力してください', 'error');
+    return;
+  }
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://mzgchiyofficesoci3015-cell.github.io/money-diagnosis/'
+  });
+  if (error) {
+    showToast('エラーが発生しました: ' + error.message, 'error');
+  } else {
+    showToast('パスワードリセットメールを送信しました', 'success');
+  }
+}
+
+// ── Contact Modal ──────────────────────────────────────────────
+function openContact() {
+  document.getElementById('contactOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeContact() {
+  document.getElementById('contactOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitContact() {
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const type = document.getElementById('contactType').value;
+  const message = document.getElementById('contactMessage').value.trim();
+  if (!email || !message) {
+    showToast('メールアドレスと内容を入力してください', 'error');
+    return;
+  }
+  const typeLabels = { bug:'不具合・エラー報告', data:'制度情報の誤り', feature:'機能リクエスト', other:'その他' };
+  const subject = encodeURIComponent('【もらえるお金診断】' + typeLabels[type]);
+  const body = encodeURIComponent('お名前: ' + name + '\nメール: ' + email + '\n種別: ' + typeLabels[type] + '\n\n' + message);
+  window.open('mailto:mzgchiy.office.soci3015@gmail.com?subject=' + subject + '&body=' + body);
+  closeContact();
+  showToast('メーラーが開きます', 'success');
+}
+document.getElementById('contactOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeContact();
+});
+
 // PWA Service Worker registration
 if('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -2475,6 +2610,53 @@ function hidePwaBanner() {
 }
 </script>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Contact Modal -->
+<div class="legal-modal-overlay" id="contactOverlay" role="dialog" aria-modal="true">
+  <div class="legal-modal" style="max-width:480px">
+    <div class="legal-modal-header">
+      <h2 style="color:var(--gold-300)">お問い合わせ</h2>
+      <button class="modal-close" onclick="closeContact()" aria-label="閉じる">
+        <span style="display:block;width:18px;height:18px;background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>
+      </button>
+    </div>
+    <div class="legal-modal-body" style="padding:24px">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">制度情報の誤り・ご要望・不具合報告などをお送りください。</p>
+      <div class="contact-form-wrap">
+        <div class="form-group">
+          <label class="form-label">お名前</label>
+          <input type="text" id="contactName" class="form-control" placeholder="山田 太郎">
+        </div>
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input type="email" id="contactEmail" class="form-control" placeholder="example@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">お問い合わせ種別</label>
+          <select id="contactType" class="form-control">
+            <option value="bug">不具合・エラー報告</option>
+            <option value="data">制度情報の誤り</option>
+            <option value="feature">機能リクエスト</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">内容</label>
+          <textarea id="contactMessage" placeholder="お問い合わせ内容をご記入ください"></textarea>
+        </div>
+        <button class="btn-diagnose" onclick="submitContact()" style="margin-top:0;width:100%;justify-content:center">送信する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Auth Modal -->
 <div class="legal-modal-overlay" id="authOverlay" role="dialog" aria-modal="true">
   <div class="legal-modal" style="max-width:420px">
@@ -2493,6 +2675,9 @@ function hidePwaBanner() {
       <div class="form-group" id="authPasswordGroup" style="margin-bottom:16px">
         <label class="form-label">パスワード</label>
         <input type="password" id="authPassword" class="form-control" placeholder="8文字以上" style="font-size:16px">
+      </div>
+      <div id="forgotPasswordLink" style="text-align:right;margin-top:-8px;margin-bottom:16px">
+        <button onclick="sendPasswordReset()" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;text-decoration:underline;padding:0">パスワードを忘れた方</button>
       </div>
       <button class="btn-diagnose" id="authSubmitBtn" onclick="submitAuth()" style="margin-top:0;margin-bottom:16px">ログイン</button>
       <p style="text-align:center;font-size:13px;color:var(--text-muted)">
@@ -2769,6 +2954,7 @@ async function saveProfileEdit() {
   }
 
   closeProfileEdit();
+  showToast('プロフィールを保存しました', 'success');
 
   // Re-run diagnosis if results are visible
   const resultsSection = document.getElementById('results-section');
