@@ -2294,7 +2294,7 @@ function toggleFav(id,btn){
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
   updateFavCount();
   showToast('お気に入りを更新しました', 'success');
-  if(isNow) scheduleIfHasDeadline(id);
+  if(isNow){ requestNotificationPermission(); scheduleIfHasDeadline(id); }
   if(activeTab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
 }
 
