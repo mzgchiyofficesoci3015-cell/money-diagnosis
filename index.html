@@ -571,9 +571,11 @@ footer{border-top:1px solid #d4e8d0;padding:24px;text-align:center;font-size:11p
             <div class="form-group full-width">
               <label>家族構成 <span class="required">*</span></label>
               <div class="radio-group">
-                <div class="radio-btn"><input type="radio" id="f_single" name="family" value="single" onchange="updateFamilyFields(this.value)"><label for="f_single">独身</label></div>
+                <div class="radio-btn"><input type="radio" id="f_single" name="family" value="single" onchange="updateFamilyFields(this.value)"><label for="f_single">独身（子なし）</label></div>
+                <div class="radio-btn"><input type="radio" id="f_single_parent" name="family" value="single_parent" onchange="updateFamilyFields(this.value)"><label for="f_single_parent">シングル（子あり・同居）</label></div>
+                <div class="radio-btn"><input type="radio" id="f_divorced" name="family" value="divorced" onchange="updateFamilyFields(this.value)"><label for="f_divorced">離婚（子は相手側）</label></div>
                 <div class="radio-btn"><input type="radio" id="f_married" name="family" value="married" onchange="updateFamilyFields(this.value)"><label for="f_married">既婚（子なし）</label></div>
-                <div class="radio-btn"><input type="radio" id="f_children" name="family" value="children" onchange="updateFamilyFields(this.value)"><label for="f_children">子育て世帯</label></div>
+                <div class="radio-btn"><input type="radio" id="f_children" name="family" value="children" onchange="updateFamilyFields(this.value)"><label for="f_children">既婚・子育て世帯</label></div>
               </div>
             </div>
             <div class="form-group" id="childrenCountGroup" style="display:none">
@@ -948,7 +950,7 @@ const PROGRAMS = [
     conditions:['18歳以下の子どもがいる世帯','日本在住','申請者が子どもの生計を維持している'],
     docs:['認定請求書','戸籍謄本','住民票','健康保険証'],
     deadline:'出生後・転入後15日以内に申請推奨',deadlineNote:'遅延すると翌月以降の受給開始に',icsDate:null,local:null,
-    eligibility:(p)=>p.family==='children',
+    eligibility:(p)=>['children','single_parent'].includes(p.family),
   },
   {
     id:'hoiku_munshou',
@@ -960,7 +962,7 @@ const PROGRAMS = [
     conditions:['3〜5歳の子どもがいる（全世帯対象）','または0〜2歳で住民税非課税世帯','認可保育所・幼稚園・認定こども園等に通園'],
     docs:['施設等利用給付認定申請書','住民票','収入証明書（0〜2歳の場合）'],
     deadline:'入園時に施設または市区町村へ申請',deadlineNote:'在園中は自動適用されるケースも多い',icsDate:null,local:null,
-    eligibility: p => p.family === 'children' && (p.childrenAge === '3-5' || p.childrenAge === '0-2')
+    eligibility: p => ['children','single_parent'].includes(p.family) && (p.childrenAge === '3-5' || p.childrenAge === '0-2')
   },
   {
     id:'jidou_teate',
@@ -972,7 +974,7 @@ const PROGRAMS = [
     conditions:['中学生以下の子どもがいる（所得制限なし）','日本在住','子どもを養育している'],
     docs:['認定請求書','戸籍謄本','住民票','健康保険証','振込口座情報'],
     deadline:'出生後・転入後速やかに申請',deadlineNote:'遅延すると遡及支給されない場合あり',icsDate:null,local:null,
-    eligibility: p => p.family === 'children' && ['0-2','3-5','6-12','13-15'].includes(p.childrenAge)
+    eligibility: p => ['children','single_parent'].includes(p.family) && ['0-2','3-5','6-12','13-15'].includes(p.childrenAge)
   },
   {
     id:'kokosei_mushou',
@@ -984,7 +986,7 @@ const PROGRAMS = [
     conditions:['高校生の子どもがいる','世帯年収910万円未満（私立は590万円未満で上限額増）'],
     docs:['就学支援金受給資格認定申請書','課税証明書'],
     deadline:'入学時に学校へ申請',deadlineNote:'毎年7月頃に収入状況の届出が必要',icsDate:null,local:null,
-    eligibility: p => p.family === 'children' && p.childrenAge === '16-18'
+    eligibility: p => ['children','single_parent'].includes(p.family) && p.childrenAge === '16-18'
   },
   {
     id:'tashi_katei',
@@ -996,7 +998,7 @@ const PROGRAMS = [
     conditions:['18歳以下の子どもが3人以上いる','日本在住'],
     docs:['各制度の申請書類','戸籍謄本','住民票'],
     deadline:'各制度の申請期限に準じる',deadlineNote:'',icsDate:null,local:null,
-    eligibility: p => p.family === 'children' && p.childrenCount === '3'
+    eligibility: p => ['children','single_parent'].includes(p.family) && p.childrenCount === '3'
   },
   // 個人事業主向け
   {
@@ -1038,7 +1040,7 @@ const PROGRAMS = [
     conditions:['東京都内に居住','子どもの出生・転入から6ヶ月以内に申請','所得制限なし'],
     docs:['申請書','出生届受理証明書','住民票','通帳のコピー'],
     deadline:'出生または転入から6ヶ月以内',deadlineNote:'区市町村の窓口で申請',icsDate:null,local:'東京都',
-    eligibility:(p)=>p.prefecture==='東京都'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='東京都'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'osaka_kosodate',name:'大阪府 子ども医療費助成',category:'grant',categoryLabel:'給付金',
@@ -1048,7 +1050,7 @@ const PROGRAMS = [
     conditions:['大阪府内に居住','18歳以下の子どもがいる','健康保険加入者'],
     docs:['申請書','健康保険証','住民票','マイナンバー確認書類'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市区町村の窓口で申請',icsDate:null,local:'大阪府',
-    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='大阪府'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kanagawa_married',name:'神奈川県 結婚新生活支援',category:'grant',categoryLabel:'給付金',
@@ -1119,7 +1121,7 @@ const PROGRAMS = [
     conditions:['東京圏等から宮城県内の対象市町村に移住','18歳未満の子どもがいる世帯','移住後に継続して居住する意思があること'],
     docs:['申請書','住民票','就業証明書または開業届','子どもの戸籍謄本'],
     deadline:'移住後1年以内',deadlineNote:'仙台市は対象外の場合あり',icsDate:null,local:'宮城県',
-    eligibility:(p)=>p.prefecture==='宮城県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='宮城県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'akita_ijyu',name:'秋田県 移住支援金（少子化対策特別枠）',category:'grant',categoryLabel:'給付金',
@@ -1160,7 +1162,7 @@ const PROGRAMS = [
     conditions:['茨城県内で住宅を新築または購入','18歳未満の子どもがいる世帯','申請時点で県内に居住'],
     docs:['申請書','住民票','売買・建築契約書','子どもの戸籍謄本'],
     deadline:'住宅取得後1年以内',deadlineNote:'市町村ごとに上乗せあり',icsDate:null,local:'茨城県',
-    eligibility:(p)=>p.prefecture==='茨城県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='茨城県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'tochigi_kekkon',name:'栃木県 結婚新生活支援事業上乗せ',category:'grant',categoryLabel:'給付金',
@@ -1190,7 +1192,7 @@ const PROGRAMS = [
     conditions:['埼玉県内の民間賃貸住宅に居住','18歳未満の子どもがいる世帯','世帯所得が一定以下'],
     docs:['申請書','住民票','賃貸借契約書','所得証明書','子どもの健康保険証'],
     deadline:'各年度の募集期間内',deadlineNote:'予算上限あり・先着順',icsDate:null,local:'埼玉県',
-    eligibility:(p)=>p.prefecture==='埼玉県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='埼玉県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'chiba_ijyu',name:'千葉県 移住・定住促進補助',category:'grant',categoryLabel:'給付金',
@@ -1221,7 +1223,7 @@ const PROGRAMS = [
     conditions:['富山県内に居住','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','マイナンバー確認書類'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'富山県',
-    eligibility:(p)=>p.prefecture==='富山県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='富山県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'ishikawa_ijyu',name:'石川県 UIターン就業奨励金',category:'grant',categoryLabel:'給付金',
@@ -1281,7 +1283,7 @@ const PROGRAMS = [
     conditions:['静岡県内に居住','中学校卒業まで（または就学前）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'市町村の窓口で申請',icsDate:null,local:'静岡県',
-    eligibility:(p)=>p.prefecture==='静岡県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='静岡県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'mie_ijyu',name:'三重県 移住支援金',category:'grant',categoryLabel:'給付金',
@@ -1302,7 +1304,7 @@ const PROGRAMS = [
     conditions:['滋賀県内に居住','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町の窓口で申請',icsDate:null,local:'滋賀県',
-    eligibility:(p)=>p.prefecture==='滋賀県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='滋賀県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kyoto_ijyu',name:'京都府 移住支援金',category:'grant',categoryLabel:'給付金',
@@ -1322,7 +1324,7 @@ const PROGRAMS = [
     conditions:['兵庫県内に居住','18歳以下（高校卒業相当）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市区町村の窓口で申請',icsDate:null,local:'兵庫県',
-    eligibility:(p)=>p.prefecture==='兵庫県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='兵庫県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'nara_ijyu',name:'奈良県 移住支援金',category:'grant',categoryLabel:'給付金',
@@ -1373,7 +1375,7 @@ const PROGRAMS = [
     conditions:['岡山県内に居住','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'岡山県',
-    eligibility:(p)=>p.prefecture==='岡山県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='岡山県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'hiroshima_ijyu',name:'広島県 移住支援金',category:'grant',categoryLabel:'給付金',
@@ -1464,7 +1466,7 @@ const PROGRAMS = [
     conditions:['熊本県内に居住','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'熊本県',
-    eligibility:(p)=>p.prefecture==='熊本県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='熊本県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'oita_ijyu',name:'大分県 移住支援金',category:'grant',categoryLabel:'給付金',
@@ -1515,7 +1517,7 @@ const PROGRAMS = [
     conditions:['札幌市内に居住（北海道として判定）','就学前の子どもがいる','保育施設を利用している'],
     docs:['申請書','住民票','子どもの健康保険証','保育施設利用証明書'],
     deadline:'保育施設入所申請時',deadlineNote:'各区の窓口で申請',icsDate:null,local:'北海道',
-    eligibility:(p)=>p.prefecture==='北海道'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='北海道'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'sendai_ijyu',name:'仙台市 移住者向け支援',category:'grant',categoryLabel:'給付金',
@@ -1535,7 +1537,7 @@ const PROGRAMS = [
     conditions:['さいたま市内に居住（埼玉県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'埼玉県',
-    eligibility:(p)=>p.prefecture==='埼玉県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='埼玉県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'chiba_city_kosodate',name:'千葉市 子育て家庭支援',category:'grant',categoryLabel:'給付金',
@@ -1545,7 +1547,7 @@ const PROGRAMS = [
     conditions:['千葉市内に居住（千葉県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'千葉県',
-    eligibility:(p)=>p.prefecture==='千葉県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='千葉県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'yokohama_kosodate',name:'横浜市 子育て支援・保育料補助',category:'grant',categoryLabel:'給付金',
@@ -1555,7 +1557,7 @@ const PROGRAMS = [
     conditions:['横浜市内に居住（神奈川県として判定）','中学校卒業まで（15歳年度末）の子どもがいる','保育施設を利用または医療機関を受診'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'神奈川県',
-    eligibility:(p)=>p.prefecture==='神奈川県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='神奈川県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kawasaki_iryo',name:'川崎市 子育て医療費助成',category:'grant',categoryLabel:'給付金',
@@ -1565,7 +1567,7 @@ const PROGRAMS = [
     conditions:['川崎市内に居住（神奈川県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'神奈川県',
-    eligibility:(p)=>p.prefecture==='神奈川県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='神奈川県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'sagamihara_ijyu',name:'相模原市 移住支援',category:'grant',categoryLabel:'給付金',
@@ -1595,7 +1597,7 @@ const PROGRAMS = [
     conditions:['静岡市内に居住（静岡県として判定）','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'静岡県',
-    eligibility:(p)=>p.prefecture==='静岡県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='静岡県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'hamamatsu_ijyu',name:'浜松市 移住支援',category:'grant',categoryLabel:'給付金',
@@ -1615,7 +1617,7 @@ const PROGRAMS = [
     conditions:['名古屋市内に居住（愛知県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'愛知県',
-    eligibility:(p)=>p.prefecture==='愛知県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='愛知県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kyoto_city_iryo',name:'京都市 子育て医療費助成',category:'grant',categoryLabel:'給付金',
@@ -1625,7 +1627,7 @@ const PROGRAMS = [
     conditions:['京都市内に居住（京都府として判定）','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'京都府',
-    eligibility:(p)=>p.prefecture==='京都府'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='京都府'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'osaka_city_kosodate',name:'大阪市 子育て支援',category:'grant',categoryLabel:'給付金',
@@ -1635,7 +1637,7 @@ const PROGRAMS = [
     conditions:['大阪市内に居住（大阪府として判定）','就学前の子どもがいる','保育施設を利用または医療機関を受診'],
     docs:['申請書','住民票','子どもの健康保険証','保育施設利用証明書'],
     deadline:'保育施設入所申請時または出生後',deadlineNote:'各区の窓口で申請',icsDate:null,local:'大阪府',
-    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='大阪府'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'sakai_kosodate',name:'堺市 子育て支援',category:'grant',categoryLabel:'給付金',
@@ -1645,7 +1647,7 @@ const PROGRAMS = [
     conditions:['堺市内に居住（大阪府として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'大阪府',
-    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='大阪府'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kobe_ijyu',name:'神戸市 移住支援',category:'grant',categoryLabel:'給付金',
@@ -1675,7 +1677,7 @@ const PROGRAMS = [
     conditions:['広島市内に居住（広島県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
     docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
     deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'広島県',
-    eligibility:(p)=>p.prefecture==='広島県'&&p.family==='children',
+    eligibility:(p)=>p.prefecture==='広島県'&&['children','single_parent'].includes(p.family),
   },
   {
     id:'kitakyushu_ijyu',name:'北九州市 移住支援',category:'grant',categoryLabel:'給付金',
@@ -1749,17 +1751,17 @@ const PROGRAMS = [
     eligibility: p => p.job==='freelance' && p.equipment==='yes'
   },
   // ── 市区町村レベルのプログラム ──────────────────────────────
-  {id:'sapporo_child',name:'札幌市 子育て支援給付金',category:'grant',categoryLabel:'給付金',summary:'札幌市独自の子育て世帯向け給付金',desc:'札幌市在住の子育て世帯を対象とした独自の支援給付金です。',amount:'年間最大10万円',amountShort:'最大10万円',lossEstimate:10,conditions:['札幌市在住','18歳未満の子どもがいる'],docs:['住民票','所得証明書'],deadline:'通年申請可能',deadlineNote:'予算に達し次第終了',icsDate:null,local:'札幌市',eligibility:p=>p.prefecture==='北海道'&&p.city==='札幌市'&&p.family==='children'},
+  {id:'sapporo_child',name:'札幌市 子育て支援給付金',category:'grant',categoryLabel:'給付金',summary:'札幌市独自の子育て世帯向け給付金',desc:'札幌市在住の子育て世帯を対象とした独自の支援給付金です。',amount:'年間最大10万円',amountShort:'最大10万円',lossEstimate:10,conditions:['札幌市在住','18歳未満の子どもがいる'],docs:['住民票','所得証明書'],deadline:'通年申請可能',deadlineNote:'予算に達し次第終了',icsDate:null,local:'札幌市',eligibility:p=>p.prefecture==='北海道'&&p.city==='札幌市'&&['children','single_parent'].includes(p.family)},
   {id:'sendai_housing',name:'仙台市 住宅取得支援補助金',category:'grant',categoryLabel:'給付金',summary:'仙台市内での住宅取得を支援',desc:'仙台市内で新たに住宅を取得する世帯への補助金です。',amount:'最大50万円',amountShort:'最大50万円',lossEstimate:30,conditions:['仙台市在住または転入予定','住宅購入予定あり','世帯年収800万円以下'],docs:['売買契約書','住民票','所得証明書'],deadline:'年度内申請',deadlineNote:'予算に達し次第終了',icsDate:null,local:'仙台市',eligibility:p=>p.prefecture==='宮城県'&&p.city==='仙台市'&&p.housing==='yes'},
-  {id:'saitama_child',name:'さいたま市 子育て世帯生活支援特別給付金',category:'grant',categoryLabel:'給付金',summary:'さいたま市独自の子育て支援',desc:'さいたま市在住の低所得子育て世帯への特別給付金です。',amount:'児童1人あたり5万円',amountShort:'5万円/人',lossEstimate:5,conditions:['さいたま市在住','18歳未満の子どもがいる','住民税非課税または低所得世帯'],docs:['住民票','所得証明書','振込口座情報'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'さいたま市',eligibility:p=>p.prefecture==='埼玉県'&&p.city==='さいたま市'&&p.family==='children'},
+  {id:'saitama_child',name:'さいたま市 子育て世帯生活支援特別給付金',category:'grant',categoryLabel:'給付金',summary:'さいたま市独自の子育て支援',desc:'さいたま市在住の低所得子育て世帯への特別給付金です。',amount:'児童1人あたり5万円',amountShort:'5万円/人',lossEstimate:5,conditions:['さいたま市在住','18歳未満の子どもがいる','住民税非課税または低所得世帯'],docs:['住民票','所得証明書','振込口座情報'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'さいたま市',eligibility:p=>p.prefecture==='埼玉県'&&p.city==='さいたま市'&&['children','single_parent'].includes(p.family)},
   {id:'chiba_energy',name:'千葉市 省エネ住宅リフォーム補助金',category:'subsidy',categoryLabel:'補助金',summary:'省エネ改修工事費用の補助',desc:'千葉市内の住宅における省エネルギー改修工事費用を補助します。',amount:'最大30万円（工事費の1/3）',amountShort:'最大30万円',lossEstimate:20,conditions:['千葉市在住','自己所有の住宅','省エネ改修工事を実施'],docs:['工事見積書','住民票','登記簿謄本'],deadline:'年度内（予算上限あり）',deadlineNote:'',icsDate:null,local:'千葉市',eligibility:p=>p.prefecture==='千葉県'&&p.city==='千葉市'&&p.housing==='yes'},
-  {id:'kawasaki_child',name:'川崎市 子ども医療費助成',category:'grant',categoryLabel:'給付金',summary:'川崎市の子ども医療費の自己負担ゼロ',desc:'川崎市在住の子どもの医療費自己負担分を市が助成します。',amount:'医療費自己負担分（上限なし）',amountShort:'医療費負担ゼロ',lossEstimate:5,conditions:['川崎市在住','18歳以下の子ども'],docs:['子ども医療証','健康保険証'],deadline:'随時申請可能',deadlineNote:'',icsDate:null,local:'川崎市',eligibility:p=>p.prefecture==='神奈川県'&&p.city==='川崎市'&&p.family==='children'},
+  {id:'kawasaki_child',name:'川崎市 子ども医療費助成',category:'grant',categoryLabel:'給付金',summary:'川崎市の子ども医療費の自己負担ゼロ',desc:'川崎市在住の子どもの医療費自己負担分を市が助成します。',amount:'医療費自己負担分（上限なし）',amountShort:'医療費負担ゼロ',lossEstimate:5,conditions:['川崎市在住','18歳以下の子ども'],docs:['子ども医療証','健康保険証'],deadline:'随時申請可能',deadlineNote:'',icsDate:null,local:'川崎市',eligibility:p=>p.prefecture==='神奈川県'&&p.city==='川崎市'&&['children','single_parent'].includes(p.family)},
   {id:'sagamihara_freelance',name:'相模原市 創業支援補助金',category:'subsidy',categoryLabel:'補助金',summary:'相模原市内での創業・開業費用の補助',desc:'相模原市内で創業する個人事業主・法人への補助金です。',amount:'最大100万円（補助率2/3）',amountShort:'最大100万円',lossEstimate:50,conditions:['相模原市内で創業','創業5年以内','事業計画書の提出'],docs:['事業計画書','見積書','登記簿謄本または開業届'],deadline:'年複数回公募',deadlineNote:'',icsDate:null,local:'相模原市',eligibility:p=>p.prefecture==='神奈川県'&&p.city==='相模原市'&&p.job==='freelance'},
   {id:'niigata_housing',name:'新潟市 移住・定住促進補助金',category:'grant',categoryLabel:'給付金',summary:'新潟市への移住者向け住宅取得補助',desc:'新潟市外から移住して住宅を取得する世帯への補助金です。',amount:'最大100万円',amountShort:'最大100万円',lossEstimate:60,conditions:['新潟市外から転入','住宅購入またはリフォーム','5年以上居住の意向'],docs:['住民票','売買契約書','移住誓約書'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'新潟市',eligibility:p=>p.prefecture==='新潟県'&&p.city==='新潟市'&&p.housing==='yes'},
-  {id:'shizuoka_child',name:'静岡市 多子世帯支援給付金',category:'grant',categoryLabel:'給付金',summary:'3人以上の子どもがいる世帯への支援',desc:'静岡市在住の多子世帯を対象とした独自の給付金です。',amount:'第3子以降1人あたり年間12万円',amountShort:'12万円/人（第3子〜）',lossEstimate:12,conditions:['静岡市在住','18歳未満の子どもが3人以上'],docs:['住民票','戸籍謄本','所得証明書'],deadline:'通年申請可能',deadlineNote:'',icsDate:null,local:'静岡市',eligibility:p=>p.prefecture==='静岡県'&&p.city==='静岡市'&&p.family==='children'},
+  {id:'shizuoka_child',name:'静岡市 多子世帯支援給付金',category:'grant',categoryLabel:'給付金',summary:'3人以上の子どもがいる世帯への支援',desc:'静岡市在住の多子世帯を対象とした独自の給付金です。',amount:'第3子以降1人あたり年間12万円',amountShort:'12万円/人（第3子〜）',lossEstimate:12,conditions:['静岡市在住','18歳未満の子どもが3人以上'],docs:['住民票','戸籍謄本','所得証明書'],deadline:'通年申請可能',deadlineNote:'',icsDate:null,local:'静岡市',eligibility:p=>p.prefecture==='静岡県'&&p.city==='静岡市'&&['children','single_parent'].includes(p.family)},
   {id:'hamamatsu_dx',name:'浜松市 中小企業DX推進補助金',category:'subsidy',categoryLabel:'補助金',summary:'浜松市内事業者のデジタル化支援',desc:'浜松市内の中小企業・個人事業主のDX推進を支援する補助金です。',amount:'最大200万円（補助率1/2）',amountShort:'最大200万円',lossEstimate:50,conditions:['浜松市内で事業を営む','DX推進計画の策定','ITツール導入を予定'],docs:['事業計画書','見積書','確定申告書'],deadline:'年複数回公募',deadlineNote:'',icsDate:null,local:'浜松市',eligibility:p=>p.prefecture==='静岡県'&&p.city==='浜松市'&&p.job==='freelance'&&p.dx==='yes'},
   {id:'okayama_housing',name:'岡山市 空き家活用リフォーム補助金',category:'subsidy',categoryLabel:'補助金',summary:'空き家を活用した住宅取得・改修への補助',desc:'岡山市内の空き家を取得・改修して居住する場合の補助金です。',amount:'最大100万円（工事費の1/2）',amountShort:'最大100万円',lossEstimate:60,conditions:['岡山市内の空き家を取得・改修','定住目的','工事費50万円以上'],docs:['売買契約書','工事見積書','住民票'],deadline:'年度内申請（予算上限あり）',deadlineNote:'',icsDate:null,local:'岡山市',eligibility:p=>p.prefecture==='岡山県'&&p.city==='岡山市'&&p.housing==='yes'},
-  {id:'hiroshima_child',name:'広島市 子育て世帯住宅支援補助金',category:'grant',categoryLabel:'給付金',summary:'子育て世帯の住宅取得を支援',desc:'広島市在住の子育て世帯が住宅を取得する際の補助金です。',amount:'最大50万円',amountShort:'最大50万円',lossEstimate:30,conditions:['広島市在住','18歳未満の子どもがいる','住宅購入予定あり'],docs:['売買契約書','住民票','戸籍謄本'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'広島市',eligibility:p=>p.prefecture==='広島県'&&p.city==='広島市'&&p.family==='children'&&p.housing==='yes'},
+  {id:'hiroshima_child',name:'広島市 子育て世帯住宅支援補助金',category:'grant',categoryLabel:'給付金',summary:'子育て世帯の住宅取得を支援',desc:'広島市在住の子育て世帯が住宅を取得する際の補助金です。',amount:'最大50万円',amountShort:'最大50万円',lossEstimate:30,conditions:['広島市在住','18歳未満の子どもがいる','住宅購入予定あり'],docs:['売買契約書','住民票','戸籍謄本'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'広島市',eligibility:p=>p.prefecture==='広島県'&&p.city==='広島市'&&['children','single_parent'].includes(p.family)&&p.housing==='yes'},
   {id:'kitakyushu_freelance',name:'北九州市 創業チャレンジ補助金',category:'subsidy',categoryLabel:'補助金',summary:'北九州市での創業を支援',desc:'北九州市内で新たに創業する個人事業主への補助金です。',amount:'最大150万円（補助率2/3）',amountShort:'最大150万円',lossEstimate:70,conditions:['北九州市内で創業予定または創業3年以内','事業計画書の提出'],docs:['事業計画書','見積書','開業届'],deadline:'随時受付（予算上限あり）',deadlineNote:'',icsDate:null,local:'北九州市',eligibility:p=>p.prefecture==='福岡県'&&p.city==='北九州市'&&p.job==='freelance'},
   {id:'kumamoto_housing',name:'熊本市 移住定住促進補助金',category:'grant',categoryLabel:'給付金',summary:'熊本市への移住と住宅取得を支援',desc:'熊本市外から移住して住宅を取得または賃貸する世帯への補助金です。',amount:'最大100万円（子育て世帯は加算あり）',amountShort:'最大100万円',lossEstimate:60,conditions:['熊本市外から転入','住宅取得または賃貸契約'],docs:['住民票','売買契約書または賃貸契約書'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'熊本市',eligibility:p=>p.prefecture==='熊本県'&&p.city==='熊本市'&&p.housing==='yes'},
   {
@@ -1805,6 +1807,26 @@ const PROGRAMS = [
     local: null,
     eligibility: p => p.family === 'children' && p.spouse === 'fulltime'
   },
+  {
+    id:'hitorioyal_koujo',name:'ひとり親控除',category:'tax',categoryLabel:'節税',
+    summary:'離婚・死別等でひとり親になった場合、35万円の所得控除。住民税も軽減。',
+    desc:'ひとり親控除は、婚姻関係になく生計を一にする子（総所得48万円以下）を扶養しているひとり親に適用される所得控除です。控除額は35万円で、所得税・住民税が軽減されます。年末調整または確定申告で申請できます。所得制限は合計所得500万円以下。',
+    amount:'35万円の所得控除（税率20%なら約7万円の節税）',amountShort:'35万円の所得控除',lossEstimate:7,
+    conditions:['婚姻関係にないひとり親','生計を一にする子（総所得48万円以下）を扶養','合計所得500万円以下'],
+    docs:['ひとり親控除申告書（年末調整）または確定申告書','戸籍謄本・住民票'],
+    deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'',icsDate:'20261130',local:null,
+    eligibility:(p)=>p.family==='single_parent',
+  },
+  {
+    id:'jidou_fuyo_teate',name:'児童扶養手当',category:'grant',categoryLabel:'給付金',
+    summary:'ひとり親家庭の18歳以下の子どもに対して、月最大4.5万円を支給。所得制限あり。',
+    desc:'父母の離婚・死別等により、ひとり親家庭または父または母が重度障害の状態にある家庭の子（18歳到達後最初の3月31日まで）に支給される手当です。子ども1人の場合、月額4万5,490円（全部支給）〜1万730円（一部支給）。子どもの人数が増えるほど加算があります。',
+    amount:'子ども1人：月最大4.5万円（全部支給）、2人目以降加算あり',amountShort:'月最大4.5万円',lossEstimate:54,
+    conditions:['18歳以下の子どもを養育するひとり親','離婚・未婚・死別・行方不明等が対象','所得制限あり（目安：年収130万円以下で全額支給）'],
+    docs:['児童扶養手当認定請求書','戸籍謄本','住民票','所得証明書','振込口座情報'],
+    deadline:'市区町村の福祉課へ随時申請（認定後翌月から支給）',deadlineNote:'申請が遅れると遡及支給されない',icsDate:null,local:null,
+    eligibility:(p)=>p.family==='single_parent',
+  },
 
   // ── 追加制度 ──────────────────────────────────────────
   {
@@ -1845,7 +1867,7 @@ const PROGRAMS = [
     conditions:['健康保険または国民健康保険に加入している','妊娠85日（12週）以上の出産（死産・流産含む）'],
     docs:['出産育児一時金支給申請書','出産証明書','健康保険証','振込口座情報'],
     deadline:'出産日翌日から2年以内',deadlineNote:'直接支払制度利用の場合は分娩機関と事前手続き',icsDate:null,local:null,
-    eligibility:(p)=>p.family==='children'&&(p.childrenAge==='0-2'),
+    eligibility:(p)=>['children','single_parent'].includes(p.family)&&(p.childrenAge==='0-2'),
   },
   {
     id:'ikukyu_kyufu',name:'育児休業給付金',category:'grant',categoryLabel:'給付金',
@@ -1855,7 +1877,7 @@ const PROGRAMS = [
     conditions:['雇用保険加入の会社員','育児休業取得','休業前2年間に11日以上働いた月が12か月以上'],
     docs:['育児休業給付受給資格確認票','育児休業給付金支給申請書','母子健康手帳の写し'],
     deadline:'育児休業開始後4か月以内に申請（ハローワーク経由で会社が手続き）',deadlineNote:'会社の人事・総務担当に早めに相談を',icsDate:null,local:null,
-    eligibility:(p)=>p.job==='employee'&&p.family==='children'&&(p.childrenAge==='0-2'),
+    eligibility:(p)=>p.job==='employee'&&['children','single_parent'].includes(p.family)&&(p.childrenAge==='0-2'),
   },
   {
     id:'kyouiku_kunren_kyufu',name:'教育訓練給付金',category:'grant',categoryLabel:'給付金',
@@ -1944,19 +1966,12 @@ function updateFamilyFields(val) {
   const ageGroup = document.getElementById('childrenAgeGroup');
   const spouseGroup = document.getElementById('spouseGroup');
 
-  if (val === 'children') {
-    if (countGroup) countGroup.style.display = '';
-    if (ageGroup) ageGroup.style.display = '';
-    if (spouseGroup) spouseGroup.style.display = '';
-  } else if (val === 'married') {
-    if (countGroup) countGroup.style.display = 'none';
-    if (ageGroup) ageGroup.style.display = 'none';
-    if (spouseGroup) spouseGroup.style.display = '';
-  } else {
-    if (countGroup) countGroup.style.display = 'none';
-    if (ageGroup) ageGroup.style.display = 'none';
-    if (spouseGroup) spouseGroup.style.display = 'none';
-  }
+  const hasKids = val === 'children' || val === 'single_parent';
+  const hasSpouse = val === 'children' || val === 'married';
+
+  if (countGroup) countGroup.style.display = hasKids ? '' : 'none';
+  if (ageGroup) ageGroup.style.display = hasKids ? '' : 'none';
+  if (spouseGroup) spouseGroup.style.display = hasSpouse ? '' : 'none';
 }
 
 // ── Freelance field visibility ────────────────────────────────
@@ -2973,9 +2988,11 @@ function hidePwaBanner() {
           <label class="form-label">家族構成</label>
           <select id="edit_family" class="form-control" onchange="updateEditFamilyFields(this.value)">
             <option value="">選択してください</option>
-            <option value="single">独身</option>
+            <option value="single">独身（子なし）</option>
+            <option value="single_parent">シングル（子あり・同居）</option>
+            <option value="divorced">離婚（子は相手側）</option>
             <option value="married">既婚（子なし）</option>
-            <option value="children">子育て世帯</option>
+            <option value="children">既婚・子育て世帯</option>
           </select>
         </div>
         <div class="form-group" id="editChildrenCountGroup" style="display:none">
@@ -3052,19 +3069,11 @@ function updateEditFamilyFields(val) {
   const cg = document.getElementById('editChildrenCountGroup');
   const ag = document.getElementById('editChildrenAgeGroup');
   const sg = document.getElementById('editSpouseGroup');
-  if (val === 'children') {
-    if (cg) cg.style.display = '';
-    if (ag) ag.style.display = '';
-    if (sg) sg.style.display = '';
-  } else if (val === 'married') {
-    if (cg) cg.style.display = 'none';
-    if (ag) ag.style.display = 'none';
-    if (sg) sg.style.display = '';
-  } else {
-    if (cg) cg.style.display = 'none';
-    if (ag) ag.style.display = 'none';
-    if (sg) sg.style.display = 'none';
-  }
+  const hasKids = val === 'children' || val === 'single_parent';
+  const hasSpouse = val === 'children' || val === 'married';
+  if (cg) cg.style.display = hasKids ? '' : 'none';
+  if (ag) ag.style.display = hasKids ? '' : 'none';
+  if (sg) sg.style.display = hasSpouse ? '' : 'none';
 }
 
 function openProfileEdit() {
