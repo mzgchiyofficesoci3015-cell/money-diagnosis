@@ -480,6 +480,55 @@ footer{border-top:1px solid #d4e8d0;padding:24px;text-align:center;font-size:11p
 .share-line:hover{background:#05b34d}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- OneSignal Web Push SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  const ONESIGNAL_APP_ID = '23521923-ac4e-4aab-9ade-f2fb97c87eb3'; // ← App ID をここに入力
+
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: ONESIGNAL_APP_ID,
+      notifyButton: { enable: false }, // 独自UIを使うため非表示
+      allowLocalhostAsSecureOrigin: true,
+    });
+  });
+
+  // 通知許可を求める（プレミアムユーザー向け）
+  async function requestNotificationPermission() {
+    if (!window.OneSignal) return false;
+    try {
+      await OneSignal.Notifications.requestPermission();
+      return OneSignal.Notifications.permission;
+    } catch(e) { return false; }
+  }
+
+  // 申請期限の通知スケジュール登録
+  // icsDate (YYYYMMDD) から 30日前・7日前・前日に通知タグをセット
+  async function scheduleDeadlineNotifications(progId, progName, icsDate) {
+    if (!window.OneSignal || !icsDate) return;
+    const permitted = await OneSignal.Notifications.requestPermission();
+    if (!permitted) return;
+
+    // OneSignalのタグでユーザーの期限情報を管理
+    // サーバー側cron（Supabase）がこのタグを見て通知を送る
+    const tags = {};
+    tags['deadline_' + progId] = icsDate;
+    tags['deadline_name_' + progId] = progName;
+    await OneSignal.User.addTags(tags);
+
+    showToast('申請期限の通知を設定しました（30日前・7日前・前日）', 'success');
+  }
+
+  // お気に入り登録時に通知スケジュールも設定
+  async function scheduleIfHasDeadline(progId) {
+    const prog = PROGRAMS.find(p => p.id === progId);
+    if (prog && prog.icsDate) {
+      await scheduleDeadlineNotifications(progId, prog.name, prog.icsDate);
+    }
+  }
+</script>
 </head>
 <body>
 <div class="app-wrapper">
@@ -2245,6 +2294,7 @@ function toggleFav(id,btn){
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
   updateFavCount();
   showToast('お気に入りを更新しました', 'success');
+  if(isNow) scheduleIfHasDeadline(id);
   if(activeTab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
 }
 
