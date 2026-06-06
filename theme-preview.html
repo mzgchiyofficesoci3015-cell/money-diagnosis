@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カラーテーマ比較 — もらえるお金診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #e8e8e8;
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 0.02em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── wrapper card ── */
+  .theme-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .theme-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px 10px;
+    background: #fff;
+    border-bottom: 1px solid #ebebeb;
+  }
+
+  .theme-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-current {
+    font-size: 10px;
+    font-weight: 700;
+    background: #d4a339;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── mini UI shell ── */
+  .mini-ui {
+    flex: 1;
+    padding: 20px;
+  }
+
+  /* header bar */
+  .mini-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+
+  .mini-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .mini-login-btn {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: default;
+    letter-spacing: 0.03em;
+  }
+
+  /* program card */
+  .mini-program-card {
+    border-radius: 10px;
+    padding: 13px 14px;
+    margin-bottom: 14px;
+  }
+
+  .mini-program-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: 0.75;
+  }
+
+  .mini-program-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    letter-spacing: 0.02em;
+  }
+
+  .mini-program-sub {
+    font-size: 11px;
+    font-weight: 500;
+    margin-bottom: 7px;
+    opacity: 0.85;
+  }
+
+  .mini-program-meta {
+    font-size: 10px;
+    opacity: 0.6;
+    letter-spacing: 0.02em;
+  }
+
+  /* stats row */
+  .mini-stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    opacity: 0.7;
+  }
+
+  .mini-stat {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .mini-stat-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* CTA button */
+  .mini-cta {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: default;
+    text-align: center;
+  }
+
+  /* ── swatches ── */
+  .swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 18px 16px;
+    border-top: 1px solid #ebebeb;
+    background: #fafafa;
+  }
+
+  .swatch-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .swatch-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.12);
+    flex-shrink: 0;
+  }
+
+  .swatch-label {
+    font-size: 10px;
+    color: #555;
+    font-weight: 500;
+  }
+
+  /* ═══════════════════════════════
+     THEME 1 — Dark Navy × Gold
+  ═══════════════════════════════ */
+  .t1-shell { background: #050c1c; }
+
+  .t1-header-border { border-color: rgba(212,163,57,0.2); }
+  .t1-logo { color: #d4a339; }
+  .t1-login {
+    background: transparent;
+    border-color: rgba(212,163,57,0.5) !important;
+    color: #d4a339;
+  }
+  .t1-card { background: #0a1628; border: 1px solid rgba(212,163,57,0.15); }
+  .t1-tag { color: #d4a339; }
+  .t1-title { color: #e8dcc8; }
+  .t1-sub { color: #d4a339; }
+  .t1-meta { color: #e8dcc8; }
+  .t1-stats { color: #e8dcc8; }
+  .t1-dot { background: #d4a339; }
+  .t1-cta { background: #d4a339; color: #050c1c; }
+
+  /* ═══════════════════════════════
+     THEME 2 — Light White × Navy
+  ═══════════════════════════════ */
+  .t2-shell { background: #f5f7fa; }
+
+  .t2-header-border { border-color: #e0e8f0; }
+  .t2-logo { color: #1a3a6b; }
+  .t2-login {
+    background: #1a3a6b;
+    border-color: #1a3a6b !important;
+    color: #fff;
+  }
+  .t2-card { background: #ffffff; border: 1px solid #e0e8f0; box-shadow: 0 2px 8px rgba(26,58,107,0.07); }
+  .t2-tag { color: #1a3a6b; }
+  .t2-title { color: #1a2a4a; }
+  .t2-sub { color: #1a3a6b; }
+  .t2-meta { color: #1a2a4a; }
+  .t2-stats { color: #1a2a4a; }
+  .t2-dot { background: #1a3a6b; }
+  .t2-cta { background: #1a3a6b; color: #fff; }
+
+  /* ═══════════════════════════════
+     THEME 3 — Midnight Blue × Emerald
+  ═══════════════════════════════ */
+  .t3-shell { background: #0a1628; }
+
+  .t3-header-border { border-color: rgba(0,200,150,0.2); }
+  .t3-logo { color: #00c896; }
+  .t3-login {
+    background: transparent;
+    border-color: rgba(0,200,150,0.5) !important;
+    color: #00c896;
+  }
+  .t3-card { background: #0d2035; border: 1px solid rgba(0,200,150,0.12); }
+  .t3-tag { color: #00c896; }
+  .t3-title { color: #e0f0ea; }
+  .t3-sub { color: #00c896; }
+  .t3-meta { color: #e0f0ea; }
+  .t3-stats { color: #e0f0ea; }
+  .t3-dot { background: #00c896; }
+  .t3-cta { background: #00c896; color: #0a1628; }
+
+  /* ═══════════════════════════════
+     THEME 4 — Charcoal × Coral
+  ═══════════════════════════════ */
+  .t4-shell { background: #1a1a2e; }
+
+  .t4-header-border { border-color: rgba(233,69,96,0.2); }
+  .t4-logo { color: #e94560; }
+  .t4-login {
+    background: transparent;
+    border-color: rgba(233,69,96,0.5) !important;
+    color: #e94560;
+  }
+  .t4-card { background: #16213e; border: 1px solid rgba(233,69,96,0.12); }
+  .t4-tag { color: #e94560; }
+  .t4-title { color: #eaeaea; }
+  .t4-sub { color: #e94560; }
+  .t4-meta { color: #eaeaea; }
+  .t4-stats { color: #eaeaea; }
+  .t4-dot { background: #e94560; }
+  .t4-cta { background: #e94560; color: #fff; }
+
+  /* ═══════════════════════════════
+     THEME 5 — Cream × Deep Green
+  ═══════════════════════════════ */
+  .t5-shell { background: #f9f5ef; }
+
+  .t5-header-border { border-color: #d4e8d0; }
+  .t5-logo { color: #1b5e20; }
+  .t5-login {
+    background: #1b5e20;
+    border-color: #1b5e20 !important;
+    color: #fff;
+  }
+  .t5-card { background: #ffffff; border: 1px solid #d4e8d0; box-shadow: 0 2px 8px rgba(27,94,32,0.06); }
+  .t5-tag { color: #1b5e20; }
+  .t5-title { color: #2d3a2e; }
+  .t5-sub { color: #1b5e20; }
+  .t5-meta { color: #2d3a2e; }
+  .t5-stats { color: #2d3a2e; }
+  .t5-dot { background: #1b5e20; }
+  .t5-cta { background: #1b5e20; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>カラーテーマ比較</h1>
+  <p>もらえるお金診断 — 5 つのデザインバリエーション</p>
+</div>
+
+<div class="grid">
+
+  <!-- ───────────────────────────────
+       THEME 1: Dark Navy × Gold（現在）
+  ─────────────────────────────────── -->
+  <div class="theme-wrapper">
+    <div class="theme-label-row">
+      <span class="theme-name">① 現在 — Dark Navy × Gold</span>
+      <span class="badge-current">現在</span>
+    </div>
+
+    <div class="mini-ui t1-shell">
+      <!-- header -->
+      <div class="mini-header t1-header-border">
+        <span class="mini-logo t1-logo">¥ もらえるお金診断</span>
+        <button class="mini-login-btn t1-login">ログイン</button>
+      </div>
+      <!-- program card -->
+      <div class="mini-program-card t1-card">
+        <div class="mini-program-tag t1-tag">INVESTMENT</div>
+        <div class="mini-program-title t1-title">NISA（少額投資非課税）</div>
+        <div class="mini-program-sub t1-sub">年間最大数十万円の節税</div>
+        <div class="mini-program-meta t1-meta">対象条件: 18 歳以上 · 日本居住者</div>
+      </div>
+      <!-- stats -->
+      <div class="mini-stats t1-stats">
+        <span class="mini-stat">
+          <span class="mini-stat-dot t1-dot"></span>96+ 制度
+        </span>
+        <span class="mini-stat">
+          <span class="mini-stat-dot t1-dot"></span>完全無料
+        </span>
+        <span class="mini-stat">
+          <span class="mini-stat-dot t1-dot"></span>約 3 分
+        </span>
+      </div>
+      <!-- CTA -->
+      <button class="mini-cta t1-cta">無料で診断を始める</button>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#050c1c;"></div>
+        <span class="swatch-label">bg</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#0a1628;"></div>
+        <span class="swatch-label">card</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#d4a339;"></div>
+        <span class="swatch-label">accent</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#e8dcc8;"></div>
+        <span class="swatch-label">text</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────────
+       THEME 2: Light White × Navy
+  ─────────────────────────────────── -->
+  <div class="theme-wrapper">
+    <div class="theme-label-row">
+      <span class="theme-name">② ライト — White × Navy</span>
+    </div>
+
+    <div class="mini-ui t2-shell">
+      <div class="mini-header t2-header-border">
+        <span class="mini-logo t2-logo">¥ もらえるお金診断</span>
+        <button class="mini-login-btn t2-login">ログイン</button>
+      </div>
+      <div class="mini-program-card t2-card">
+        <div class="mini-program-tag t2-tag">INVESTMENT</div>
+        <div class="mini-program-title t2-title">NISA（少額投資非課税）</div>
+        <div class="mini-program-sub t2-sub">年間最大数十万円の節税</div>
+        <div class="mini-program-meta t2-meta">対象条件: 18 歳以上 · 日本居住者</div>
+      </div>
+      <div class="mini-stats t2-stats">
+        <span class="mini-stat"><span class="mini-stat-dot t2-dot"></span>96+ 制度</span>
+        <span class="mini-stat"><span class="mini-stat-dot t2-dot"></span>完全無料</span>
+        <span class="mini-stat"><span class="mini-stat-dot t2-dot"></span>約 3 分</span>
+      </div>
+      <button class="mini-cta t2-cta">無料で診断を始める</button>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#f5f7fa;"></div>
+        <span class="swatch-label">bg</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#ffffff;"></div>
+        <span class="swatch-label">card</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#1a3a6b;"></div>
+        <span class="swatch-label">accent</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#1a2a4a;"></div>
+        <span class="swatch-label">text</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#e0e8f0;"></div>
+        <span class="swatch-label">border</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────────
+       THEME 3: Midnight Blue × Emerald
+  ─────────────────────────────────── -->
+  <div class="theme-wrapper">
+    <div class="theme-label-row">
+      <span class="theme-name">③ ミッドナイト × エメラルド</span>
+    </div>
+
+    <div class="mini-ui t3-shell">
+      <div class="mini-header t3-header-border">
+        <span class="mini-logo t3-logo">¥ もらえるお金診断</span>
+        <button class="mini-login-btn t3-login">ログイン</button>
+      </div>
+      <div class="mini-program-card t3-card">
+        <div class="mini-program-tag t3-tag">INVESTMENT</div>
+        <div class="mini-program-title t3-title">NISA（少額投資非課税）</div>
+        <div class="mini-program-sub t3-sub">年間最大数十万円の節税</div>
+        <div class="mini-program-meta t3-meta">対象条件: 18 歳以上 · 日本居住者</div>
+      </div>
+      <div class="mini-stats t3-stats">
+        <span class="mini-stat"><span class="mini-stat-dot t3-dot"></span>96+ 制度</span>
+        <span class="mini-stat"><span class="mini-stat-dot t3-dot"></span>完全無料</span>
+        <span class="mini-stat"><span class="mini-stat-dot t3-dot"></span>約 3 分</span>
+      </div>
+      <button class="mini-cta t3-cta">無料で診断を始める</button>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#0a1628;"></div>
+        <span class="swatch-label">bg</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#0d2035;"></div>
+        <span class="swatch-label">card</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#00c896;"></div>
+        <span class="swatch-label">accent</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#e0f0ea;"></div>
+        <span class="swatch-label">text</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────────
+       THEME 4: Charcoal × Coral
+  ─────────────────────────────────── -->
+  <div class="theme-wrapper">
+    <div class="theme-label-row">
+      <span class="theme-name">④ チャコール × コーラル</span>
+    </div>
+
+    <div class="mini-ui t4-shell">
+      <div class="mini-header t4-header-border">
+        <span class="mini-logo t4-logo">¥ もらえるお金診断</span>
+        <button class="mini-login-btn t4-login">ログイン</button>
+      </div>
+      <div class="mini-program-card t4-card">
+        <div class="mini-program-tag t4-tag">INVESTMENT</div>
+        <div class="mini-program-title t4-title">NISA（少額投資非課税）</div>
+        <div class="mini-program-sub t4-sub">年間最大数十万円の節税</div>
+        <div class="mini-program-meta t4-meta">対象条件: 18 歳以上 · 日本居住者</div>
+      </div>
+      <div class="mini-stats t4-stats">
+        <span class="mini-stat"><span class="mini-stat-dot t4-dot"></span>96+ 制度</span>
+        <span class="mini-stat"><span class="mini-stat-dot t4-dot"></span>完全無料</span>
+        <span class="mini-stat"><span class="mini-stat-dot t4-dot"></span>約 3 分</span>
+      </div>
+      <button class="mini-cta t4-cta">無料で診断を始める</button>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#1a1a2e;"></div>
+        <span class="swatch-label">bg</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#16213e;"></div>
+        <span class="swatch-label">card</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#e94560;"></div>
+        <span class="swatch-label">accent</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#eaeaea;"></div>
+        <span class="swatch-label">text</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────────
+       THEME 5: Cream × Deep Green
+  ─────────────────────────────────── -->
+  <div class="theme-wrapper">
+    <div class="theme-label-row">
+      <span class="theme-name">⑤ クリーム × ディープグリーン</span>
+    </div>
+
+    <div class="mini-ui t5-shell">
+      <div class="mini-header t5-header-border">
+        <span class="mini-logo t5-logo">¥ もらえるお金診断</span>
+        <button class="mini-login-btn t5-login">ログイン</button>
+      </div>
+      <div class="mini-program-card t5-card">
+        <div class="mini-program-tag t5-tag">INVESTMENT</div>
+        <div class="mini-program-title t5-title">NISA（少額投資非課税）</div>
+        <div class="mini-program-sub t5-sub">年間最大数十万円の節税</div>
+        <div class="mini-program-meta t5-meta">対象条件: 18 歳以上 · 日本居住者</div>
+      </div>
+      <div class="mini-stats t5-stats">
+        <span class="mini-stat"><span class="mini-stat-dot t5-dot"></span>96+ 制度</span>
+        <span class="mini-stat"><span class="mini-stat-dot t5-dot"></span>完全無料</span>
+        <span class="mini-stat"><span class="mini-stat-dot t5-dot"></span>約 3 分</span>
+      </div>
+      <button class="mini-cta t5-cta">無料で診断を始める</button>
+    </div>
+
+    <div class="swatches">
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#f9f5ef;"></div>
+        <span class="swatch-label">bg</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#ffffff;"></div>
+        <span class="swatch-label">card</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#1b5e20;"></div>
+        <span class="swatch-label">accent</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#2d3a2e;"></div>
+        <span class="swatch-label">text</span>
+      </div>
+      <div class="swatch-item">
+        <div class="swatch-circle" style="background:#d4e8d0;"></div>
+        <span class="swatch-label">border</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+</body>
+</html>
