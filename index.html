@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="お金診断">
+<meta name="description" content="補助金・助成金・節税制度を無料で自動診断。あなたが受け取れるお金を見つけます。">
+<title>もらえるお金診断 — 受け取れるお金を、取り逃がさない。</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --navy-950: #040d1a;
+  --navy-900: #0a1628;
+  --navy-800: #0f2040;
+  --navy-700: #162d56;
+  --navy-600: #1e3d70;
+  --navy-400: #3a6bb5;
+  --navy-300: #5a8fd4;
+  --gold-600: #8a6a1a;
+  --gold-500: #b8891f;
+  --gold-400: #c9a84c;
+  --gold-300: #d9be7a;
+  --gold-200: #e8d4a8;
+  --success: #2ec4a0;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --text-primary: #e8eef8;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: rgba(255,255,255,0.08);
+  --border-gold: rgba(201,168,76,0.3);
+  --card-bg: rgba(15,32,64,0.7);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--navy-950);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(201,168,76,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.03) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;top:-40%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(30,61,112,0.4) 0%,transparent 70%);pointer-events:none;z-index:0}
+.app-wrapper{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(4,13,26,0.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gold-400),var(--gold-600));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:0.02em;background:linear-gradient(135deg,#f8fafc 0%,var(--gold-300) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-size:10px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;font-weight:300}
+.header-badge{display:flex;align-items:center;gap:6px;background:rgba(46,196,160,0.1);border:1px solid rgba(46,196,160,0.3);border-radius:20px;padding:6px 12px;font-size:11px;color:var(--success);letter-spacing:0.06em;font-family:'DM Mono',monospace}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+@media(max-width:480px){header{padding:14px 16px}.header-badge{display:none}}
+
+main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:0 20px 60px}
+
+/* Hero */
+.hero{text-align:center;padding:clamp(36px,8vw,64px) 20px clamp(28px,6vw,48px)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--border-gold);border:1px solid var(--border-gold);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--gold-300);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:24px;animation:fadeInDown 0.6s ease both}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,52px);font-weight:700;line-height:1.2;letter-spacing:-0.01em;margin-bottom:16px;animation:fadeInUp 0.6s 0.1s ease both}
+.hero h1 span{background:linear-gradient(135deg,var(--gold-400) 0%,var(--gold-200) 60%,var(--gold-400) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:15px;color:var(--text-secondary);line-height:1.7;max-width:480px;margin:0 auto 40px;font-weight:300;animation:fadeInUp 0.6s 0.2s ease both}
+.hero-stats{display:flex;justify-content:center;gap:clamp(16px,5vw,40px);animation:fadeInUp 0.6s 0.3s ease both}
+.hero-stat{text-align:center}
+.hero-stat-value{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--gold-300);line-height:1;margin-bottom:4px}
+.hero-stat-label{font-size:11px;color:var(--text-muted);letter-spacing:0.06em}
+
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section */
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.section-header::before{content:'';display:block;width:4px;height:24px;background:linear-gradient(180deg,var(--gold-400),var(--gold-600));border-radius:2px;flex-shrink:0}
+.section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;letter-spacing:-0.01em}
+.section-sub{font-size:12px;color:var(--text-muted);letter-spacing:0.06em;font-family:'DM Mono',monospace;margin-left:auto}
+@media(max-width:400px){.section-sub{display:none}}
+
+/* Form */
+.form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:36px;backdrop-filter:blur(8px);animation:fadeInUp 0.6s 0.4s ease both;margin-bottom:32px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}.form-card{padding:24px 20px}}
+.form-group{display:flex;flex-direction:column;gap:8px}
+.form-group.full-width{grid-column:1/-1}
+label{font-size:12px;font-weight:500;color:var(--text-secondary);letter-spacing:0.06em;text-transform:uppercase;font-family:'DM Mono',monospace}
+label .required{color:var(--gold-400);margin-left:4px}
+input,select{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-size:14px;font-family:'Noto Sans JP',sans-serif;font-weight:400;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;-webkit-appearance:none;appearance:none;outline:none;width:100%}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;cursor:pointer}
+select option{background:var(--navy-800);color:var(--text-primary)}
+input:focus,select:focus{border-color:var(--gold-500);background:rgba(201,168,76,0.06);box-shadow:0 0 0 3px rgba(201,168,76,0.12)}
+input::placeholder{color:var(--text-muted)}
+input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none}
+.income-wrapper{position:relative}
+.income-wrapper input{padding-right:36px}
+.income-unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text-muted);pointer-events:none;font-family:'DM Mono',monospace}
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-btn{position:relative}
+.radio-btn input[type="radio"]{position:absolute;opacity:0;width:0;height:0}
+.radio-btn label{display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:400;color:var(--text-secondary);text-transform:none;letter-spacing:0;font-family:'Noto Sans JP',sans-serif;transition:all 0.2s;white-space:nowrap}
+.radio-btn input[type="radio"]:checked+label{background:rgba(201,168,76,0.12);border-color:var(--gold-500);color:var(--gold-300)}
+.radio-btn label:hover{border-color:rgba(201,168,76,0.4);color:var(--text-primary)}
+
+.btn-diagnose{width:100%;padding:16px 24px;background:linear-gradient(135deg,var(--gold-500) 0%,var(--gold-400) 50%,var(--gold-500) 100%);background-size:200% 100%;color:var(--navy-950);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:600;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:28px;transition:background-position 0.4s,transform 0.2s,box-shadow 0.2s;letter-spacing:0.04em;box-shadow:0 4px 24px rgba(201,168,76,0.25)}
+.btn-diagnose:hover{background-position:100% 0;box-shadow:0 8px 32px rgba(201,168,76,0.4);transform:translateY(-1px)}
+.btn-diagnose:active{transform:translateY(0)}
+
+/* Results */
+#results-section{display:none;animation:fadeInUp 0.5s ease both}
+.results-banner{background:linear-gradient(135deg,var(--navy-700) 0%,var(--navy-800) 100%);border:1px solid var(--border-gold);border-radius:16px;padding:28px 32px;margin-bottom:28px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;position:relative;overflow:hidden}
+.results-banner::after{content:'';position:absolute;top:0;right:0;bottom:0;width:200px;background:radial-gradient(ellipse at right,rgba(201,168,76,0.1),transparent 70%);pointer-events:none}
+.results-count-label{font-size:12px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px}
+.results-count-main{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;line-height:1.2}
+.results-count-main strong{font-size:42px;color:var(--gold-300)}
+.loss-badge{text-align:right}
+.loss-label{font-size:11px;color:var(--text-muted);letter-spacing:0.06em;font-family:'DM Mono',monospace;margin-bottom:4px}
+.loss-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--warning)}
+.loss-sublabel{font-size:10px;color:var(--text-muted);margin-top:2px}
+@media(max-width:600px){.results-banner{grid-template-columns:1fr;text-align:center}.loss-badge{text-align:center}}
+
+/* Results action bar */
+.results-actions{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.btn-rediagnose{display:flex;align-items:center;gap:7px;padding:9px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--text-secondary);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.btn-rediagnose:hover{border-color:var(--gold-500);color:var(--gold-300);background:rgba(201,168,76,0.07)}
+.btn-share-x{display:flex;align-items:center;gap:7px;padding:9px 16px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#e7e9ea;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.btn-share-x:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.3)}
+.btn-share-line{display:flex;align-items:center;gap:7px;padding:9px 16px;background:rgba(6,199,85,0.1);border:1px solid rgba(6,199,85,0.3);border-radius:10px;color:#06c755;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.btn-share-line:hover{background:rgba(6,199,85,0.18)}
+@media(max-width:480px){.results-actions{flex-direction:column}.results-actions button{width:100%;justify-content:center}}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,0.04);border-radius:10px;padding:4px;margin-bottom:24px;border:1px solid var(--border)}
+.tab-btn{flex:1;padding:10px 8px;background:transparent;border:none;border-radius:8px;color:var(--text-secondary);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+.tab-btn.active{background:var(--navy-700);color:var(--gold-300);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.tab-btn:hover:not(.active){color:var(--text-primary)}
+.tab-count{background:rgba(201,168,76,0.2);color:var(--gold-400);font-size:10px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center;flex-shrink:0}
+@media(max-width:400px){.tab-btn{font-size:11px;padding:9px 4px}.tab-count{display:none}}
+
+/* Cards */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}}
+.program-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:22px;cursor:pointer;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;backdrop-filter:blur(8px);animation:cardIn 0.4s ease both}
+.program-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold-500),transparent);opacity:0;transition:opacity 0.3s}
+.program-card:hover{transform:translateY(-3px);border-color:var(--border-gold);box-shadow:0 12px 40px rgba(0,0,0,0.4),0 0 0 1px rgba(201,168,76,0.15)}
+.program-card:hover::before{opacity:1}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.card-category{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:0.08em;padding:3px 8px;border-radius:4px;text-transform:uppercase}
+.cat-tax{background:rgba(58,107,181,0.2);color:var(--navy-300);border:1px solid rgba(58,107,181,0.3)}
+.cat-grant{background:rgba(46,196,160,0.1);color:var(--success);border:1px solid rgba(46,196,160,0.25)}
+.cat-subsidy{background:rgba(201,168,76,0.1);color:var(--gold-300);border:1px solid var(--border-gold)}
+.cat-pension{background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.3)}
+.cat-local{background:rgba(239,68,68,0.1);color:#fca5a5;border:1px solid rgba(239,68,68,0.25)}
+.card-actions{display:flex;gap:4px;align-items:center}
+.fav-btn{background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:2px}
+.cal-btn{background:none;border:none;cursor:pointer;transition:transform 0.2s;padding:2px}
+.card-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.card-local-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:'DM Mono',monospace;color:#fca5a5;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:4px;padding:2px 6px;margin-bottom:8px}
+.card-summary{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;font-weight:300}
+.card-data{border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.card-data-row{display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.data-key{color:var(--text-muted);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.06em;text-transform:uppercase}
+.data-val{font-weight:500;color:var(--text-primary);font-family:'DM Mono',monospace;text-align:right}
+.data-val.highlight{color:var(--gold-300);font-size:14px}
+.card-cta{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.cta-link{font-size:12px;color:var(--gold-400);font-weight:500;letter-spacing:0.04em}
+.cta-arrow{color:var(--gold-500);font-size:16px;transition:transform 0.2s}
+.program-card:hover .cta-arrow{transform:translateX(4px)}
+
+/* Progress badge on card */
+.progress-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:'DM Mono',monospace;padding:3px 8px;border-radius:4px;margin-top:10px}
+.progress-none{background:rgba(255,255,255,0.04);color:var(--text-muted);border:1px solid var(--border)}
+.progress-checking{background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.25)}
+.progress-docs{background:rgba(58,107,181,0.15);color:var(--navy-300);border:1px solid rgba(58,107,181,0.3)}
+.progress-applied{background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.3)}
+.progress-reviewing{background:rgba(201,168,76,0.1);color:var(--gold-300);border:1px solid var(--border-gold)}
+.progress-done{background:rgba(46,196,160,0.1);color:var(--success);border:1px solid rgba(46,196,160,0.25)}
+
+/* Empty */
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);grid-column:1/-1}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-text{font-size:15px;color:var(--text-secondary)}
+.empty-sub{font-size:13px;margin-top:6px;font-weight:300}
+
+/* Modal */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(4,13,26,0.85);backdrop-filter:blur(8px);z-index:200;align-items:flex-end;justify-content:center;padding:0}
+@media(min-width:600px){.modal-backdrop{align-items:center;padding:20px}}
+.modal-backdrop.open{display:flex;animation:backdropIn 0.2s ease}
+@keyframes backdropIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--navy-800);border:1px solid var(--border-gold);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:modalSlideUp 0.3s cubic-bezier(0.32,0.72,0,1) both;scrollbar-width:thin;scrollbar-color:var(--border-gold) transparent}
+@media(min-width:600px){.modal{border-radius:20px;max-height:88vh;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both}}
+@keyframes modalSlideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
+@keyframes modalIn{from{opacity:0;transform:scale(0.92) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-top{padding:clamp(20px,4vw,28px) clamp(18px,4vw,28px) 20px;position:sticky;top:0;background:var(--navy-800);z-index:1;border-bottom:1px solid var(--border)}
+.modal-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);font-size:18px;transition:all 0.2s;line-height:1}
+.modal-close:hover{background:rgba(255,255,255,0.1);color:var(--text-primary)}
+.modal-category{margin-bottom:10px}
+.modal-name{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;line-height:1.3;margin-bottom:10px}
+.modal-amount{display:inline-flex;align-items:center;gap:8px;background:rgba(201,168,76,0.1);border:1px solid var(--border-gold);border-radius:8px;padding:10px 16px;margin-top:4px}
+.modal-amount-label{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em}
+.modal-amount-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--gold-300)}
+.modal-body{padding:clamp(18px,4vw,24px) clamp(18px,4vw,28px) clamp(24px,4vw,28px);display:flex;flex-direction:column;gap:24px}
+.modal-section-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.modal-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.modal-desc{font-size:14px;line-height:1.75;color:var(--text-secondary);font-weight:300}
+.modal-conditions{display:flex;flex-direction:column;gap:8px}
+.condition-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-secondary);line-height:1.5}
+.condition-check{display:inline-block}
+.docs-list{display:flex;flex-wrap:wrap;gap:8px}
+.doc-tag{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text-secondary);font-family:'DM Mono',monospace}
+.deadline-display{display:flex;align-items:center;gap:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:14px 16px}
+.deadline-icon{font-size:20px}
+.deadline-text{font-size:13px;color:var(--text-secondary);line-height:1.4;flex:1}
+.deadline-date{font-family:'DM Mono',monospace;font-size:16px;color:var(--warning);font-weight:500;display:block}
+
+/* Calendar btn in modal */
+.modal-cal-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:rgba(201,168,76,0.08);border:1px solid var(--border-gold);border-radius:8px;color:var(--gold-300);font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;margin-top:10px}
+.modal-cal-btn:hover{background:rgba(201,168,76,0.16)}
+
+/* Progress tracker in modal */
+.progress-tracker{display:flex;flex-direction:column;gap:0}
+.progress-step{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-radius:8px;padding-left:4px;transition:background 0.15s}
+.progress-step:hover{background:rgba(255,255,255,0.03)}
+.step-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);flex-shrink:0;transition:all 0.2s}
+.step-circle.done{background:var(--success);border-color:var(--success);color:#fff}
+.step-circle.current{border-color:var(--gold-400);color:var(--gold-300)}
+.step-label{font-size:13px;color:var(--text-secondary)}
+.step-label.done{color:var(--success)}
+.step-label.current{color:var(--gold-300);font-weight:500}
+.step-connector{width:2px;height:16px;background:var(--border);margin-left:17px}
+.step-connector.done{background:var(--success)}
+
+/* Simulator section */
+#simulator-section{display:none;animation:fadeInUp 0.5s ease both;margin-top:40px}
+.simulator-card{background:var(--card-bg);border:1px solid var(--border-gold);border-radius:16px;padding:clamp(20px,4vw,32px);backdrop-filter:blur(8px)}
+.sim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:16px;margin-top:20px}
+.sim-item{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:18px;transition:border-color 0.2s}
+.sim-item:hover{border-color:var(--border-gold)}
+.sim-name{font-size:12px;color:var(--text-secondary);margin-bottom:8px;line-height:1.4}
+.sim-now{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.sim-gain{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--gold-300)}
+.sim-gain-label{font-size:10px;color:var(--text-muted);margin-top:2px;font-family:'DM Mono',monospace}
+.sim-total-row{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--border-gold);flex-wrap:wrap;gap:8px}
+.sim-total-label{font-size:14px;color:var(--text-secondary)}
+.sim-total-value{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--warning)}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy-700);border:1px solid var(--border-gold);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text-primary);z-index:500;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:0.06em}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-gold)}
+
+/* Fav button — CSS heart shape */
+.fav-btn { position: relative; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.fav-btn::before {
+  content: '';
+  display: block;
+  width: 13px; height: 12px;
+  background: var(--text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E") no-repeat center/contain;
+  transition: background 0.2s, transform 0.2s;
+}
+.fav-btn:hover::before { background: var(--gold-300); transform: scale(1.2); }
+.fav-btn.active::before { background: #f87171; transform: scale(1.15); }
+
+/* Calendar button — CSS icon */
+.cal-btn { position: relative; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+.cal-btn::before {
+  content: '';
+  display: block;
+  width: 14px; height: 13px;
+  background: var(--text-muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+  transition: background 0.2s;
+}
+.cal-btn:hover::before { background: var(--gold-300); }
+
+/* modal-cal-btn icon */
+.modal-cal-btn::before {
+  content: '';
+  display: inline-block;
+  width: 14px; height: 14px;
+  vertical-align: middle;
+  margin-right: 6px;
+  background: var(--gold-300);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+
+/* condition check — CSS dot */
+.condition-check { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; margin-top: 5px; }
+
+/* deadline-display without icon div */
+.deadline-display { gap: 0; }
+.deadline-display::before {
+  content: '';
+  display: block;
+  width: 18px; height: 18px; flex-shrink: 0;
+  background: var(--warning);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/%3E%3C/svg%3E") no-repeat center/contain;
+  margin-right: 12px;
+}
+
+/* empty state icon — magnifying glass CSS */
+.empty-icon { font-size: 0; width: 48px; height: 48px; margin: 0 auto 16px; background: var(--text-muted); opacity: 0.4;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat center/contain;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+
+/* step circle done — checkmark via CSS */
+.step-circle.done { font-size: 0; position: relative; }
+.step-circle.done::after { content: ''; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: white;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center/14px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center/14px;
+}
+
+/* Legal modal */
+.legal-modal-overlay{position:fixed;inset:0;background:rgba(5,12,28,.92);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.legal-modal-overlay.open{opacity:1;pointer-events:all}
+.legal-modal{background:var(--navy-800);border:1px solid var(--navy-600);border-radius:16px;max-width:680px;width:100%;max-height:80vh;display:flex;flex-direction:column;overflow:hidden}
+.legal-modal-header{padding:20px 24px;border-bottom:1px solid var(--navy-600);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.legal-modal-header h2{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold-300)}
+.legal-modal-body{padding:24px;overflow-y:auto;flex:1;font-size:14px;line-height:1.8;color:var(--text-muted)}
+.legal-modal-body h3{font-size:15px;font-weight:600;color:var(--text-primary);margin:20px 0 8px}
+.legal-modal-body h3:first-child{margin-top:0}
+.legal-modal-body p{margin-bottom:12px}
+.legal-modal-body ul{margin:8px 0 12px 20px}
+.legal-modal-body ul li{margin-bottom:4px}
+.legal-tabs{display:flex;gap:4px;padding:12px 24px 0;border-bottom:1px solid var(--navy-600);background:var(--navy-800);flex-shrink:0}
+.legal-tab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:13px;font-weight:500;cursor:pointer;color:var(--text-muted);border:none;background:transparent;transition:all .2s}
+.legal-tab.active{background:var(--navy-700);color:var(--gold-300)}
+.legal-content{display:none}.legal-content.active{display:block}
+/* Footer */
+.app-footer{padding:32px 20px;text-align:center;border-top:1px solid var(--navy-700);margin-top:40px}
+.footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.footer-link{font-size:12px;color:var(--text-muted);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0}
+.footer-link:hover{color:var(--gold-300)}
+.footer-copy{font-size:11px;color:#3a4a6b}
+/* Disclaimer banner */
+.disclaimer-banner{background:rgba(212,163,57,.08);border:1px solid rgba(212,163,57,.2);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:12px;color:var(--text-muted);line-height:1.6}
+.disclaimer-banner strong{color:var(--gold-400);display:block;margin-bottom:4px}
+/* Install PWA banner */
+.pwa-banner{background:var(--navy-800);border:1px solid var(--navy-600);border-radius:12px;padding:14px 16px;margin:16px 0;display:flex;align-items:center;gap:12px;font-size:13px}
+.pwa-banner-text{flex:1;color:var(--text-muted)}
+.pwa-banner-text strong{color:var(--text-primary);display:block;font-size:14px;margin-bottom:2px}
+.pwa-banner-btn{background:var(--gold-400);color:var(--navy-900);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.pwa-banner-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:0;line-height:1}
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">¥</div>
+      <div>
+        <div class="logo-text">もらえるお金診断</div>
+        <div class="logo-sub">Money Support AI</div>
+      </div>
+    </div>
+    <div class="header-badge"><span class="dot-live"></span>制度データ更新中</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-eyebrow">無料診断サービス</div>
+      <h1>受け取れるお金を、<br><span>取り逃がさない。</span></h1>
+      <p class="hero-desc">あなたのプロフィールから、対象となる補助金・助成金・節税制度をAIが自動診断。知らなかったでは済まされない、お金の機会損失をなくします。</p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-value">75+</div><div class="hero-stat-label">対象制度数</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">無料</div><div class="hero-stat-label">診断費用</div></div>
+        <div class="hero-stat"><div class="hero-stat-value">3分</div><div class="hero-stat-label">診断時間</div></div>
+      </div>
+      <div class="pwa-banner" id="pwaBanner" style="display:none">
+        <div class="pwa-banner-text">
+          <strong>ホーム画面に追加</strong>
+          オフラインでも使える・通知が受け取れる
+        </div>
+        <button class="pwa-banner-btn" onclick="installPwa()">追加する</button>
+        <button class="pwa-banner-close" onclick="hidePwaBanner()" aria-label="閉じる">&times;</button>
+      </div>
+    </section>
+
+    <!-- Form -->
+    <section id="form-section">
+      <div class="section-header">
+        <div class="section-title">プロフィール入力</div>
+        <div class="section-sub">STEP 01 / 02</div>
+      </div>
+      <div class="form-card">
+        <form id="profile-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>年齢 <span class="required">*</span></label>
+              <input type="number" id="age" placeholder="例：35" min="18" max="80" required>
+            </div>
+            <div class="form-group">
+              <label>居住地（都道府県）<span class="required">*</span></label>
+              <select id="prefecture" required>
+                <option value="">選択してください</option>
+                <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>年収（万円）<span class="required">*</span></label>
+              <div class="income-wrapper">
+                <input type="number" id="income" placeholder="例：500" min="0" max="10000" required>
+                <span class="income-unit">万円</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>職業 <span class="required">*</span></label>
+              <select id="job" required>
+                <option value="">選択してください</option>
+                <option value="employee">会社員・公務員</option>
+                <option value="part">パート・アルバイト</option>
+                <option value="freelance">個人事業主・フリーランス</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label>家族構成 <span class="required">*</span></label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="f_single" name="family" value="single"><label for="f_single">独身</label></div>
+                <div class="radio-btn"><input type="radio" id="f_married" name="family" value="married"><label for="f_married">既婚（子なし）</label></div>
+                <div class="radio-btn"><input type="radio" id="f_children" name="family" value="children"><label for="f_children">子育て世帯</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>住宅購入の予定</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="h_yes" name="housing" value="yes"><label for="h_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="h_no" name="housing" value="no" checked><label for="h_no">なし</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>結婚の予定</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="m_yes" name="marriage" value="yes"><label for="m_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="m_no" name="marriage" value="no" checked><label for="m_no">なし</label></div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn-diagnose">
+            対象制度を自動診断する
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results-section">
+      <div class="section-header">
+        <div class="section-title">診断結果</div>
+        <div class="section-sub">STEP 02 / 02</div>
+      </div>
+      <div class="results-banner">
+        <div>
+          <div class="results-count-label">あなたに対象の制度</div>
+          <div class="results-count-main"><strong id="result-count">0</strong>件 見つかりました</div>
+        </div>
+        <div class="loss-badge">
+          <div class="loss-label">活用しない場合の推定損失</div>
+          <div class="loss-value">年間 約<span id="loss-amount">0</span>万円</div>
+          <div class="loss-sublabel">※概算・試算値</div>
+        </div>
+      </div>
+
+      <!-- Action bar: re-diagnose + share -->
+      <div class="results-actions">
+        <button class="btn-rediagnose" id="btn-rediagnose">プロフィールを変更して再診断</button>
+        <button class="btn-share-x" id="btn-share-x">X でシェア</button>
+        <button class="btn-share-line" id="btn-share-line">LINE でシェア</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-all-btn" onclick="switchTab('all')">すべて <span class="tab-count" id="tab-all-count">0</span></button>
+        <button class="tab-btn" id="tab-fav-btn" onclick="switchTab('fav')">お気に入り <span class="tab-count" id="tab-fav-count">0</span></button>
+        <button class="tab-btn" id="tab-todo-btn" onclick="switchTab('todo')">申請管理 <span class="tab-count" id="tab-todo-count">0</span></button>
+      </div>
+      <div class="disclaimer-banner">
+        <strong>ご注意</strong>
+        診断結果は参考情報です。実際の受給可否・金額は各制度の審査により異なります。申請前に必ず公式窓口をご確認ください。
+      </div>
+      <div class="cards-grid" id="cards-container"></div>
+    </section>
+
+    <!-- Simulator -->
+    <section id="simulator-section">
+      <div class="section-header">
+        <div class="section-title">損失額シミュレーター</div>
+        <div class="section-sub">活用しない場合の試算</div>
+      </div>
+      <div class="simulator-card">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">対象制度を今すぐ活用しない場合、<strong style="color:var(--warning)">毎年これだけ損をし続けます。</strong></p>
+        <div class="sim-grid" id="sim-grid"></div>
+        <div class="sim-total-row">
+          <div class="sim-total-label">年間の推定損失合計</div>
+          <div class="sim-total-value">約<span id="sim-total">0</span>万円</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-links">
+      <button class="footer-link" onclick="openLegal('disclaimer')">免責事項</button>
+      <button class="footer-link" onclick="openLegal('privacy')">プライバシーポリシー</button>
+      <button class="footer-link" onclick="openLegal('terms')">利用規約</button>
+    </div>
+    <p class="footer-copy">© 2025 もらえるお金診断 — 情報は参考目的です。申請前に必ず公式窓口をご確認ください。</p>
+  </footer>
+</div>
+
+<!-- Legal Modal -->
+<div class="legal-modal-overlay" id="legalOverlay" role="dialog" aria-modal="true">
+  <div class="legal-modal">
+    <div class="legal-modal-header">
+      <h2 id="legalModalTitle">免責事項・プライバシーポリシー</h2>
+      <button class="modal-close" onclick="closeLegal()" aria-label="閉じる">
+        <span style="display:block;width:18px;height:18px;background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>
+      </button>
+    </div>
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="switchLegalTab('disclaimer',this)">免責事項</button>
+      <button class="legal-tab" onclick="switchLegalTab('privacy',this)">プライバシーポリシー</button>
+      <button class="legal-tab" onclick="switchLegalTab('terms',this)">利用規約</button>
+    </div>
+    <div class="legal-modal-body">
+      <div class="legal-content active" id="lc-disclaimer">
+        <h3>免責事項</h3>
+        <p>本サービス「もらえるお金診断」（以下「本サービス」）が提供する情報は、一般的な情報提供を目的としており、特定の補助金・助成金・税制優遇制度への申請を確約・保証するものではありません。</p>
+        <h3>情報の正確性について</h3>
+        <p>掲載している制度情報は公開情報を基に作成していますが、制度の変更・廃止・新設により実際の内容と異なる場合があります。申請の前に必ず各制度の公式窓口・担当機関にてご確認ください。</p>
+        <h3>診断結果について</h3>
+        <p>診断結果はご入力いただいたプロフィール情報に基づく参考情報です。実際の受給可否・受給額は、各制度の審査・要件判定により異なります。</p>
+        <h3>損失額シミュレーションについて</h3>
+        <p>損失額・節税効果の試算はあくまで概算です。実際の効果は個人の状況・税務上の取り扱いにより大きく異なります。投資・税務に関するご判断は税理士・ファイナンシャルプランナー等の専門家にご相談ください。</p>
+        <h3>責任の制限</h3>
+        <p>本サービスの利用により生じたいかなる損害についても、運営者は責任を負いません。</p>
+      </div>
+      <div class="legal-content" id="lc-privacy">
+        <h3>プライバシーポリシー</h3>
+        <p>本サービスは、ユーザーのプライバシーを尊重し、個人情報の適切な保護に努めます。</p>
+        <h3>収集する情報</h3>
+        <ul>
+          <li>診断入力情報（年齢・居住地・職業・年収・家族構成等）</li>
+          <li>アクセスログ（IPアドレス・ブラウザ情報等）</li>
+        </ul>
+        <h3>情報の利用目的</h3>
+        <ul>
+          <li>診断機能の提供</li>
+          <li>サービスの改善・開発</li>
+          <li>統計情報の作成（個人を特定しない形式）</li>
+        </ul>
+        <h3>情報の保存</h3>
+        <p>診断入力情報はお使いのブラウザのlocalStorageに保存されます。サーバーへの送信は行いません。ブラウザのデータ削除により情報は消去されます。</p>
+        <h3>第三者提供</h3>
+        <p>法令に基づく場合を除き、収集した情報を第三者に提供することはありません。</p>
+        <h3>Cookie・アクセス解析</h3>
+        <p>サービス改善のためアクセス解析ツールを利用する場合があります。その際はあらためて通知します。</p>
+        <h3>お問い合わせ</h3>
+        <p>個人情報に関するお問い合わせはサービス内のお問い合わせフォームよりご連絡ください。</p>
+      </div>
+      <div class="legal-content" id="lc-terms">
+        <h3>利用規約</h3>
+        <p>本規約は、本サービスの利用条件を定めるものです。ユーザーは本規約に同意の上、本サービスをご利用ください。</p>
+        <h3>サービスの利用</h3>
+        <ul>
+          <li>本サービスは個人的・非商業的な利用に限ります</li>
+          <li>虚偽の情報を入力しての利用はお控えください</li>
+          <li>サービスへの不正アクセス・改ざん行為を禁止します</li>
+        </ul>
+        <h3>知的財産権</h3>
+        <p>本サービスに掲載されるコンテンツの著作権は運営者に帰属します。</p>
+        <h3>サービスの変更・終了</h3>
+        <p>運営者は予告なくサービスの内容変更・終了を行う場合があります。</p>
+        <h3>準拠法</h3>
+        <p>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <div class="modal-top">
+      <button class="modal-close" id="modal-close-btn">×</button>
+      <div id="modal-category-wrap"></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-amount">
+        <div>
+          <div class="modal-amount-label">想定受給額 / 節税効果</div>
+          <div class="modal-amount-value" id="modal-amount-value"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div><div class="modal-section-title">制度概要</div><div class="modal-desc" id="modal-desc"></div></div>
+      <div><div class="modal-section-title">対象条件</div><div class="modal-conditions" id="modal-conditions"></div></div>
+      <div><div class="modal-section-title">必要書類</div><div class="docs-list" id="modal-docs"></div></div>
+      <div>
+        <div class="modal-section-title">申請期限</div>
+        <div class="deadline-display">
+          <div class="deadline-text">
+            <span class="deadline-date" id="modal-deadline"></span>
+            <span id="modal-deadline-note"></span>
+          </div>
+        </div>
+        <button class="modal-cal-btn" id="modal-cal-btn">カレンダーに追加（.ics）</button>
+      </div>
+      <div>
+        <div class="modal-section-title">申請進捗</div>
+        <div class="progress-tracker" id="modal-progress"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────
+const PROGRESS_STEPS = ['未着手','制度確認済み','書類準備中','申請完了','審査中','受給完了'];
+
+const PROGRAMS = [
+  {
+    id:'nisa',name:'NISA（少額投資非課税制度）',category:'tax',categoryLabel:'節税',
+    summary:'年間最大360万円まで投資利益が非課税。新NISAで恒久化・非課税保有限度額が大幅拡大。',
+    desc:'2024年から始まった新NISAでは、つみたて投資枠（年120万円）と成長投資枠（年240万円）の合計年360万円まで投資し、利益・配当が非課税になります。非課税保有限度額は1,800万円で生涯活用できます。',
+    amount:'年間 最大数十万円の節税',amountShort:'年間 最大数十万円の節税',lossEstimate:10,
+    conditions:['18歳以上の日本在住者','年間360万円まで投資可能','非課税保有限度額 1,800万円'],
+    docs:['マイナンバー確認書類','本人確認書類','証券口座開設申込書'],
+    deadline:'通年申込可能',deadlineNote:'口座開設後すぐに利用可能',icsDate:null,local:null,
+    eligibility:()=>true,
+  },
+  {
+    id:'ideco',name:'iDeCo（個人型確定拠出年金）',category:'pension',categoryLabel:'年金・節税',
+    summary:'掛金が全額所得控除。運用益非課税。老後資産形成と節税を同時に実現。',
+    desc:'掛金が全額所得控除になるため、拠出した分だけ所得税・住民税が軽減されます。会社員は月最大2.3万円、個人事業主は月最大6.8万円まで拠出可能。運用益も非課税です。',
+    amount:'年間 最大16〜82万円の所得控除',amountShort:'年間 最大82万円の所得控除',lossEstimate:15,
+    conditions:['20〜65歳の国民年金加入者','会社員：月2.3万円まで','個人事業主：月6.8万円まで'],
+    docs:['加入申込書','事業主証明書（会社員の場合）','本人確認書類','マイナンバー確認書類'],
+    deadline:'通年申込可能',deadlineNote:'原則60歳まで引き出し不可',icsDate:null,local:null,
+    eligibility:(p)=>['employee','part','freelance','other'].includes(p.job),
+  },
+  {
+    id:'housing_loan',name:'住宅ローン控除（住宅借入金等特別控除）',category:'tax',categoryLabel:'税額控除',
+    summary:'住宅ローン残高の0.7%が最大13年間、所得税・住民税から直接控除。',
+    desc:'住宅ローンを借りて自宅を取得した場合、年末のローン残高の0.7%が所得税から控除されます。新築・認定住宅では最大5,000万円の残高に対して適用、最大13年間で最大455万円の控除が受けられます。',
+    amount:'年間 最大35万円（最長13年間）',amountShort:'年間 最大35万円×13年',lossEstimate:35,
+    conditions:['住宅ローンを利用した自宅取得','床面積50m²以上','合計所得2,000万円以下','取得後6ヶ月以内に入居'],
+    docs:['確定申告書','住宅借入金等特別控除額の計算明細書','登記簿謄本','売買契約書','住宅ローン年末残高証明書'],
+    deadline:'取得翌年の確定申告期間（2月〜3月）',deadlineNote:'初年度は確定申告必須',icsDate:'20270315',local:null,
+    eligibility:(p)=>p.housing==='yes',
+  },
+  {
+    id:'marriage',name:'結婚新生活支援事業',category:'grant',categoryLabel:'給付金',
+    summary:'婚姻届提出後の新居・引越し費用を最大60万円補助。年収500万円以下が対象。',
+    desc:'新婚世帯を対象に、住居費・引越し費用を補助する国の制度。夫婦ともに39歳以下で世帯所得500万円未満が要件。補助額は自治体によって異なりますが最大60万円（1回のみ）支給されます。',
+    amount:'最大60万円（1回限り）',amountShort:'最大60万円',lossEstimate:30,
+    conditions:['婚姻届提出後1年以内','夫婦ともに39歳以下','世帯所得500万円未満','対応する自治体に居住'],
+    docs:['婚姻届受理証明書','所得証明書','住民票','賃貸借契約書または売買契約書','引越し業者の領収書'],
+    deadline:'婚姻届提出から1年以内',deadlineNote:'自治体によって申請期限・予算上限あり',icsDate:null,local:null,
+    eligibility:(p)=>p.marriage==='yes'&&parseInt(p.income)<=500,
+  },
+  {
+    id:'child_support',name:'子育て支援制度（児童手当・保育料補助）',category:'grant',categoryLabel:'給付金',
+    summary:'0〜18歳の子に毎月支給される児童手当、保育料無償化、自治体独自給付など複数の支援。',
+    desc:'2024年から児童手当が拡充。第3子以降は3万円/月、0〜2歳と高校生は1.5万円/月、3歳〜中学生は1万円/月（所得制限撤廃）。3〜5歳の保育料無償化も継続。各自治体の独自給付も多数あります。',
+    amount:'年間 最大36〜72万円（児童手当のみ）',amountShort:'年間 最大72万円',lossEstimate:36,
+    conditions:['18歳以下の子どもがいる世帯','日本在住','申請者が子どもの生計を維持している'],
+    docs:['認定請求書','戸籍謄本','住民票','健康保険証'],
+    deadline:'出生後・転入後15日以内に申請推奨',deadlineNote:'遅延すると翌月以降の受給開始に',icsDate:null,local:null,
+    eligibility:(p)=>p.family==='children',
+  },
+  // 個人事業主向け
+  {
+    id:'blue_return',name:'青色申告特別控除',category:'tax',categoryLabel:'節税',
+    summary:'確定申告で青色申告を選択すると最大65万円が所得から控除。電子申告が要件。',
+    desc:'個人事業主が青色申告で確定申告をすると、事業所得から最大65万円（電子申告の場合）を控除できます。所得税率20%なら最大13万円の節税効果。複式簿記が必要ですが会計ソフトで容易に対応可能。',
+    amount:'最大65万円の所得控除',amountShort:'最大65万円の所得控除',lossEstimate:13,
+    conditions:['個人事業主（青色申告承認申請書提出済み）','複式簿記で記帳','e-Taxで電子申告または電子帳簿保存'],
+    docs:['確定申告書B','青色申告決算書','総勘定元帳','仕訳帳'],
+    deadline:'翌年2月16日〜3月15日',deadlineNote:'初年度は開業から2ヶ月以内に承認申請が必要',icsDate:'20270315',local:null,
+    eligibility:(p)=>p.job==='freelance',
+  },
+  {
+    id:'small_biz_kyosai',name:'小規模企業共済',category:'tax',categoryLabel:'節税・退職金',
+    summary:'掛金全額が所得控除。月最大7万円（年84万円）で退職金を積み立てつつ大幅節税。',
+    desc:'個人事業主が廃業・退職に備えて積み立てる制度。掛金は月1,000円〜7万円で全額所得控除の対象。満額拠出すると年間約22万円の節税効果。受取時も退職所得扱いで税優遇。',
+    amount:'年間最大84万円の所得控除',amountShort:'年間最大84万円の所得控除',lossEstimate:22,
+    conditions:['小規模企業の個人事業主','事業を営んでいること'],
+    docs:['加入申込書','本人確認書類','開業届の写し'],
+    deadline:'通年申込可能',deadlineNote:'加入後の解約は元本割れの場合あり',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='freelance',
+  },
+  {
+    id:'jizoku',name:'小規模事業者持続化補助金',category:'subsidy',categoryLabel:'補助金',
+    summary:'販路開拓・生産性向上の取組費用を補助。上限50万円・補助率2/3。',
+    desc:'小規模事業者が経営計画を作成し、販路開拓や生産性向上に取り組む際の費用を補助。通常枠で上限50万円・補助率2/3。特別枠では最大250万円に拡大。広告・宣伝費、ホームページ制作費等が対象。',
+    amount:'最大50〜250万円（補助率2/3）',amountShort:'最大250万円（補助率2/3）',lossEstimate:33,
+    conditions:['小規模事業者（従業員数の基準あり）','商工会議所・商工会の支援を受けた計画書を作成','補助事業終了後に成果報告が必要'],
+    docs:['申請書','経営計画書・補助事業計画書','直近1期の確定申告書'],
+    deadline:'年3〜4回の公募',deadlineNote:'採択後の事前承認が必要。遡及支出は不可',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='freelance',
+  },
+  // 自治体別制度
+  {
+    id:'tokyo_kosodate',name:'東京都 子育て応援給付金',category:'grant',categoryLabel:'給付金',
+    summary:'東京都独自の子育て支援。第1子から5万円、第2子以降10万円を給付。',
+    desc:'東京都が独自に実施する子育て応援給付金。出生届提出後に申請でき、第1子5万円、第2子以降10万円が支給されます。都内在住の子育て世帯が対象で、所得制限なし。',
+    amount:'5万〜10万円（1子あたり）',amountShort:'1子あたり 最大10万円',lossEstimate:10,
+    conditions:['東京都内に居住','子どもの出生・転入から6ヶ月以内に申請','所得制限なし'],
+    docs:['申請書','出生届受理証明書','住民票','通帳のコピー'],
+    deadline:'出生または転入から6ヶ月以内',deadlineNote:'区市町村の窓口で申請',icsDate:null,local:'東京都',
+    eligibility:(p)=>p.prefecture==='東京都'&&p.family==='children',
+  },
+  {
+    id:'osaka_kosodate',name:'大阪府 子ども医療費助成',category:'grant',categoryLabel:'給付金',
+    summary:'大阪府内の子ども（18歳まで）の医療費を無償化。入院・通院ともに対象。',
+    desc:'大阪府では18歳以下の子どもの医療費（保険診療の自己負担分）を助成する制度があります。市町村により内容が異なりますが、多くの市区町村で入院・通院ともに無償または低額負担となっています。',
+    amount:'医療費の自己負担分（年間数万円〜）',amountShort:'医療費自己負担 実質無料',lossEstimate:5,
+    conditions:['大阪府内に居住','18歳以下の子どもがいる','健康保険加入者'],
+    docs:['申請書','健康保険証','住民票','マイナンバー確認書類'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市区町村の窓口で申請',icsDate:null,local:'大阪府',
+    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+  },
+  {
+    id:'kanagawa_married',name:'神奈川県 結婚新生活支援',category:'grant',categoryLabel:'給付金',
+    summary:'神奈川県内の対象市区町村で上乗せ補助。新居費用・引越し費用を最大30万円追加支援。',
+    desc:'国の結婚新生活支援事業に加え、神奈川県内の対象市区町村では独自の上乗せ補助を実施しています。市区町村により補助額は異なりますが、最大30万円の追加支援を受けられる場合があります。',
+    amount:'最大30万円（国制度への上乗せ）',amountShort:'最大30万円（上乗せ）',lossEstimate:15,
+    conditions:['神奈川県内の対象市区町村に居住','婚姻届提出後1年以内','世帯所得500万円未満'],
+    docs:['婚姻届受理証明書','住民票','所得証明書','賃貸借契約書または売買契約書'],
+    deadline:'婚姻届提出から1年以内（各市区町村の募集期間に注意）',deadlineNote:'市区町村によって予算上限あり',icsDate:null,local:'神奈川県',
+    eligibility:(p)=>p.prefecture==='神奈川県'&&p.marriage==='yes'&&parseInt(p.income)<=500,
+  },
+  {
+    id:'aichi_sme',name:'愛知県 中小企業DX推進補助金',category:'subsidy',categoryLabel:'補助金',
+    summary:'愛知県内の中小企業のDX推進（デジタル化・業務効率化）を支援。最大200万円補助。',
+    desc:'愛知県が独自に実施する中小企業のDX推進支援補助金。クラウドサービス導入・業務システム構築・デジタル人材育成等が対象。補助率1/2〜2/3、上限200万円。国のIT導入補助金との併用不可。',
+    amount:'最大200万円（補助率1/2〜2/3）',amountShort:'最大200万円',lossEstimate:40,
+    conditions:['愛知県内に本社・事業所を置く中小企業','DX推進に関わる取組を実施','事業計画書の提出が必要'],
+    docs:['申請書','事業計画書','直近1期の決算書','見積書'],
+    deadline:'年2回の公募（詳細は愛知県公式サイト参照）',deadlineNote:'予算枠に達し次第終了',icsDate:null,local:'愛知県',
+    eligibility:(p)=>p.prefecture==='愛知県'&&p.job==='sme',
+  },
+  {
+    id:'fukuoka_startup',name:'福岡県 スタートアップ・創業支援補助金',category:'subsidy',categoryLabel:'補助金',
+    summary:'福岡県内での開業・創業に向けた費用を最大100万円補助。フリーランスの事業拡大も対象。',
+    desc:'福岡県では「スタートアップ都市ふくおか」構想のもと、創業・開業支援補助金を実施しています。店舗改装費・設備費・広告費等が対象で、補助率2/3、上限100万円。インキュベーション施設への入居優遇もあります。',
+    amount:'最大100万円（補助率2/3）',amountShort:'最大100万円',lossEstimate:30,
+    conditions:['福岡県内での創業・開業が対象','補助事業期間内に創業すること','事業計画書の提出が必要'],
+    docs:['申請書','事業計画書','見積書','履歴書'],
+    deadline:'年複数回の公募あり',deadlineNote:'採択後の事前承認が必要',icsDate:null,local:'福岡県',
+    eligibility:(p)=>p.prefecture==='福岡県'&&['freelance','sme'].includes(p.job),
+  },
+  // ── 北海道・東北 ──────────────────────────────────────────────
+  {
+    id:'hokkaido_ijyu',name:'北海道 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏等からの移住・就業者に最大100万円を給付。単身は60万円、世帯は100万円。',
+    desc:'北海道では東京圏等からの移住を促進するため、対象地域に移住し就業した方に支援金を給付しています。世帯での移住は100万円、単身は60万円が基本額で、18歳未満の子ども1人につき100万円を加算する場合もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:20,
+    conditions:['東京圏（東京・神奈川・埼玉・千葉）から移住','北海道内の対象市町村に移住・定住','マッチングサイト経由の就業または起業'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','マッチングサイト登録証明'],
+    deadline:'移住後1年以内に申請',deadlineNote:'市町村により予算上限あり',icsDate:null,local:'北海道',
+    eligibility:(p)=>p.prefecture==='北海道',
+  },
+  {
+    id:'aomori_ijyu',name:'青森県 UIターン就業・創業支援金',category:'grant',categoryLabel:'給付金',
+    summary:'UIターンで青森県内に就業・創業した方に最大100万円を支援。',
+    desc:'青森県では人口減少対策として、UIターン就業・創業支援事業を実施しています。東京圏等から移住し、県内で就業または起業した方が対象で、就業の場合60万円、テレワークや起業の場合は最大100万円が給付されます。',
+    amount:'就業60万円・起業最大100万円',amountShort:'最大100万円',lossEstimate:15,
+    conditions:['東京圏等から青森県内に移住','県内での就業・創業・テレワーク勤務','移住前に1年以上東京圏等に在住'],
+    docs:['申請書','住民票（異動後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内に申請',deadlineNote:'予算枠に達し次第終了',icsDate:null,local:'青森県',
+    eligibility:(p)=>p.prefecture==='青森県',
+  },
+  {
+    id:'iwate_jutaku',name:'岩手県 移住者向け住宅取得補助',category:'subsidy',categoryLabel:'補助金',
+    summary:'岩手県内に移住し住宅を取得した世帯に最大50万円を補助。',
+    desc:'岩手県では移住・定住を促進するため、県外から転入し住宅を新築・購入した世帯に補助金を交付しています。子育て世帯や若者世帯はさらに上乗せがあり、最大50万円の補助を受けられます。',
+    amount:'最大50万円（子育て・若者世帯加算あり）',amountShort:'最大50万円',lossEstimate:12,
+    conditions:['県外から岩手県内の対象市町村に転入','住宅を新築または購入すること','転入後に申請（市町村により期限あり）'],
+    docs:['申請書','住民票','売買契約書または建築確認書','所得証明書'],
+    deadline:'転入後の定められた期間内',deadlineNote:'市町村により要件が異なる',icsDate:null,local:'岩手県',
+    eligibility:(p)=>p.prefecture==='岩手県',
+  },
+  {
+    id:'miyagi_kosodate_ijyu',name:'宮城県 子育て世帯移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'子育て世帯が宮城県内へ移住した場合に最大100万円＋子ども加算を給付。',
+    desc:'宮城県では子育て世帯の移住を特に優遇しており、対象地域への移住世帯に最大100万円、さらに子ども1人あたり最大100万円を加算して給付しています。仙台市など大都市圏を除く市町村が主な対象となります。',
+    amount:'世帯100万円＋子ども1人につき最大100万円',amountShort:'最大200万円〜',lossEstimate:20,
+    conditions:['東京圏等から宮城県内の対象市町村に移住','18歳未満の子どもがいる世帯','移住後に継続して居住する意思があること'],
+    docs:['申請書','住民票','就業証明書または開業届','子どもの戸籍謄本'],
+    deadline:'移住後1年以内',deadlineNote:'仙台市は対象外の場合あり',icsDate:null,local:'宮城県',
+    eligibility:(p)=>p.prefecture==='宮城県'&&p.family==='children',
+  },
+  {
+    id:'akita_ijyu',name:'秋田県 移住支援金（少子化対策特別枠）',category:'grant',categoryLabel:'給付金',
+    summary:'全国有数の手厚い移住支援。子育て世帯は最大200万円超の給付も。',
+    desc:'秋田県は深刻な少子高齢化対策として、移住支援金を全国トップクラスの水準で設定しています。単身60万円・世帯100万円の基本額に加え、18歳未満の子ども1人につき100万円を加算。テレワーク移住者への特別加算もあります。',
+    amount:'世帯100万円＋子ども加算（1人100万円）',amountShort:'最大100万円〜',lossEstimate:20,
+    conditions:['東京圏等から秋田県内に移住','就業・創業またはテレワーク勤務','移住後に5年以上居住する意思があること'],
+    docs:['申請書','住民票（異動前・後）','就業証明書','マイナンバーカードまたは身分証明書'],
+    deadline:'移住後1年以内に申請',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'秋田県',
+    eligibility:(p)=>p.prefecture==='秋田県',
+  },
+  {
+    id:'yamagata_kekkon',name:'山形県 結婚新生活支援上乗せ補助',category:'grant',categoryLabel:'給付金',
+    summary:'国の結婚新生活支援に山形県・市町村が上乗せ補助。総額最大60万円。',
+    desc:'山形県では国の結婚新生活支援事業（上限30万円）に加え、県内市町村が独自の上乗せ補助を実施しています。住居費・引越し費用に使え、合計で最大60万円程度の補助を受けられる場合があります。',
+    amount:'最大60万円（国＋県＋市町村の合算）',amountShort:'最大60万円',lossEstimate:15,
+    conditions:['山形県内の対象市町村に居住','婚姻届提出後1年以内','夫婦の合計所得500万円未満'],
+    docs:['婚姻届受理証明書','住民票','所得証明書','賃貸借または売買契約書'],
+    deadline:'婚姻届提出から1年以内',deadlineNote:'市町村ごとに予算上限あり',icsDate:null,local:'山形県',
+    eligibility:(p)=>p.prefecture==='山形県'&&p.marriage==='yes',
+  },
+  {
+    id:'fukushima_ijyu',name:'福島県 移住・定住促進補助金',category:'grant',categoryLabel:'給付金',
+    summary:'福島県内への移住・定住を促進する補助金。就業支援と住宅補助を組み合わせ提供。',
+    desc:'福島県では震災復興と人口回復を目的に、移住・定住促進補助金を実施しています。就業支援と住宅取得・賃貸補助を組み合わせたメニューがあり、世帯の状況に応じて最大100万円程度の支援を受けられます。',
+    amount:'最大100万円（世帯・就業状況による）',amountShort:'最大100万円',lossEstimate:15,
+    conditions:['県外から福島県内に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに内容・予算が異なる',icsDate:null,local:'福島県',
+    eligibility:(p)=>p.prefecture==='福島県',
+  },
+  // ── 関東（東京・神奈川・埼玉・千葉以外） ──────────────────────
+  {
+    id:'ibaraki_jutaku',name:'茨城県 子育て世帯住宅取得補助',category:'subsidy',categoryLabel:'補助金',
+    summary:'茨城県内で住宅を取得した子育て世帯に最大50万円の補助。',
+    desc:'茨城県では子育て世帯の定住を支援するため、住宅取得補助事業を実施しています。県内で新築・中古住宅を購入した子育て世帯（18歳未満の子どもがいる世帯）に最大50万円を補助します。',
+    amount:'最大50万円',amountShort:'最大50万円',lossEstimate:12,
+    conditions:['茨城県内で住宅を新築または購入','18歳未満の子どもがいる世帯','申請時点で県内に居住'],
+    docs:['申請書','住民票','売買・建築契約書','子どもの戸籍謄本'],
+    deadline:'住宅取得後1年以内',deadlineNote:'市町村ごとに上乗せあり',icsDate:null,local:'茨城県',
+    eligibility:(p)=>p.prefecture==='茨城県'&&p.family==='children',
+  },
+  {
+    id:'tochigi_kekkon',name:'栃木県 結婚新生活支援事業上乗せ',category:'grant',categoryLabel:'給付金',
+    summary:'国の結婚新生活支援に栃木県市町が上乗せ。住居・引越し費用を最大60万円補助。',
+    desc:'栃木県内の多くの市町が、国の結婚新生活支援事業への上乗せ補助を実施しています。住居費・引越し費用として使え、国・県・市町を合算すると最大60万円程度の補助が見込めます。',
+    amount:'最大60万円（国＋市町の合算）',amountShort:'最大60万円',lossEstimate:15,
+    conditions:['栃木県内の対象市町に居住','婚姻届提出後1年以内','夫婦の合計所得500万円未満'],
+    docs:['婚姻届受理証明書','住民票','所得証明書','賃貸借または売買契約書'],
+    deadline:'婚姻届提出から1年以内',deadlineNote:'各市町の予算による',icsDate:null,local:'栃木県',
+    eligibility:(p)=>p.prefecture==='栃木県'&&p.marriage==='yes',
+  },
+  {
+    id:'gunma_ijyu',name:'群馬県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏等から群馬県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'群馬県では東京圏からの移住促進のため、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身は60万円、世帯は100万円が基本額で、子どもがいる場合はさらに加算があります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から群馬県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','マイナンバーカードまたは身分証'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'群馬県',
+    eligibility:(p)=>p.prefecture==='群馬県',
+  },
+  {
+    id:'saitama_yachin',name:'埼玉県 子育て家庭家賃補助',category:'subsidy',categoryLabel:'補助金',
+    summary:'埼玉県内の子育て家庭に民間賃貸住宅の家賃を最大月1万円補助。',
+    desc:'埼玉県では子育て世帯の住居費負担軽減のため、民間賃貸住宅に居住する子育て家庭に家賃補助を行っています。月額最大1万円・最長2年間の補助で、合計最大24万円を受けられます。',
+    amount:'月最大1万円・最長2年（合計最大24万円）',amountShort:'最大24万円',lossEstimate:10,
+    conditions:['埼玉県内の民間賃貸住宅に居住','18歳未満の子どもがいる世帯','世帯所得が一定以下'],
+    docs:['申請書','住民票','賃貸借契約書','所得証明書','子どもの健康保険証'],
+    deadline:'各年度の募集期間内',deadlineNote:'予算上限あり・先着順',icsDate:null,local:'埼玉県',
+    eligibility:(p)=>p.prefecture==='埼玉県'&&p.family==='children',
+  },
+  {
+    id:'chiba_ijyu',name:'千葉県 移住・定住促進補助',category:'grant',categoryLabel:'給付金',
+    summary:'千葉県内の対象市町村への移住・定住を補助。最大100万円の移住支援金。',
+    desc:'千葉県では東京圏からの移住促進のため、対象市町村に移住し就業・創業・テレワーク勤務する方に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、子ども加算もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から千葉県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'千葉県',
+    eligibility:(p)=>p.prefecture==='千葉県',
+  },
+  // ── 中部・北陸 ───────────────────────────────────────────────
+  {
+    id:'niigata_ijyu',name:'新潟県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏からの移住者に単身60万円・世帯100万円を給付。子ども加算も充実。',
+    desc:'新潟県では東京圏等からの移住を促進するため、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。世帯100万円・単身60万円が基本で、18歳未満の子ども1人あたり最大100万円を加算します。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から新潟県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'各市町村の予算上限あり',icsDate:null,local:'新潟県',
+    eligibility:(p)=>p.prefecture==='新潟県',
+  },
+  {
+    id:'toyama_kosodate',name:'富山県 子育て支援・医療費助成',category:'grant',categoryLabel:'給付金',
+    summary:'富山県内の子ども（中学校卒業まで）の医療費を無料化。通院・入院ともに対象。',
+    desc:'富山県では中学校卒業まで（15歳の年度末まで）の子どもを対象に、医療費の自己負担分を助成しています。通院・入院ともに対象で、年間数万円規模の医療費負担が軽減されます。市町村により高校卒業まで拡充している場合もあります。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費実質無料',lossEstimate:8,
+    conditions:['富山県内に居住','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','マイナンバー確認書類'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'富山県',
+    eligibility:(p)=>p.prefecture==='富山県'&&p.family==='children',
+  },
+  {
+    id:'ishikawa_ijyu',name:'石川県 UIターン就業奨励金',category:'grant',categoryLabel:'給付金',
+    summary:'石川県内への就業・定住を支援するUIターン奨励金。最大100万円。',
+    desc:'石川県では人口流出対策として、UIターンで県内に就業した方に奨励金を給付しています。就業先・年齢・家族構成により支給額が異なりますが、単身60万円・世帯100万円が基本額で、子育て世帯への加算もあります。',
+    amount:'単身60万円・世帯100万円（加算あり）',amountShort:'最大100万円',lossEstimate:15,
+    conditions:['県外から石川県内に転入し就業','就業先が石川県内の企業・事業所','移住前に一定期間以上県外に在住'],
+    docs:['申請書','住民票（異動前・後）','就業証明書','誓約書'],
+    deadline:'就業・転入後1年以内',deadlineNote:'予算上限あり',icsDate:null,local:'石川県',
+    eligibility:(p)=>p.prefecture==='石川県',
+  },
+  {
+    id:'fukui_ijyu',name:'福井県 移住支援金（全国トップクラス）',category:'grant',categoryLabel:'給付金',
+    summary:'全国トップクラスの手厚さ。世帯100万円＋子ども1人100万円の加算あり。',
+    desc:'福井県は移住支援に特に力を入れており、世帯100万円・単身60万円の基本額に加え、18歳未満の子ども1人につき100万円を加算するなど全国有数の充実度です。テレワーク移住者向けの特別加算も設けています。',
+    amount:'世帯100万円＋子ども加算（1人100万円）',amountShort:'最大200万円〜',lossEstimate:20,
+    conditions:['東京圏等から福井県内に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','マイナンバーカードまたは身分証'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに上乗せあり',icsDate:null,local:'福井県',
+    eligibility:(p)=>p.prefecture==='福井県',
+  },
+  {
+    id:'yamanashi_ijyu',name:'山梨県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から山梨県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'山梨県は首都圏に近い立地を活かし、移住促進に積極的に取り組んでいます。就業・創業・テレワーク勤務を条件に単身60万円・世帯100万円の移住支援金を給付し、子ども加算も設けています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から山梨県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'山梨県',
+    eligibility:(p)=>p.prefecture==='山梨県',
+  },
+  {
+    id:'nagano_ijyu',name:'長野県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から長野県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'長野県では「信州で生きる」移住促進政策のもと、東京圏等からの移住・就業者に移住支援金を給付しています。単身60万円・世帯100万円の基本額に加え、子ども加算も充実しています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から長野県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'長野県',
+    eligibility:(p)=>p.prefecture==='長野県',
+  },
+  {
+    id:'gifu_ijyu',name:'岐阜県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から岐阜県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'岐阜県では東京圏等からの移住促進のため、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円の基本額で、子ども加算も設けています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から岐阜県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'岐阜県',
+    eligibility:(p)=>p.prefecture==='岐阜県',
+  },
+  {
+    id:'shizuoka_kosodate',name:'静岡県 子育て支援給付',category:'grant',categoryLabel:'給付金',
+    summary:'静岡県内の子育て世帯を支援。医療費助成と保育料軽減を組み合わせ提供。',
+    desc:'静岡県では子育て世帯の経済的負担を軽減するため、医療費助成（中学校卒業まで）と保育料軽減策を組み合わせた支援を行っています。市町村により内容が異なりますが、年間数万円〜十数万円の支援が見込めます。',
+    amount:'医療費助成＋保育料軽減（年間数万円〜）',amountShort:'年間数万円〜',lossEstimate:8,
+    conditions:['静岡県内に居住','中学校卒業まで（または就学前）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'市町村の窓口で申請',icsDate:null,local:'静岡県',
+    eligibility:(p)=>p.prefecture==='静岡県'&&p.family==='children',
+  },
+  {
+    id:'mie_ijyu',name:'三重県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から三重県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'三重県では東京圏等からの移住者に対し、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円の基本額に加え、子ども加算の制度もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から三重県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'三重県',
+    eligibility:(p)=>p.prefecture==='三重県',
+  },
+  // ── 近畿 ─────────────────────────────────────────────────────
+  {
+    id:'shiga_kosodate',name:'滋賀県 子育て支援・医療費助成',category:'grant',categoryLabel:'給付金',
+    summary:'滋賀県内の子ども（高校卒業まで）の医療費を助成。市町により無料化。',
+    desc:'滋賀県では高校卒業まで（18歳年度末）の子どもを対象に医療費助成を実施しています。市町により一部自己負担が生じる場合もありますが、多くの市町で無料または低額での受診が可能です。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費助成',lossEstimate:8,
+    conditions:['滋賀県内に居住','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町の窓口で申請',icsDate:null,local:'滋賀県',
+    eligibility:(p)=>p.prefecture==='滋賀県'&&p.family==='children',
+  },
+  {
+    id:'kyoto_ijyu',name:'京都府 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から京都府内（丹後・中丹等の地方部）へ移住した方に最大100万円。',
+    desc:'京都府では東京圏等から府内の地方部（丹後・中丹・南丹・山城南エリア等）に移住し就業・創業した方に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、子ども加算もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から京都府内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'京都市内は対象外の場合あり',icsDate:null,local:'京都府',
+    eligibility:(p)=>p.prefecture==='京都府',
+  },
+  {
+    id:'hyogo_kosodate',name:'兵庫県 子育て支援給付',category:'grant',categoryLabel:'給付金',
+    summary:'兵庫県内の子育て世帯に医療費助成（18歳まで）を提供。年間数万円の負担軽減。',
+    desc:'兵庫県では18歳（高校卒業相当）までの子どもの医療費を助成する制度を実施しています。市区町村により範囲や自己負担額は異なりますが、子育て世帯の医療費負担を大幅に軽減できます。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費助成',lossEstimate:8,
+    conditions:['兵庫県内に居住','18歳以下（高校卒業相当）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市区町村の窓口で申請',icsDate:null,local:'兵庫県',
+    eligibility:(p)=>p.prefecture==='兵庫県'&&p.family==='children',
+  },
+  {
+    id:'nara_ijyu',name:'奈良県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から奈良県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'奈良県では東京圏等からの移住者に、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円が基本額で、子ども加算も用意されています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から奈良県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'奈良県',
+    eligibility:(p)=>p.prefecture==='奈良県',
+  },
+  {
+    id:'wakayama_ijyu',name:'和歌山県 移住支援金・テレワーク補助',category:'grant',categoryLabel:'給付金',
+    summary:'和歌山県へのテレワーク移住者に最大100万円＋テレワーク環境整備費補助。',
+    desc:'和歌山県ではテレワーク移住者の誘致に積極的で、移住支援金（世帯100万円・単身60万円）に加え、テレワーク環境整備費（通信機器・デスク等）の補助も実施しています。美しい自然環境と相まって移住先として人気が高まっています。',
+    amount:'移住支援金最大100万円＋テレワーク補助',amountShort:'最大100万円＋',lossEstimate:18,
+    conditions:['東京圏等から和歌山県内に移住','テレワーク勤務または就業・創業','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','テレワーク勤務証明書','就業証明書または開業届'],
+    deadline:'移住後1年以内',deadlineNote:'テレワーク補助は別途申請',icsDate:null,local:'和歌山県',
+    eligibility:(p)=>p.prefecture==='和歌山県',
+  },
+  // ── 中国・四国 ───────────────────────────────────────────────
+  {
+    id:'tottori_ijyu',name:'鳥取県 移住支援金（全国有数の充実度）',category:'grant',categoryLabel:'給付金',
+    summary:'全国有数の充実度。世帯100万円＋子ども加算＋テレワーク加算など複数支援が重複可。',
+    desc:'鳥取県は移住支援に非常に積極的で、世帯100万円・単身60万円の基本額に加え、子ども加算、テレワーク加算、空き家活用補助など複数の支援策を組み合わせて受けられます。移住支援の充実度は全国有数レベルです。',
+    amount:'世帯100万円＋各種加算（総額200万円超も）',amountShort:'最大100万円〜',lossEstimate:20,
+    conditions:['東京圏等から鳥取県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'支援の組み合わせは市町村窓口で確認',icsDate:null,local:'鳥取県',
+    eligibility:(p)=>p.prefecture==='鳥取県',
+  },
+  {
+    id:'shimane_ijyu',name:'島根県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'島根県への移住者に単身60万円・世帯100万円。子ども加算で総額最大200万円超。',
+    desc:'島根県では東京圏等からの移住者に移住支援金を給付しています。世帯100万円・単身60万円の基本額に加え、18歳未満の子ども1人につき最大100万円を加算。人口減少対策として特に充実した内容です。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:20,
+    conditions:['東京圏等から島根県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに上乗せあり',icsDate:null,local:'島根県',
+    eligibility:(p)=>p.prefecture==='島根県',
+  },
+  {
+    id:'okayama_kosodate',name:'岡山県 子育て支援給付',category:'grant',categoryLabel:'給付金',
+    summary:'岡山県内の子育て世帯に医療費助成（中学校卒業まで）を提供。',
+    desc:'岡山県では中学校卒業まで（15歳年度末）の子どもを対象に医療費助成を実施しています。通院・入院ともに対象で、市町村により高校卒業まで拡充している場合もあります。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費助成',lossEstimate:7,
+    conditions:['岡山県内に居住','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'岡山県',
+    eligibility:(p)=>p.prefecture==='岡山県'&&p.family==='children',
+  },
+  {
+    id:'hiroshima_ijyu',name:'広島県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から広島県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'広島県では東京圏等からの移住促進のため、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円が基本額で、子ども加算の制度もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から広島県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'広島県',
+    eligibility:(p)=>p.prefecture==='広島県',
+  },
+  {
+    id:'yamaguchi_ijyu',name:'山口県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から山口県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'山口県では東京圏等からの移住者に対し、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円の基本額で、子ども加算もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から山口県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町村ごとに予算あり',icsDate:null,local:'山口県',
+    eligibility:(p)=>p.prefecture==='山口県',
+  },
+  {
+    id:'tokushima_ijyu',name:'徳島県 移住支援・テレワーク補助',category:'grant',categoryLabel:'給付金',
+    summary:'徳島県へのテレワーク移住者に移住支援金最大100万円＋テレワーク補助。',
+    desc:'徳島県はテレワーク移住の先駆けとして知られており、移住支援金（世帯100万円・単身60万円）に加え、テレワーク環境整備費の補助や、地方サテライトオフィス利用促進補助なども用意しています。',
+    amount:'移住支援金最大100万円＋テレワーク補助',amountShort:'最大100万円＋',lossEstimate:18,
+    conditions:['東京圏等から徳島県内に移住','テレワーク勤務または就業・創業','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','テレワーク勤務証明書','就業証明書または開業届'],
+    deadline:'移住後1年以内',deadlineNote:'テレワーク補助は別途申請',icsDate:null,local:'徳島県',
+    eligibility:(p)=>p.prefecture==='徳島県',
+  },
+  {
+    id:'kagawa_ijyu',name:'香川県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から香川県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'香川県では東京圏等からの移住者に、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円が基本額で、子ども加算の制度もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から香川県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町ごとに予算あり',icsDate:null,local:'香川県',
+    eligibility:(p)=>p.prefecture==='香川県',
+  },
+  {
+    id:'ehime_ijyu',name:'愛媛県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から愛媛県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'愛媛県では東京圏等からの移住者に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、子ども加算や市町独自の上乗せ補助と組み合わせることで、より手厚い支援を受けられます。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から愛媛県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町ごとに予算あり',icsDate:null,local:'愛媛県',
+    eligibility:(p)=>p.prefecture==='愛媛県',
+  },
+  {
+    id:'kochi_ijyu',name:'高知県 移住支援金・UIJターン',category:'grant',categoryLabel:'給付金',
+    summary:'高知県へのUIJターン移住者に最大100万円。特定地域への移住は上乗せあり。',
+    desc:'高知県ではUIJターンによる移住促進のため、移住支援金を給付しています。世帯100万円・単身60万円が基本額で、過疎地域・離島への移住には上乗せ補助もあります。子ども加算の制度も充実しています。',
+    amount:'単身60万円・世帯100万円（加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から高知県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'過疎地域は別途上乗せあり',icsDate:null,local:'高知県',
+    eligibility:(p)=>p.prefecture==='高知県',
+  },
+  // ── 九州・沖縄 ───────────────────────────────────────────────
+  {
+    id:'saga_ijyu',name:'佐賀県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から佐賀県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'佐賀県では東京圏等からの移住者に、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。単身60万円・世帯100万円が基本額で、子ども加算の制度もあります。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から佐賀県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町ごとに予算あり',icsDate:null,local:'佐賀県',
+    eligibility:(p)=>p.prefecture==='佐賀県',
+  },
+  {
+    id:'nagasaki_ijyu',name:'長崎県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から長崎県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'長崎県では東京圏等からの移住者に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、離島・半島地域への移住には追加の補助が設けられている場合もあります。',
+    amount:'単身60万円・世帯100万円（離島加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から長崎県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'離島は別途加算あり',icsDate:null,local:'長崎県',
+    eligibility:(p)=>p.prefecture==='長崎県',
+  },
+  {
+    id:'kumamoto_kosodate',name:'熊本県 子育て支援給付',category:'grant',categoryLabel:'給付金',
+    summary:'熊本県内の子育て世帯に医療費助成（高校卒業まで）を提供。',
+    desc:'熊本県では高校卒業まで（18歳年度末）の子どもを対象に医療費助成を実施しています。市区町村により内容が異なりますが、多くで通院・入院ともに低額または無料で受診できます。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費助成',lossEstimate:8,
+    conditions:['熊本県内に居住','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'熊本県',
+    eligibility:(p)=>p.prefecture==='熊本県'&&p.family==='children',
+  },
+  {
+    id:'oita_ijyu',name:'大分県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から大分県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'大分県では東京圏等からの移住者に、就業・創業・テレワーク勤務を条件に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、子ども加算もあります。温泉地・自然環境を活かした移住促進に力を入れています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から大分県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町ごとに予算あり',icsDate:null,local:'大分県',
+    eligibility:(p)=>p.prefecture==='大分県',
+  },
+  {
+    id:'miyazaki_ijyu',name:'宮崎県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から宮崎県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'宮崎県では東京圏等からの移住者に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、子ども加算の制度もあります。温暖な気候と自然豊かな環境で移住先として人気が高まっています。',
+    amount:'単身60万円・世帯100万円（子加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から宮崎県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'市町ごとに予算あり',icsDate:null,local:'宮崎県',
+    eligibility:(p)=>p.prefecture==='宮崎県',
+  },
+  {
+    id:'kagoshima_ijyu',name:'鹿児島県 移住支援金',category:'grant',categoryLabel:'給付金',
+    summary:'東京圏から鹿児島県内へ移住した方に単身60万円・世帯100万円を給付。',
+    desc:'鹿児島県では東京圏等からの移住者に移住支援金を給付しています。世帯100万円・単身60万円が基本額で、離島（奄美群島等）への移住には別途支援策が設けられている場合もあります。',
+    amount:'単身60万円・世帯100万円（離島加算あり）',amountShort:'最大100万円〜',lossEstimate:15,
+    conditions:['東京圏等から鹿児島県内の対象市町村に移住','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'離島は別途支援あり',icsDate:null,local:'鹿児島県',
+    eligibility:(p)=>p.prefecture==='鹿児島県',
+  },
+  {
+    id:'okinawa_kosodate',name:'沖縄県 子育て支援・移住者向け補助',category:'grant',categoryLabel:'給付金',
+    summary:'沖縄県内の子育て世帯への医療費助成に加え、移住者向けの補助も提供。',
+    desc:'沖縄県では子育て世帯の医療費助成（中学校卒業まで）のほか、移住促進の観点からリモートワーカーや創業者向けの補助制度も整備しています。南国の環境を活かした移住・子育て支援が充実しています。',
+    amount:'医療費助成＋移住補助（合計年間数万円〜）',amountShort:'医療費助成＋移住補助',lossEstimate:10,
+    conditions:['沖縄県内に居住','中学校卒業まで（15歳年度末）の子どもがいる または移住者','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本（子育て支援の場合）'],
+    deadline:'出生後・転入後速やかに申請',deadlineNote:'各市町村の窓口で申請',icsDate:null,local:'沖縄県',
+    eligibility:(p)=>p.prefecture==='沖縄県',
+  },
+  // ── 政令指定都市 ──────────────────────────────────────────────
+  {
+    id:'sapporo_kosodate',name:'札幌市 子育て支援・保育料補助',category:'grant',categoryLabel:'給付金',
+    summary:'札幌市独自の保育料無償化拡充と子育て給付。第2子以降の保育料を無料化。',
+    desc:'札幌市では国の幼児教育無償化に加え、独自の保育料補助を実施しています。第2子以降の保育料を実質無料とするほか、子育て世帯向けの各種給付金・医療費助成を組み合わせた支援が受けられます。',
+    amount:'保育料無料（第2子以降）＋各種給付',amountShort:'保育料実質無料〜',lossEstimate:10,
+    conditions:['札幌市内に居住（北海道として判定）','就学前の子どもがいる','保育施設を利用している'],
+    docs:['申請書','住民票','子どもの健康保険証','保育施設利用証明書'],
+    deadline:'保育施設入所申請時',deadlineNote:'各区の窓口で申請',icsDate:null,local:'北海道',
+    eligibility:(p)=>p.prefecture==='北海道'&&p.family==='children',
+  },
+  {
+    id:'sendai_ijyu',name:'仙台市 移住者向け支援',category:'grant',categoryLabel:'給付金',
+    summary:'仙台市への移住者に就業・創業支援と住居費補助を提供。',
+    desc:'仙台市では市独自の移住支援として、東京圏等からの転入者への就業支援金や住居費補助を実施しています。宮城県の移住支援金とは別に市独自の補助が設けられており、合算でより手厚い支援を受けられます。',
+    amount:'就業支援金＋住居費補助（合計数十万円）',amountShort:'数十万円',lossEstimate:10,
+    conditions:['東京圏等から仙台市に移住（宮城県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の移住支援金と併用可能か要確認',icsDate:null,local:'宮城県',
+    eligibility:(p)=>p.prefecture==='宮城県',
+  },
+  {
+    id:'saitama_city_kosodate',name:'さいたま市 子育て支援給付',category:'grant',categoryLabel:'給付金',
+    summary:'さいたま市独自の子育て支援。医療費助成（高校卒業まで）と保育料補助を提供。',
+    desc:'さいたま市では高校卒業まで（18歳年度末）の子どもの医療費を助成するほか、独自の保育料軽減策を実施しています。埼玉県の制度と組み合わせることで子育て世帯の経済的負担を大幅に軽減できます。',
+    amount:'医療費助成（年間数万円）＋保育料軽減',amountShort:'医療費助成＋保育料軽減',lossEstimate:9,
+    conditions:['さいたま市内に居住（埼玉県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'埼玉県',
+    eligibility:(p)=>p.prefecture==='埼玉県'&&p.family==='children',
+  },
+  {
+    id:'chiba_city_kosodate',name:'千葉市 子育て家庭支援',category:'grant',categoryLabel:'給付金',
+    summary:'千葉市独自の子育て家庭支援。医療費助成（高校卒業まで）と各種給付金。',
+    desc:'千葉市では高校卒業まで（18歳年度末）の子どもの医療費を助成するほか、子育て家庭向けの各種給付金や相談支援を実施しています。千葉県の制度と組み合わせることでより手厚い支援が受けられます。',
+    amount:'医療費助成（年間数万円）＋各種給付',amountShort:'医療費助成＋各種給付',lossEstimate:9,
+    conditions:['千葉市内に居住（千葉県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'千葉県',
+    eligibility:(p)=>p.prefecture==='千葉県'&&p.family==='children',
+  },
+  {
+    id:'yokohama_kosodate',name:'横浜市 子育て支援・保育料補助',category:'grant',categoryLabel:'給付金',
+    summary:'横浜市独自の保育料補助と子育て給付。待機児童解消と医療費助成を推進。',
+    desc:'横浜市では国の制度に加え、独自の保育料補助（第2子以降の軽減措置等）と子育て給付を実施しています。医療費助成（中学校卒業まで）もあり、年間数万円から十数万円の支援が受けられます。',
+    amount:'保育料補助＋医療費助成（年間数万円〜）',amountShort:'保育料補助＋医療費助成',lossEstimate:10,
+    conditions:['横浜市内に居住（神奈川県として判定）','中学校卒業まで（15歳年度末）の子どもがいる','保育施設を利用または医療機関を受診'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'神奈川県',
+    eligibility:(p)=>p.prefecture==='神奈川県'&&p.family==='children',
+  },
+  {
+    id:'kawasaki_iryo',name:'川崎市 子育て医療費助成',category:'grant',categoryLabel:'給付金',
+    summary:'川崎市独自の医療費助成（高校卒業まで）。神奈川県制度と合わせて活用を。',
+    desc:'川崎市では高校卒業まで（18歳年度末）の子どもの医療費（自己負担分）を助成しています。通院・入院ともに対象で、市独自の拡充策により神奈川県制度より広範囲をカバーします。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費実質無料',lossEstimate:8,
+    conditions:['川崎市内に居住（神奈川県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'神奈川県',
+    eligibility:(p)=>p.prefecture==='神奈川県'&&p.family==='children',
+  },
+  {
+    id:'sagamihara_ijyu',name:'相模原市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'相模原市独自の移住支援策。首都圏から少し離れた自然環境での移住を後押し。',
+    desc:'相模原市では東京圏からの移住者に対し、市独自の定住促進補助を実施しています。就業支援や住居費補助を中心に、神奈川県の移住支援策と組み合わせて活用できます。',
+    amount:'住居費補助＋就業支援（合計数十万円）',amountShort:'数十万円',lossEstimate:8,
+    conditions:['東京圏等から相模原市に移住（神奈川県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'予算上限あり',icsDate:null,local:'神奈川県',
+    eligibility:(p)=>p.prefecture==='神奈川県',
+  },
+  {
+    id:'niigata_city_ijyu',name:'新潟市 移住定住支援',category:'grant',categoryLabel:'給付金',
+    summary:'新潟市独自の移住・定住支援。県の支援金に加え、市独自の住居費補助も。',
+    desc:'新潟市では県の移住支援金に加え、市独自の定住促進補助を実施しています。住居費補助や就業支援を中心に、合算すると数十万円から最大100万円超の支援を受けられます。',
+    amount:'住居費補助＋就業支援（県補助と合算可能）',amountShort:'数十万円〜',lossEstimate:10,
+    conditions:['東京圏等から新潟市に移住（新潟県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の移住支援金と別申請',icsDate:null,local:'新潟県',
+    eligibility:(p)=>p.prefecture==='新潟県',
+  },
+  {
+    id:'shizuoka_city_kosodate',name:'静岡市 子育て支援',category:'grant',categoryLabel:'給付金',
+    summary:'静岡市独自の子育て支援。医療費助成と保育料無償化拡充を組み合わせ提供。',
+    desc:'静岡市では中学校卒業まで（15歳年度末）の医療費助成に加え、独自の保育料軽減策を実施しています。県の子育て支援と組み合わせることで、子育て世帯の経済的負担を大幅に軽減できます。',
+    amount:'医療費助成＋保育料軽減（年間数万円〜）',amountShort:'医療費助成＋保育料軽減',lossEstimate:8,
+    conditions:['静岡市内に居住（静岡県として判定）','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'静岡県',
+    eligibility:(p)=>p.prefecture==='静岡県'&&p.family==='children',
+  },
+  {
+    id:'hamamatsu_ijyu',name:'浜松市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'浜松市独自の移住支援。就業支援と住居費補助で首都圏からの移住を後押し。',
+    desc:'浜松市では東京圏からの移住者に対し、市独自の就業支援金や住居費補助を実施しています。静岡県の移住支援策と組み合わせて活用でき、合計で数十万円から最大100万円超の支援が見込めます。',
+    amount:'就業支援＋住居費補助（静岡県制度と合算可）',amountShort:'数十万円〜',lossEstimate:10,
+    conditions:['東京圏等から浜松市に移住（静岡県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の支援金と別申請',icsDate:null,local:'静岡県',
+    eligibility:(p)=>p.prefecture==='静岡県',
+  },
+  {
+    id:'nagoya_kosodate',name:'名古屋市 子育て支援',category:'grant',categoryLabel:'給付金',
+    summary:'名古屋市独自の子育て支援。医療費助成（高校卒業まで）と保育料補助を提供。',
+    desc:'名古屋市では高校卒業まで（18歳年度末）の子どもの医療費を助成するほか、独自の保育料補助を実施しています。愛知県の制度と組み合わせて子育て世帯の経済的負担を大幅に軽減できます。',
+    amount:'医療費助成（年間数万円）＋保育料補助',amountShort:'医療費助成＋保育料補助',lossEstimate:9,
+    conditions:['名古屋市内に居住（愛知県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'愛知県',
+    eligibility:(p)=>p.prefecture==='愛知県'&&p.family==='children',
+  },
+  {
+    id:'kyoto_city_iryo',name:'京都市 子育て医療費助成',category:'grant',categoryLabel:'給付金',
+    summary:'京都市独自の医療費助成（中学校卒業まで）。通院・入院ともに低額負担。',
+    desc:'京都市では中学校卒業まで（15歳年度末）の子どもの医療費（保険診療の自己負担分）を助成しています。通院・入院ともに対象で、子育て世帯の医療費負担を大幅に軽減できます。',
+    amount:'医療費自己負担分（年間数万円相当）',amountShort:'医療費助成',lossEstimate:7,
+    conditions:['京都市内に居住（京都府として判定）','中学校卒業まで（15歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'京都府',
+    eligibility:(p)=>p.prefecture==='京都府'&&p.family==='children',
+  },
+  {
+    id:'osaka_city_kosodate',name:'大阪市 子育て支援',category:'grant',categoryLabel:'給付金',
+    summary:'大阪市独自の子育て支援給付。大阪府制度に上乗せで保育料・医療費を補助。',
+    desc:'大阪市では大阪府の子ども医療費助成に加え、市独自の保育料補助や子育て支援給付を実施しています。2〜4歳の保育料無償化拡充など、子育て世帯への支援が充実しています。',
+    amount:'保育料補助＋医療費助成（府制度との合算）',amountShort:'保育料＋医療費補助',lossEstimate:10,
+    conditions:['大阪市内に居住（大阪府として判定）','就学前の子どもがいる','保育施設を利用または医療機関を受診'],
+    docs:['申請書','住民票','子どもの健康保険証','保育施設利用証明書'],
+    deadline:'保育施設入所申請時または出生後',deadlineNote:'各区の窓口で申請',icsDate:null,local:'大阪府',
+    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+  },
+  {
+    id:'sakai_kosodate',name:'堺市 子育て支援',category:'grant',categoryLabel:'給付金',
+    summary:'堺市独自の子育て支援。医療費助成（高校卒業まで）と保育料補助を提供。',
+    desc:'堺市では高校卒業まで（18歳年度末）の子どもの医療費を助成するほか、保育料補助を実施しています。大阪府の制度と組み合わせて利用することで、子育て世帯の経済的負担をさらに軽減できます。',
+    amount:'医療費助成（年間数万円）＋保育料補助',amountShort:'医療費＋保育料補助',lossEstimate:9,
+    conditions:['堺市内に居住（大阪府として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'大阪府',
+    eligibility:(p)=>p.prefecture==='大阪府'&&p.family==='children',
+  },
+  {
+    id:'kobe_ijyu',name:'神戸市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'神戸市独自の移住支援策。就業支援と生活支援を組み合わせ東京圏からの移住を後押し。',
+    desc:'神戸市では東京圏等からの移住促進のため、市独自の就業支援金や生活支援給付を実施しています。兵庫県の制度と組み合わせて活用でき、合算でより手厚い支援が受けられます。',
+    amount:'就業支援＋生活支援（合計数十万円）',amountShort:'数十万円',lossEstimate:10,
+    conditions:['東京圏等から神戸市に移住（兵庫県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の支援金と別申請',icsDate:null,local:'兵庫県',
+    eligibility:(p)=>p.prefecture==='兵庫県',
+  },
+  {
+    id:'okayama_city_ijyu',name:'岡山市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'岡山市独自の移住支援。就業・創業支援と住居費補助を組み合わせ提供。',
+    desc:'岡山市では東京圏等からの移住者に対し、市独自の就業支援金や住居費補助を実施しています。岡山県の子育て支援との組み合わせにより、子育て世帯への手厚い支援が受けられます。',
+    amount:'就業支援＋住居費補助（数十万円）',amountShort:'数十万円',lossEstimate:10,
+    conditions:['東京圏等から岡山市に移住（岡山県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の支援と別申請',icsDate:null,local:'岡山県',
+    eligibility:(p)=>p.prefecture==='岡山県',
+  },
+  {
+    id:'hiroshima_city_kosodate',name:'広島市 子育て支援',category:'grant',categoryLabel:'給付金',
+    summary:'広島市独自の子育て支援。医療費助成（高校卒業まで）と保育料補助を提供。',
+    desc:'広島市では高校卒業まで（18歳年度末）の子どもの医療費を助成するほか、保育料補助を実施しています。広島県の移住支援とも組み合わせて活用でき、移住＋子育て世帯に特に手厚い支援が受けられます。',
+    amount:'医療費助成（年間数万円）＋保育料補助',amountShort:'医療費＋保育料補助',lossEstimate:9,
+    conditions:['広島市内に居住（広島県として判定）','高校卒業まで（18歳年度末）の子どもがいる','健康保険に加入'],
+    docs:['申請書','健康保険証','住民票','子どもの戸籍謄本'],
+    deadline:'出生後または転入後速やかに申請',deadlineNote:'各区の窓口で申請',icsDate:null,local:'広島県',
+    eligibility:(p)=>p.prefecture==='広島県'&&p.family==='children',
+  },
+  {
+    id:'kitakyushu_ijyu',name:'北九州市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'北九州市独自の移住支援。就業・創業支援と住居費補助を組み合わせ提供。',
+    desc:'北九州市では東京圏等からの移住者に対し、市独自の就業支援金や住居費補助を実施しています。福岡県の制度と組み合わせて活用でき、特に製造業・IT業への就業者への支援が充実しています。',
+    amount:'就業支援＋住居費補助（数十万円）',amountShort:'数十万円',lossEstimate:10,
+    conditions:['東京圏等から北九州市に移住（福岡県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'予算上限あり',icsDate:null,local:'福岡県',
+    eligibility:(p)=>p.prefecture==='福岡県',
+  },
+  {
+    id:'fukuoka_city_startup',name:'福岡市 スタートアップ・創業支援',category:'subsidy',categoryLabel:'補助金',
+    summary:'福岡市独自の創業・スタートアップ支援。インキュベーション施設利用優遇と補助金。',
+    desc:'福岡市は「スタートアップ都市ふくおか」を掲げ、創業・スタートアップ支援に特に力を入れています。創業補助金（最大100万円）に加え、スタートアップカフェや市独自のインキュベーション施設の利用優遇、海外展開支援も充実しています。',
+    amount:'創業補助金最大100万円＋施設優遇',amountShort:'最大100万円',lossEstimate:20,
+    conditions:['福岡市内での創業・開業が対象（福岡県として判定）','事業計画書の提出が必要','補助事業期間内に創業すること'],
+    docs:['申請書','事業計画書','見積書','履歴書'],
+    deadline:'年複数回の公募あり',deadlineNote:'採択後の事前承認が必要',icsDate:null,local:'福岡県',
+    eligibility:(p)=>p.prefecture==='福岡県'&&['freelance','sme'].includes(p.job),
+  },
+  {
+    id:'kumamoto_city_ijyu',name:'熊本市 移住支援',category:'grant',categoryLabel:'給付金',
+    summary:'熊本市独自の移住支援。就業・創業支援と生活支援を組み合わせ提供。',
+    desc:'熊本市では東京圏等からの移住者に対し、市独自の就業支援金や生活支援給付を実施しています。熊本県の子育て支援との組み合わせで、移住＋子育て世帯に手厚い支援が受けられます。',
+    amount:'就業支援＋生活支援（合計数十万円）',amountShort:'数十万円',lossEstimate:10,
+    conditions:['東京圏等から熊本市に移住（熊本県として判定）','就業・創業・テレワーク勤務のいずれか','移住後1年以内に申請'],
+    docs:['申請書','住民票（異動前・後）','就業証明書または開業届','誓約書'],
+    deadline:'移住後1年以内',deadlineNote:'県の支援金と別申請',icsDate:null,local:'熊本県',
+    eligibility:(p)=>p.prefecture==='熊本県',
+  },
+];
+
+// ── State ─────────────────────────────────────────────────────
+let matchedPrograms = [];
+let activeTab = 'all';
+let favorites = JSON.parse(localStorage.getItem('msa_favorites')||'[]');
+let progress = JSON.parse(localStorage.getItem('msa_progress')||'{}');
+let currentProfile = null;
+let currentModalId = null;
+
+// ── Form ──────────────────────────────────────────────────────
+document.getElementById('profile-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  const p = getProfile();
+  if(!p) return;
+  currentProfile = p;
+  runDiagnosis(p);
+});
+
+function getProfile(){
+  const age = parseInt(document.getElementById('age').value);
+  const prefecture = document.getElementById('prefecture').value;
+  const income = parseInt(document.getElementById('income').value);
+  const job = document.getElementById('job').value;
+  const fEl = document.querySelector('input[name="family"]:checked');
+  const hEl = document.querySelector('input[name="housing"]:checked');
+  const mEl = document.querySelector('input[name="marriage"]:checked');
+  if(!age||!prefecture||isNaN(income)||!job||!fEl){alert('すべての必須項目を入力してください。');return null;}
+  return{age,prefecture,income,job,family:fEl.value,housing:hEl?hEl.value:'no',marriage:mEl?mEl.value:'no'};
+}
+
+// ── Re-diagnose ───────────────────────────────────────────────
+document.getElementById('btn-rediagnose').addEventListener('click',function(){
+  document.getElementById('form-section').scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>document.getElementById('age').focus(),400);
+});
+
+// ── Diagnosis ─────────────────────────────────────────────────
+function runDiagnosis(profile){
+  matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
+  const totalLoss = matchedPrograms.reduce((s,p)=>s+p.lossEstimate,0);
+
+  document.getElementById('result-count').textContent = matchedPrograms.length;
+  document.getElementById('loss-amount').textContent = totalLoss;
+  document.getElementById('tab-all-count').textContent = matchedPrograms.length;
+  updateFavCount();
+  updateTodoCount();
+
+  const rs = document.getElementById('results-section');
+  rs.style.display = 'block';
+  renderCards(matchedPrograms);
+  buildSimulator(matchedPrograms);
+  document.getElementById('simulator-section').style.display = 'block';
+
+  setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+// ── Cards ──────────────────────────────────────────────────────
+function renderCards(programs){
+  const c = document.getElementById('cards-container');
+  while(c.firstChild) c.removeChild(c.firstChild);
+  if(!programs.length){
+    const e=document.createElement('div'); e.className='empty-state';
+    const ic=document.createElement('div'); ic.className='empty-icon';
+    const tx=document.createElement('div'); tx.className='empty-text';
+    tx.textContent=activeTab==='fav'?'お気に入りはまだありません':activeTab==='todo'?'申請管理中の制度はありません':'該当する制度が見つかりません';
+    const sb=document.createElement('div'); sb.className='empty-sub';
+    sb.textContent=activeTab==='fav'?'カードのお気に入りボタンで保存できます':activeTab==='todo'?'詳細画面から申請ステータスを設定してください':'プロフィールを変更して再診断してください';
+    e.appendChild(ic); e.appendChild(tx); e.appendChild(sb); c.appendChild(e);
+    return;
+  }
+  programs.forEach((prog,i)=>c.appendChild(buildCard(prog,i)));
+}
+
+function buildCard(prog,i){
+  const isFav=favorites.includes(prog.id);
+  const prog_step=progress[prog.id]||0;
+  const card=document.createElement('div');
+  card.className='program-card';
+  card.style.animationDelay=(i*0.06)+'s';
+
+  const header=document.createElement('div'); header.className='card-header';
+  const cat=document.createElement('span'); cat.className='card-category cat-'+prog.category; cat.textContent=prog.categoryLabel;
+  const actions=document.createElement('div'); actions.className='card-actions';
+
+  const calBtn=document.createElement('button'); calBtn.className='cal-btn'; calBtn.title='カレンダーに追加';
+  calBtn.addEventListener('click',function(e){e.stopPropagation();downloadIcs(prog);});
+
+  const favBtn=document.createElement('button'); favBtn.className='fav-btn'+(isFav?' active':''); favBtn.title='お気に入り';
+  favBtn.addEventListener('click',function(e){e.stopPropagation();toggleFav(prog.id,favBtn);});
+
+  actions.appendChild(calBtn); actions.appendChild(favBtn);
+  header.appendChild(cat); header.appendChild(actions);
+
+  const name=document.createElement('div'); name.className='card-name'; name.textContent=prog.name;
+
+  const localBadge = prog.local ? document.createElement('div') : null;
+  if(localBadge){localBadge.className='card-local-badge'; localBadge.textContent=prog.local+'独自制度';}
+
+  const summary=document.createElement('div'); summary.className='card-summary'; summary.textContent=prog.summary;
+
+  const dataBox=document.createElement('div'); dataBox.className='card-data';
+  const r1=mkRow('想定効果',prog.amountShort,true);
+  const r2=mkRow('申請期限',prog.deadline.length>14?prog.deadline.slice(0,14)+'…':prog.deadline,false);
+  dataBox.appendChild(r1); dataBox.appendChild(r2);
+
+  // Progress badge
+  const pb=document.createElement('div');
+  const pbClass=['progress-none','progress-checking','progress-docs','progress-applied','progress-reviewing','progress-done'];
+  pb.className='progress-badge '+pbClass[prog_step];
+  pb.textContent=PROGRESS_STEPS[prog_step];
+  dataBox.appendChild(pb);
+
+  const cta=document.createElement('div'); cta.className='card-cta';
+  const cl=document.createElement('span'); cl.className='cta-link'; cl.textContent='詳細を見る';
+  const ca=document.createElement('span'); ca.className='cta-arrow'; ca.textContent='→';
+  cta.appendChild(cl); cta.appendChild(ca);
+
+  card.appendChild(header); card.appendChild(name);
+  if(localBadge) card.appendChild(localBadge);
+  card.appendChild(summary); card.appendChild(dataBox); card.appendChild(cta);
+  card.addEventListener('click',()=>openModal(prog.id));
+  return card;
+}
+
+function mkRow(key,val,hl){
+  const r=document.createElement('div'); r.className='card-data-row';
+  const k=document.createElement('span'); k.className='data-key'; k.textContent=key;
+  const v=document.createElement('span'); v.className='data-val'+(hl?' highlight':''); v.textContent=val;
+  r.appendChild(k); r.appendChild(v); return r;
+}
+
+// ── Tabs ──────────────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  ['all','fav','todo'].forEach(t=>{
+    document.getElementById('tab-'+t+'-btn').classList.toggle('active',t===tab);
+  });
+  if(tab==='all') renderCards(matchedPrograms);
+  else if(tab==='fav') renderCards(matchedPrograms.filter(p=>favorites.includes(p.id)));
+  else renderCards(matchedPrograms.filter(p=>(progress[p.id]||0)>0));
+}
+
+// ── Favorites ─────────────────────────────────────────────────
+function toggleFav(id,btn){
+  const idx=favorites.indexOf(id);
+  if(idx>-1) favorites.splice(idx,1); else favorites.push(id);
+  localStorage.setItem('msa_favorites',JSON.stringify(favorites));
+  const isNow=favorites.includes(id);
+  btn.classList.toggle('active',isNow);
+  btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
+  updateFavCount();
+  if(activeTab==='fav') renderCards(matchedPrograms.filter(p=>favorites.includes(p.id)));
+}
+
+function updateFavCount(){
+  document.getElementById('tab-fav-count').textContent=favorites.filter(id=>matchedPrograms.some(p=>p.id===id)).length;
+}
+
+function updateTodoCount(){
+  document.getElementById('tab-todo-count').textContent=matchedPrograms.filter(p=>(progress[p.id]||0)>0).length;
+}
+
+// ── Share ──────────────────────────────────────────────────────
+document.getElementById('btn-share-x').addEventListener('click',function(){
+  const count=document.getElementById('result-count').textContent;
+  const loss=document.getElementById('loss-amount').textContent;
+  const text='【もらえるお金診断】\n対象制度が'+count+'件見つかりました！\n活用しないと年間約'+loss+'万円の損失に\n\nあなたも診断してみて\n#もらえるお金診断 #補助金 #節税';
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text),'_blank');
+});
+
+document.getElementById('btn-share-line').addEventListener('click',function(){
+  const count=document.getElementById('result-count').textContent;
+  const loss=document.getElementById('loss-amount').textContent;
+  const text='【もらえるお金診断】\n対象制度が'+count+'件見つかりました！活用しないと年間約'+loss+'万円の損失になるよ。あなたも診断してみて！';
+  window.open('https://line.me/R/msg/text/?'+encodeURIComponent(text),'_blank');
+});
+
+// ── Calendar ICS ──────────────────────────────────────────────
+function downloadIcs(prog){
+  const now=new Date();
+  const stamp=fmtIcsDate(now);
+  const dtstart=prog.icsDate||stamp.slice(0,8);
+  const ics=[
+    'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//もらえるお金診断//JP',
+    'BEGIN:VEVENT',
+    'UID:'+prog.id+'@moraeru-okane-shindan',
+    'DTSTAMP:'+stamp,
+    'DTSTART;VALUE=DATE:'+dtstart,
+    'SUMMARY:【申請期限】'+prog.name,
+    'DESCRIPTION:'+prog.deadline+'\\n'+prog.deadlineNote,
+    'END:VEVENT','END:VCALENDAR'
+  ].join('\r\n');
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=prog.id+'.ics';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('カレンダーファイルをダウンロードしました');
+}
+
+function fmtIcsDate(d){
+  const pad=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(d.getHours())+pad(d.getMinutes())+'00Z';
+}
+
+// ── Simulator ─────────────────────────────────────────────────
+function buildSimulator(programs){
+  const grid=document.getElementById('sim-grid');
+  while(grid.firstChild) grid.removeChild(grid.firstChild);
+  const total=programs.reduce((s,p)=>s+p.lossEstimate,0);
+  document.getElementById('sim-total').textContent=total;
+
+  programs.forEach(prog=>{
+    const item=document.createElement('div'); item.className='sim-item';
+    const n=document.createElement('div'); n.className='sim-name'; n.textContent=prog.name;
+    const now=document.createElement('div'); now.className='sim-now'; now.textContent='現在の活用状況：未活用';
+    const gain=document.createElement('div'); gain.className='sim-gain'; gain.textContent='−'+prog.lossEstimate+'万円';
+    const gl=document.createElement('div'); gl.className='sim-gain-label'; gl.textContent='年間損失額（推定）';
+    item.appendChild(n); item.appendChild(now); item.appendChild(gain); item.appendChild(gl);
+    grid.appendChild(item);
+  });
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal(id){
+  const prog=PROGRAMS.find(p=>p.id===id);
+  if(!prog) return;
+  currentModalId=id;
+
+  const cw=document.getElementById('modal-category-wrap');
+  while(cw.firstChild) cw.removeChild(cw.firstChild);
+  const cb=document.createElement('span'); cb.className='card-category cat-'+prog.category; cb.textContent=prog.categoryLabel;
+  cw.appendChild(cb);
+
+  document.getElementById('modal-name').textContent=prog.name;
+  document.getElementById('modal-amount-value').textContent=prog.amount;
+  document.getElementById('modal-desc').textContent=prog.desc;
+
+  const ce=document.getElementById('modal-conditions');
+  while(ce.firstChild) ce.removeChild(ce.firstChild);
+  prog.conditions.forEach(c=>{
+    const item=document.createElement('div'); item.className='condition-item';
+    const chk=document.createElement('span'); chk.className='condition-check';
+    const txt=document.createElement('span'); txt.textContent=c;
+    item.appendChild(chk); item.appendChild(txt); ce.appendChild(item);
+  });
+
+  const de=document.getElementById('modal-docs');
+  while(de.firstChild) de.removeChild(de.firstChild);
+  prog.docs.forEach(d=>{
+    const t=document.createElement('span'); t.className='doc-tag'; t.textContent=d; de.appendChild(t);
+  });
+
+  document.getElementById('modal-deadline').textContent=prog.deadline;
+  document.getElementById('modal-deadline-note').textContent=prog.deadlineNote;
+
+  // Calendar btn
+  document.getElementById('modal-cal-btn').onclick=()=>downloadIcs(prog);
+
+  // Progress tracker
+  buildProgressTracker(prog.id);
+
+  document.getElementById('modal-backdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function buildProgressTracker(id){
+  const container=document.getElementById('modal-progress');
+  while(container.firstChild) container.removeChild(container.firstChild);
+  const current=progress[id]||0;
+
+  PROGRESS_STEPS.forEach((label,i)=>{
+    if(i>0){
+      const conn=document.createElement('div');
+      conn.className='step-connector'+(i<=current?' done':'');
+      container.appendChild(conn);
+    }
+    const step=document.createElement('div'); step.className='progress-step';
+    step.dataset.step=i;
+    const circle=document.createElement('div');
+    let circleClass='step-circle';
+    if(i<current) circleClass+=' done';
+    else if(i===current) circleClass+=' current';
+    circle.className=circleClass;
+    circle.textContent=i<current?'':(i+1);
+
+    const lbl=document.createElement('div');
+    let lblClass='step-label';
+    if(i<current) lblClass+=' done';
+    else if(i===current) lblClass+=' current';
+    lbl.className=lblClass; lbl.textContent=label;
+
+    step.appendChild(circle); step.appendChild(lbl);
+    step.addEventListener('click',()=>setProgress(id,i));
+    container.appendChild(step);
+  });
+}
+
+function setProgress(id,step){
+  progress[id]=step;
+  localStorage.setItem('msa_progress',JSON.stringify(progress));
+  buildProgressTracker(id);
+  updateTodoCount();
+  if(activeTab==='all'||activeTab==='todo'){
+    const progs=activeTab==='todo'?matchedPrograms.filter(p=>(progress[p.id]||0)>0):matchedPrograms;
+    renderCards(progs);
+  }
+  showToast('申請ステータスを「'+PROGRESS_STEPS[step]+'」に更新しました');
+}
+
+function closeModalDirect(){
+  document.getElementById('modal-backdrop').classList.remove('open');
+  document.body.style.overflow='';
+  currentModalId=null;
+}
+document.getElementById('modal-backdrop').addEventListener('click',function(e){if(e.target===this)closeModalDirect();});
+document.getElementById('modal-close-btn').addEventListener('click',closeModalDirect);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect();});
+
+// ── Toast ──────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Legal modal
+function openLegal(tab) {
+  switchLegalTab(tab, document.querySelector('.legal-tab'));
+  document.querySelectorAll('.legal-tab').forEach((t,i) => {
+    const tabs = ['disclaimer','privacy','terms'];
+    if(tabs[i] === tab) { t.classList.add('active'); switchLegalTab(tab,t); }
+    else t.classList.remove('active');
+  });
+  document.getElementById('legalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLegal() {
+  document.getElementById('legalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchLegalTab(name, btn) {
+  document.querySelectorAll('.legal-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.legal-tab').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('lc-' + name);
+  if(el) el.classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+document.getElementById('legalOverlay').addEventListener('click', function(e) {
+  if(e.target === this) closeLegal();
+});
+
+// PWA Service Worker registration
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('pwaBanner');
+  if(banner) banner.style.display = 'flex';
+});
+function installPwa() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; hidePwaBanner(); });
+  }
+}
+function hidePwaBanner() {
+  const b = document.getElementById('pwaBanner');
+  if(b) b.style.display = 'none';
+  localStorage.setItem('pwaBannerDismissed','1');
+}
+</script>
+</body>
+</html>
