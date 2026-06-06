@@ -493,10 +493,31 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
             <div class="form-group full-width">
               <label>家族構成 <span class="required">*</span></label>
               <div class="radio-group">
-                <div class="radio-btn"><input type="radio" id="f_single" name="family" value="single"><label for="f_single">独身</label></div>
-                <div class="radio-btn"><input type="radio" id="f_married" name="family" value="married"><label for="f_married">既婚（子なし）</label></div>
-                <div class="radio-btn"><input type="radio" id="f_children" name="family" value="children"><label for="f_children">子育て世帯</label></div>
+                <div class="radio-btn"><input type="radio" id="f_single" name="family" value="single" onchange="updateFamilyFields(this.value)"><label for="f_single">独身</label></div>
+                <div class="radio-btn"><input type="radio" id="f_married" name="family" value="married" onchange="updateFamilyFields(this.value)"><label for="f_married">既婚（子なし）</label></div>
+                <div class="radio-btn"><input type="radio" id="f_children" name="family" value="children" onchange="updateFamilyFields(this.value)"><label for="f_children">子育て世帯</label></div>
               </div>
+            </div>
+            <div class="form-group" id="childrenCountGroup" style="display:none">
+              <label class="form-label">子どもの人数</label>
+              <select id="inputChildrenCount" class="form-control">
+                <option value="">選択してください</option>
+                <option value="1">1人</option>
+                <option value="2">2人</option>
+                <option value="3">3人以上</option>
+              </select>
+            </div>
+            <div class="form-group" id="childrenAgeGroup" style="display:none">
+              <label class="form-label">末子（一番下の子）の年齢</label>
+              <select id="inputChildrenAge" class="form-control">
+                <option value="">選択してください</option>
+                <option value="0-2">0〜2歳（未就学児）</option>
+                <option value="3-5">3〜5歳（幼稚園・保育園）</option>
+                <option value="6-12">6〜12歳（小学生）</option>
+                <option value="13-15">13〜15歳（中学生）</option>
+                <option value="16-18">16〜18歳（高校生）</option>
+                <option value="19+">19歳以上</option>
+              </select>
             </div>
             <div class="form-group">
               <label>住宅購入の予定</label>
@@ -821,13 +842,61 @@ const PROGRAMS = [
   },
   {
     id:'child_support',name:'子育て支援制度（児童手当・保育料補助）',category:'grant',categoryLabel:'給付金',
-    summary:'0〜18歳の子に毎月支給される児童手当、保育料無償化、自治体独自給付など複数の支援。',
+    summary:'0〜18歳の子に毎月支給される児童手当、保育料無償化、自治体独自給付など複数の支援。子どもの人数・年齢により金額が異なります。',
     desc:'2024年から児童手当が拡充。第3子以降は3万円/月、0〜2歳と高校生は1.5万円/月、3歳〜中学生は1万円/月（所得制限撤廃）。3〜5歳の保育料無償化も継続。各自治体の独自給付も多数あります。',
-    amount:'年間 最大36〜72万円（児童手当のみ）',amountShort:'年間 最大72万円',lossEstimate:36,
+    amount:'年間 最大36〜72万円（子どもの人数・年齢により異なる）',amountShort:'年間 最大72万円',lossEstimate:36,
     conditions:['18歳以下の子どもがいる世帯','日本在住','申請者が子どもの生計を維持している'],
     docs:['認定請求書','戸籍謄本','住民票','健康保険証'],
     deadline:'出生後・転入後15日以内に申請推奨',deadlineNote:'遅延すると翌月以降の受給開始に',icsDate:null,local:null,
     eligibility:(p)=>p.family==='children',
+  },
+  {
+    id:'hoiku_munshou',
+    name:'保育料無償化（幼児教育・保育の無償化）',
+    category:'grant', categoryLabel:'給付金',
+    summary:'3歳〜5歳の保育園・幼稚園の利用料が無償',
+    desc:'幼児教育・保育の無償化制度により、3歳から5歳までの子どもの教育・保育費用が無償になります。0〜2歳の住民税非課税世帯も対象です。',
+    amount:'月額最大3.7万円（認可保育所の場合）',amountShort:'月額最大3.7万円',lossEstimate:44,
+    conditions:['3〜5歳の子どもがいる（全世帯対象）','または0〜2歳で住民税非課税世帯','認可保育所・幼稚園・認定こども園等に通園'],
+    docs:['施設等利用給付認定申請書','住民票','収入証明書（0〜2歳の場合）'],
+    deadline:'入園時に施設または市区町村へ申請',deadlineNote:'在園中は自動適用されるケースも多い',icsDate:null,local:null,
+    eligibility: p => p.family === 'children' && (p.childrenAge === '3-5' || p.childrenAge === '0-2')
+  },
+  {
+    id:'jidou_teate',
+    name:'児童手当（拡充版）',
+    category:'grant', categoryLabel:'給付金',
+    summary:'中学生以下の子ども1人あたり月1〜1.5万円の手当',
+    desc:'2024年10月より児童手当が拡充。所得制限が撤廃され、高校生まで対象が拡大。第3子以降は月3万円に増額されました。',
+    amount:'月1万円（3歳未満・第3子以降は1.5〜3万円）',amountShort:'月1〜3万円/人',lossEstimate:18,
+    conditions:['中学生以下の子どもがいる（所得制限なし）','日本在住','子どもを養育している'],
+    docs:['認定請求書','戸籍謄本','住民票','健康保険証','振込口座情報'],
+    deadline:'出生後・転入後速やかに申請',deadlineNote:'遅延すると遡及支給されない場合あり',icsDate:null,local:null,
+    eligibility: p => p.family === 'children' && ['0-2','3-5','6-12','13-15'].includes(p.childrenAge)
+  },
+  {
+    id:'kokosei_mushou',
+    name:'高校授業料実質無償化',
+    category:'grant', categoryLabel:'給付金',
+    summary:'高校生の授業料を国が支援（就学支援金）',
+    desc:'高等学校就学支援金制度により、国公立高校の授業料が実質無償。私立高校も年収590万円未満世帯は最大39.6万円の支援があります。',
+    amount:'国公立：年約12万円、私立：最大年39.6万円',amountShort:'最大年39.6万円',lossEstimate:30,
+    conditions:['高校生の子どもがいる','世帯年収910万円未満（私立は590万円未満で上限額増）'],
+    docs:['就学支援金受給資格認定申請書','課税証明書'],
+    deadline:'入学時に学校へ申請',deadlineNote:'毎年7月頃に収入状況の届出が必要',icsDate:null,local:null,
+    eligibility: p => p.family === 'children' && p.childrenAge === '16-18'
+  },
+  {
+    id:'tashi_katei',
+    name:'多子世帯支援（第3子以降加算）',
+    category:'grant', categoryLabel:'給付金',
+    summary:'3人以上の子どもがいる世帯への追加支援',
+    desc:'児童手当の第3子以降3万円への増額のほか、保育料無償化・給食費補助など多子世帯向けの優遇が各種あります。',
+    amount:'児童手当第3子以降：月3万円＋各種加算',amountShort:'月3万円/人＋加算',lossEstimate:36,
+    conditions:['18歳以下の子どもが3人以上いる','日本在住'],
+    docs:['各制度の申請書類','戸籍謄本','住民票'],
+    deadline:'各制度の申請期限に準じる',deadlineNote:'',icsDate:null,local:null,
+    eligibility: p => p.family === 'children' && p.childrenCount === '3'
   },
   // 個人事業主向け
   {
@@ -1639,7 +1708,21 @@ function getProfile(){
     dx: dxEl?dxEl.value:'no',
     disability: disEl?disEl.value:'no',
     caregiving: careEl?careEl.value:'no',
+    childrenCount: document.getElementById('inputChildrenCount')?.value || '',
+    childrenAge: document.getElementById('inputChildrenAge')?.value || '',
   };
+}
+
+function updateFamilyFields(val) {
+  const countGroup = document.getElementById('childrenCountGroup');
+  const ageGroup = document.getElementById('childrenAgeGroup');
+  if (val === 'children') {
+    if (countGroup) countGroup.style.display = '';
+    if (ageGroup) ageGroup.style.display = '';
+  } else {
+    if (countGroup) countGroup.style.display = 'none';
+    if (ageGroup) ageGroup.style.display = 'none';
+  }
 }
 
 // ── Freelance field visibility ────────────────────────────────
@@ -2301,10 +2384,19 @@ async function loadProfile() {
   if (profile.family) {
     const el = document.querySelector('input[name="family"][value="' + profile.family + '"]');
     if (el) el.checked = true;
+    updateFamilyFields(profile.family);
   }
   if (profile.employees) {
     const el = document.querySelector('input[name="employees"][value="' + profile.employees + '"]');
     if (el) el.checked = true;
+  }
+  if (profile.children_count || profile.childrenCount) {
+    const el = document.getElementById('inputChildrenCount');
+    if (el) el.value = profile.children_count || profile.childrenCount;
+  }
+  if (profile.children_age || profile.childrenAge) {
+    const el = document.getElementById('inputChildrenAge');
+    if (el) el.value = profile.children_age || profile.childrenAge;
   }
 }
 
@@ -2330,6 +2422,8 @@ async function saveProfileToCloud(profile) {
     dx: profile.dx || null,
     disability: profile.disability || null,
     caregiving: profile.caregiving || null,
+    children_count: profile.childrenCount || null,
+    children_age: profile.childrenAge || null,
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
 }
@@ -2503,11 +2597,32 @@ function hidePwaBanner() {
         </div>
         <div class="form-group">
           <label class="form-label">家族構成</label>
-          <select id="edit_family" class="form-control">
+          <select id="edit_family" class="form-control" onchange="updateEditFamilyFields(this.value)">
             <option value="">選択してください</option>
             <option value="single">独身</option>
             <option value="married">既婚（子なし）</option>
             <option value="children">子育て世帯</option>
+          </select>
+        </div>
+        <div class="form-group" id="editChildrenCountGroup" style="display:none">
+          <label class="form-label">子どもの人数</label>
+          <select id="edit_childrenCount" class="form-control">
+            <option value="">選択してください</option>
+            <option value="1">1人</option>
+            <option value="2">2人</option>
+            <option value="3">3人以上</option>
+          </select>
+        </div>
+        <div class="form-group" id="editChildrenAgeGroup" style="display:none">
+          <label class="form-label">末子の年齢</label>
+          <select id="edit_childrenAge" class="form-control">
+            <option value="">選択してください</option>
+            <option value="0-2">0〜2歳</option>
+            <option value="3-5">3〜5歳</option>
+            <option value="6-12">6〜12歳</option>
+            <option value="13-15">13〜15歳</option>
+            <option value="16-18">16〜18歳</option>
+            <option value="19+">19歳以上</option>
           </select>
         </div>
         <div class="form-group">
@@ -2549,6 +2664,18 @@ function hidePwaBanner() {
 </div>
 
 <script>
+function updateEditFamilyFields(val) {
+  const cg = document.getElementById('editChildrenCountGroup');
+  const ag = document.getElementById('editChildrenAgeGroup');
+  if (val === 'children') {
+    if (cg) cg.style.display = '';
+    if (ag) ag.style.display = '';
+  } else {
+    if (cg) cg.style.display = 'none';
+    if (ag) ag.style.display = 'none';
+  }
+}
+
 function openProfileEdit() {
   const saved = localStorage.getItem('msa_profile');
   const p = saved ? JSON.parse(saved) : {};
@@ -2563,6 +2690,15 @@ function openProfileEdit() {
     const el = document.getElementById(id);
     if (el && val != null) el.value = val;
   });
+  if (p.childrenCount) {
+    const el = document.getElementById('edit_childrenCount');
+    if (el) el.value = p.childrenCount;
+  }
+  if (p.childrenAge) {
+    const el = document.getElementById('edit_childrenAge');
+    if (el) el.value = p.childrenAge;
+  }
+  updateEditFamilyFields(p.family || '');
   if (p.prefecture) updateEditCities(p.prefecture, p.city);
   document.getElementById('profileEditOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -2602,7 +2738,9 @@ async function saveProfileEdit() {
     housing: document.getElementById('edit_housing').value,
     marriage: document.getElementById('edit_marriage').value,
     disability: document.getElementById('edit_disability').value,
-    caregiving: document.getElementById('edit_caregiving').value
+    caregiving: document.getElementById('edit_caregiving').value,
+    childrenCount: document.getElementById('edit_childrenCount')?.value || '',
+    childrenAge: document.getElementById('edit_childrenAge')?.value || '',
   };
   saveProfileLocally(profile);
   if (currentUser) await saveProfileToCloud(profile);
