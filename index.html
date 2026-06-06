@@ -345,6 +345,24 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
 .footer-link{font-size:12px;color:var(--text-muted);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0}
 .footer-link:hover{color:var(--gold-300)}
 .footer-copy{font-size:11px;color:#3a4a6b}
+/* Filter bar */
+.filter-bar{background:var(--navy-800);border:1px solid var(--navy-600);border-radius:14px;padding:16px;margin-bottom:20px}
+.filter-search{width:100%;background:var(--navy-700);border:1px solid var(--navy-600);border-radius:10px;padding:10px 14px;color:var(--text-primary);font-size:14px;margin-bottom:12px;box-sizing:border-box}
+.filter-search::placeholder{color:var(--text-muted)}
+.filter-search:focus{outline:none;border-color:var(--gold-400)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--navy-600);background:var(--navy-700);color:var(--text-muted);transition:all .2s;white-space:nowrap}
+.filter-chip.active{background:var(--gold-400);color:var(--navy-900);border-color:var(--gold-400)}
+.filter-sort{margin-left:auto}
+.filter-sort select{background:var(--navy-700);border:1px solid var(--navy-600);border-radius:8px;padding:6px 10px;color:var(--text-muted);font-size:12px;cursor:pointer}
+.filter-sort select:focus{outline:none}
+/* Steps list */
+.steps-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.step-item{display:flex;gap:12px;align-items:flex-start}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--gold-400);color:var(--navy-900);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-text{font-size:13px;color:var(--text-muted);line-height:1.5;padding-top:3px}
+.modal-label{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.modal-label::after{content:'';flex:1;height:1px;background:var(--border)}
 /* Disclaimer banner */
 .disclaimer-banner{background:rgba(212,163,57,.08);border:1px solid rgba(212,163,57,.2);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:12px;color:var(--text-muted);line-height:1.6}
 .disclaimer-banner strong{color:var(--gold-400);display:block;margin-bottom:4px}
@@ -405,9 +423,15 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
             </div>
             <div class="form-group">
               <label>居住地（都道府県）<span class="required">*</span></label>
-              <select id="prefecture" required>
+              <select id="prefecture" required onchange="updateCities(this.value)">
                 <option value="">選択してください</option>
                 <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+              </select>
+            </div>
+            <div class="form-group" id="cityGroup" style="display:none">
+              <label class="form-label">市区町村（任意）</label>
+              <select class="form-control" id="inputCity">
+                <option value="">選択してください（任意）</option>
               </select>
             </div>
             <div class="form-group">
@@ -447,6 +471,57 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
               <div class="radio-group">
                 <div class="radio-btn"><input type="radio" id="m_yes" name="marriage" value="yes"><label for="m_yes">あり</label></div>
                 <div class="radio-btn"><input type="radio" id="m_no" name="marriage" value="no" checked><label for="m_no">なし</label></div>
+              </div>
+            </div>
+            <!-- Freelance-only fields -->
+            <div class="form-group" id="industryGroup" style="display:none">
+              <label>業種</label>
+              <select id="inputIndustry">
+                <option value="">選択してください</option>
+                <option value="it">ITサービス</option>
+                <option value="manufacturing">製造業</option>
+                <option value="retail">小売業</option>
+                <option value="food">飲食業</option>
+                <option value="construction">建設業</option>
+                <option value="agriculture">農業・林業</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div class="form-group" id="employeesGroup" style="display:none">
+              <label>従業員数</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="emp_0" name="employees" value="0"><label for="emp_0">0人（自分のみ）</label></div>
+                <div class="radio-btn"><input type="radio" id="emp_1" name="employees" value="1-5"><label for="emp_1">1〜5人</label></div>
+                <div class="radio-btn"><input type="radio" id="emp_6" name="employees" value="6-20"><label for="emp_6">6〜20人</label></div>
+              </div>
+            </div>
+            <div class="form-group" id="equipmentGroup" style="display:none">
+              <label>設備投資予定</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="eq_yes" name="equipment" value="yes"><label for="eq_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="eq_no" name="equipment" value="no" checked><label for="eq_no">なし</label></div>
+              </div>
+            </div>
+            <div class="form-group" id="dxGroup" style="display:none">
+              <label>IT化・DX推進予定</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="dx_yes" name="dx" value="yes"><label for="dx_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="dx_no" name="dx" value="no" checked><label for="dx_no">なし</label></div>
+              </div>
+            </div>
+            <!-- Universal fields -->
+            <div class="form-group">
+              <label>障がい・難病</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="dis_yes" name="disability" value="yes"><label for="dis_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="dis_no" name="disability" value="no" checked><label for="dis_no">なし</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>介護中</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="care_yes" name="caregiving" value="yes"><label for="care_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="care_no" name="caregiving" value="no" checked><label for="care_no">なし</label></div>
               </div>
             </div>
           </div>
@@ -490,6 +565,23 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
       <div class="disclaimer-banner">
         <strong>ご注意</strong>
         診断結果は参考情報です。実際の受給可否・金額は各制度の審査により異なります。申請前に必ず公式窓口をご確認ください。
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <input type="text" class="filter-search" id="filterSearch" placeholder="制度名・キーワードで検索...">
+        <div class="filter-row">
+          <button class="filter-chip active" data-filter="category" data-value="all" onclick="setFilter('category','all',this)">すべて</button>
+          <button class="filter-chip" data-filter="category" data-value="tax" onclick="setFilter('category','tax',this)">節税</button>
+          <button class="filter-chip" data-filter="category" data-value="grant" onclick="setFilter('category','grant',this)">給付金</button>
+          <button class="filter-chip" data-filter="category" data-value="subsidy" onclick="setFilter('category','subsidy',this)">補助金</button>
+          <button class="filter-chip" data-filter="category" data-value="pension" onclick="setFilter('category','pension',this)">年金</button>
+          <div class="filter-sort">
+            <select id="filterSort" onchange="applyFilters()">
+              <option value="default">おすすめ順</option>
+              <option value="amount">金額が多い順</option>
+              <option value="deadline">期限が近い順</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="cards-grid" id="cards-container"></div>
     </section>
@@ -618,6 +710,10 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
           </div>
         </div>
         <button class="modal-cal-btn" id="modal-cal-btn">カレンダーに追加（.ics）</button>
+      </div>
+      <div class="modal-section" id="modalSteps">
+        <div class="modal-label">申請ステップ</div>
+        <div class="steps-list" id="modalStepsList"></div>
       </div>
       <div>
         <div class="modal-section-title">申請進捗</div>
@@ -1394,6 +1490,61 @@ const PROGRAMS = [
     deadline:'移住後1年以内',deadlineNote:'県の支援金と別申請',icsDate:null,local:'熊本県',
     eligibility:(p)=>p.prefecture==='熊本県',
   },
+  // ── 新規プログラム：障がい・介護・DX・設備投資 ───────────────
+  {
+    id:'disability_tax',name:'障害者控除',category:'tax',categoryLabel:'節税',
+    summary:'障がい者本人または扶養する障がい者がいる場合の所得控除',
+    desc:'納税者本人や控除対象配偶者、扶養親族が障害者である場合に適用できる所得控除です。障害の程度により控除額が異なります。',
+    amount:'27万円〜75万円の所得控除',amountShort:'27〜75万円控除',lossEstimate:8,
+    conditions:['障がい者手帳を保有','または医師の診断書がある','特別障害者は75万円控除'],
+    docs:['障がい者手帳（写し）','確定申告書'],
+    deadline:'確定申告期間（2月〜3月）',deadlineNote:'年末調整でも申告可能',icsDate:'20270315',local:null,
+    eligibility: p => p.disability === 'yes'
+  },
+  {
+    id:'caregiver_deduction',name:'介護医療院等の医療費控除',category:'tax',categoryLabel:'節税',
+    summary:'介護サービス費用の医療費控除',
+    desc:'特定の介護サービスにかかった費用は医療費控除の対象となります。年間10万円超の医療費がある場合に適用できます。',
+    amount:'介護費用の一部が控除対象（上限200万円）',amountShort:'最大200万円控除',lossEstimate:10,
+    conditions:['介護認定を受けている家族がいる','年間医療費が10万円超（または所得の5%超）'],
+    docs:['医療費控除の明細書','介護サービス利用明細書','確定申告書'],
+    deadline:'確定申告期間（2月〜3月）',deadlineNote:'5年間遡って申告可能',icsDate:'20270315',local:null,
+    eligibility: p => p.caregiving === 'yes'
+  },
+  {
+    id:'dx_subsidy',name:'DX推進補助金（デジタル化基盤導入枠）',category:'subsidy',categoryLabel:'補助金',
+    summary:'ITツール・システム導入費用の補助',
+    desc:'中小企業・個人事業主のデジタル化を支援する補助金。会計ソフト・受発注システム・ECサイト等の導入費用が対象です。',
+    amount:'最大350万円（補助率3/4）',amountShort:'最大350万円',lossEstimate:50,
+    conditions:['個人事業主または中小企業','DX推進計画の策定','認定ITベンダーのツール導入'],
+    docs:['事業計画書','見積書','直近の確定申告書'],
+    deadline:'年複数回公募',deadlineNote:'IT導入補助金の枠として申請',icsDate:null,local:null,
+    eligibility: p => (p.job==='freelance') && p.dx==='yes'
+  },
+  {
+    id:'equipment_subsidy',name:'設備投資補助金（ものづくり補助金）',category:'subsidy',categoryLabel:'補助金',
+    summary:'設備・システム投資費用の補助（個人事業主向け）',
+    desc:'個人事業主が新たな設備・機械・システムを導入する際の費用を補助します。生産性向上・新サービス開発が目的。',
+    amount:'最大750万円（補助率1/2）',amountShort:'最大750万円',lossEstimate:50,
+    conditions:['個人事業主','設備投資予定がある','事業計画書の提出'],
+    docs:['事業計画書','見積書','直近2期分の確定申告書'],
+    deadline:'年複数回公募（3〜4ヶ月ごと）',deadlineNote:'採択率約50%',icsDate:null,local:null,
+    eligibility: p => p.job==='freelance' && p.equipment==='yes'
+  },
+  // ── 市区町村レベルのプログラム ──────────────────────────────
+  {id:'sapporo_child',name:'札幌市 子育て支援給付金',category:'grant',categoryLabel:'給付金',summary:'札幌市独自の子育て世帯向け給付金',desc:'札幌市在住の子育て世帯を対象とした独自の支援給付金です。',amount:'年間最大10万円',amountShort:'最大10万円',lossEstimate:10,conditions:['札幌市在住','18歳未満の子どもがいる'],docs:['住民票','所得証明書'],deadline:'通年申請可能',deadlineNote:'予算に達し次第終了',icsDate:null,local:'札幌市',eligibility:p=>p.prefecture==='北海道'&&p.city==='札幌市'&&p.family==='children'},
+  {id:'sendai_housing',name:'仙台市 住宅取得支援補助金',category:'grant',categoryLabel:'給付金',summary:'仙台市内での住宅取得を支援',desc:'仙台市内で新たに住宅を取得する世帯への補助金です。',amount:'最大50万円',amountShort:'最大50万円',lossEstimate:30,conditions:['仙台市在住または転入予定','住宅購入予定あり','世帯年収800万円以下'],docs:['売買契約書','住民票','所得証明書'],deadline:'年度内申請',deadlineNote:'予算に達し次第終了',icsDate:null,local:'仙台市',eligibility:p=>p.prefecture==='宮城県'&&p.city==='仙台市'&&p.housing==='yes'},
+  {id:'saitama_child',name:'さいたま市 子育て世帯生活支援特別給付金',category:'grant',categoryLabel:'給付金',summary:'さいたま市独自の子育て支援',desc:'さいたま市在住の低所得子育て世帯への特別給付金です。',amount:'児童1人あたり5万円',amountShort:'5万円/人',lossEstimate:5,conditions:['さいたま市在住','18歳未満の子どもがいる','住民税非課税または低所得世帯'],docs:['住民票','所得証明書','振込口座情報'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'さいたま市',eligibility:p=>p.prefecture==='埼玉県'&&p.city==='さいたま市'&&p.family==='children'},
+  {id:'chiba_energy',name:'千葉市 省エネ住宅リフォーム補助金',category:'subsidy',categoryLabel:'補助金',summary:'省エネ改修工事費用の補助',desc:'千葉市内の住宅における省エネルギー改修工事費用を補助します。',amount:'最大30万円（工事費の1/3）',amountShort:'最大30万円',lossEstimate:20,conditions:['千葉市在住','自己所有の住宅','省エネ改修工事を実施'],docs:['工事見積書','住民票','登記簿謄本'],deadline:'年度内（予算上限あり）',deadlineNote:'',icsDate:null,local:'千葉市',eligibility:p=>p.prefecture==='千葉県'&&p.city==='千葉市'&&p.housing==='yes'},
+  {id:'kawasaki_child',name:'川崎市 子ども医療費助成',category:'grant',categoryLabel:'給付金',summary:'川崎市の子ども医療費の自己負担ゼロ',desc:'川崎市在住の子どもの医療費自己負担分を市が助成します。',amount:'医療費自己負担分（上限なし）',amountShort:'医療費負担ゼロ',lossEstimate:5,conditions:['川崎市在住','18歳以下の子ども'],docs:['子ども医療証','健康保険証'],deadline:'随時申請可能',deadlineNote:'',icsDate:null,local:'川崎市',eligibility:p=>p.prefecture==='神奈川県'&&p.city==='川崎市'&&p.family==='children'},
+  {id:'sagamihara_freelance',name:'相模原市 創業支援補助金',category:'subsidy',categoryLabel:'補助金',summary:'相模原市内での創業・開業費用の補助',desc:'相模原市内で創業する個人事業主・法人への補助金です。',amount:'最大100万円（補助率2/3）',amountShort:'最大100万円',lossEstimate:50,conditions:['相模原市内で創業','創業5年以内','事業計画書の提出'],docs:['事業計画書','見積書','登記簿謄本または開業届'],deadline:'年複数回公募',deadlineNote:'',icsDate:null,local:'相模原市',eligibility:p=>p.prefecture==='神奈川県'&&p.city==='相模原市'&&p.job==='freelance'},
+  {id:'niigata_housing',name:'新潟市 移住・定住促進補助金',category:'grant',categoryLabel:'給付金',summary:'新潟市への移住者向け住宅取得補助',desc:'新潟市外から移住して住宅を取得する世帯への補助金です。',amount:'最大100万円',amountShort:'最大100万円',lossEstimate:60,conditions:['新潟市外から転入','住宅購入またはリフォーム','5年以上居住の意向'],docs:['住民票','売買契約書','移住誓約書'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'新潟市',eligibility:p=>p.prefecture==='新潟県'&&p.city==='新潟市'&&p.housing==='yes'},
+  {id:'shizuoka_child',name:'静岡市 多子世帯支援給付金',category:'grant',categoryLabel:'給付金',summary:'3人以上の子どもがいる世帯への支援',desc:'静岡市在住の多子世帯を対象とした独自の給付金です。',amount:'第3子以降1人あたり年間12万円',amountShort:'12万円/人（第3子〜）',lossEstimate:12,conditions:['静岡市在住','18歳未満の子どもが3人以上'],docs:['住民票','戸籍謄本','所得証明書'],deadline:'通年申請可能',deadlineNote:'',icsDate:null,local:'静岡市',eligibility:p=>p.prefecture==='静岡県'&&p.city==='静岡市'&&p.family==='children'},
+  {id:'hamamatsu_dx',name:'浜松市 中小企業DX推進補助金',category:'subsidy',categoryLabel:'補助金',summary:'浜松市内事業者のデジタル化支援',desc:'浜松市内の中小企業・個人事業主のDX推進を支援する補助金です。',amount:'最大200万円（補助率1/2）',amountShort:'最大200万円',lossEstimate:50,conditions:['浜松市内で事業を営む','DX推進計画の策定','ITツール導入を予定'],docs:['事業計画書','見積書','確定申告書'],deadline:'年複数回公募',deadlineNote:'',icsDate:null,local:'浜松市',eligibility:p=>p.prefecture==='静岡県'&&p.city==='浜松市'&&p.job==='freelance'&&p.dx==='yes'},
+  {id:'okayama_housing',name:'岡山市 空き家活用リフォーム補助金',category:'subsidy',categoryLabel:'補助金',summary:'空き家を活用した住宅取得・改修への補助',desc:'岡山市内の空き家を取得・改修して居住する場合の補助金です。',amount:'最大100万円（工事費の1/2）',amountShort:'最大100万円',lossEstimate:60,conditions:['岡山市内の空き家を取得・改修','定住目的','工事費50万円以上'],docs:['売買契約書','工事見積書','住民票'],deadline:'年度内申請（予算上限あり）',deadlineNote:'',icsDate:null,local:'岡山市',eligibility:p=>p.prefecture==='岡山県'&&p.city==='岡山市'&&p.housing==='yes'},
+  {id:'hiroshima_child',name:'広島市 子育て世帯住宅支援補助金',category:'grant',categoryLabel:'給付金',summary:'子育て世帯の住宅取得を支援',desc:'広島市在住の子育て世帯が住宅を取得する際の補助金です。',amount:'最大50万円',amountShort:'最大50万円',lossEstimate:30,conditions:['広島市在住','18歳未満の子どもがいる','住宅購入予定あり'],docs:['売買契約書','住民票','戸籍謄本'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'広島市',eligibility:p=>p.prefecture==='広島県'&&p.city==='広島市'&&p.family==='children'&&p.housing==='yes'},
+  {id:'kitakyushu_freelance',name:'北九州市 創業チャレンジ補助金',category:'subsidy',categoryLabel:'補助金',summary:'北九州市での創業を支援',desc:'北九州市内で新たに創業する個人事業主への補助金です。',amount:'最大150万円（補助率2/3）',amountShort:'最大150万円',lossEstimate:70,conditions:['北九州市内で創業予定または創業3年以内','事業計画書の提出'],docs:['事業計画書','見積書','開業届'],deadline:'随時受付（予算上限あり）',deadlineNote:'',icsDate:null,local:'北九州市',eligibility:p=>p.prefecture==='福岡県'&&p.city==='北九州市'&&p.job==='freelance'},
+  {id:'kumamoto_housing',name:'熊本市 移住定住促進補助金',category:'grant',categoryLabel:'給付金',summary:'熊本市への移住と住宅取得を支援',desc:'熊本市外から移住して住宅を取得または賃貸する世帯への補助金です。',amount:'最大100万円（子育て世帯は加算あり）',amountShort:'最大100万円',lossEstimate:60,conditions:['熊本市外から転入','住宅取得または賃貸契約'],docs:['住民票','売買契約書または賃貸契約書'],deadline:'年度内申請',deadlineNote:'',icsDate:null,local:'熊本市',eligibility:p=>p.prefecture==='熊本県'&&p.city==='熊本市'&&p.housing==='yes'},
 ];
 
 // ── State ─────────────────────────────────────────────────────
@@ -1421,8 +1572,104 @@ function getProfile(){
   const fEl = document.querySelector('input[name="family"]:checked');
   const hEl = document.querySelector('input[name="housing"]:checked');
   const mEl = document.querySelector('input[name="marriage"]:checked');
+  const disEl = document.querySelector('input[name="disability"]:checked');
+  const careEl = document.querySelector('input[name="caregiving"]:checked');
+  const eqEl = document.querySelector('input[name="equipment"]:checked');
+  const dxEl = document.querySelector('input[name="dx"]:checked');
+  const empEl = document.querySelector('input[name="employees"]:checked');
   if(!age||!prefecture||isNaN(income)||!job||!fEl){alert('すべての必須項目を入力してください。');return null;}
-  return{age,prefecture,income,job,family:fEl.value,housing:hEl?hEl.value:'no',marriage:mEl?mEl.value:'no'};
+  const city = document.getElementById('inputCity').value;
+  const industry = document.getElementById('inputIndustry').value;
+  return{
+    age, prefecture, city, income, job,
+    family:fEl.value, housing:hEl?hEl.value:'no', marriage:mEl?mEl.value:'no',
+    industry: industry||'',
+    employees: empEl?empEl.value:'0',
+    equipment: eqEl?eqEl.value:'no',
+    dx: dxEl?dxEl.value:'no',
+    disability: disEl?disEl.value:'no',
+    caregiving: careEl?careEl.value:'no',
+  };
+}
+
+// ── Freelance field visibility ────────────────────────────────
+document.getElementById('job').addEventListener('change', function(){
+  const isFreelance = this.value === 'freelance';
+  ['industryGroup','employeesGroup','equipmentGroup','dxGroup'].forEach(id=>{
+    document.getElementById(id).style.display = isFreelance ? '' : 'none';
+  });
+});
+
+// ── City data ─────────────────────────────────────────────────
+const CITIES = {
+  '北海道': ['札幌市','旭川市','函館市','釧路市','帯広市','小樽市'],
+  '宮城県': ['仙台市','石巻市','大崎市'],
+  '埼玉県': ['さいたま市','川越市','川口市','越谷市'],
+  '千葉県': ['千葉市','船橋市','柏市','松戸市'],
+  '神奈川県': ['横浜市','川崎市','相模原市','藤沢市','横須賀市'],
+  '新潟県': ['新潟市','長岡市','上越市'],
+  '静岡県': ['静岡市','浜松市','沼津市'],
+  '愛知県': ['名古屋市','豊田市','岡崎市','一宮市'],
+  '大阪府': ['大阪市','堺市','東大阪市','枚方市'],
+  '兵庫県': ['神戸市','姫路市','尼崎市','西宮市'],
+  '岡山県': ['岡山市','倉敷市'],
+  '広島県': ['広島市','福山市','呉市'],
+  '福岡県': ['福岡市','北九州市','久留米市'],
+  '熊本県': ['熊本市','八代市'],
+  '京都府': ['京都市','宇治市'],
+  '奈良県': ['奈良市'],
+  '滋賀県': ['大津市'],
+  '三重県': ['津市','四日市市'],
+  '岐阜県': ['岐阜市'],
+  '長野県': ['長野市','松本市'],
+  '群馬県': ['前橋市','高崎市'],
+  '栃木県': ['宇都宮市'],
+  '茨城県': ['水戸市','つくば市'],
+  '山梨県': ['甲府市'],
+  '福島県': ['福島市','郡山市','いわき市'],
+  '山形県': ['山形市'],
+  '秋田県': ['秋田市'],
+  '岩手県': ['盛岡市'],
+  '青森県': ['青森市'],
+  '石川県': ['金沢市'],
+  '富山県': ['富山市'],
+  '福井県': ['福井市'],
+  '鳥取県': ['鳥取市'],
+  '島根県': ['松江市'],
+  '山口県': ['山口市','下関市'],
+  '徳島県': ['徳島市'],
+  '香川県': ['高松市'],
+  '愛媛県': ['松山市'],
+  '高知県': ['高知市'],
+  '佐賀県': ['佐賀市'],
+  '長崎県': ['長崎市'],
+  '大分県': ['大分市'],
+  '宮崎県': ['宮崎市'],
+  '鹿児島県': ['鹿児島市'],
+  '沖縄県': ['那覇市','沖縄市'],
+  '東京都': ['新宿区','渋谷区','港区','世田谷区','品川区','目黒区','大田区','中野区','杉並区','豊島区','北区','板橋区','練馬区','足立区','葛飾区','江戸川区','千代田区','中央区','文京区','台東区','墨田区','江東区','荒川区','立川市','八王子市','町田市']
+};
+
+function updateCities(pref) {
+  const cityGroup = document.getElementById('cityGroup');
+  const citySelect = document.getElementById('inputCity');
+  const cities = CITIES[pref] || [];
+  citySelect.innerHTML = '';
+  const defaultOpt = document.createElement('option');
+  defaultOpt.value = '';
+  defaultOpt.textContent = '選択してください（任意）';
+  citySelect.appendChild(defaultOpt);
+  if (cities.length > 0) {
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      citySelect.appendChild(opt);
+    });
+    cityGroup.style.display = '';
+  } else {
+    cityGroup.style.display = 'none';
+  }
 }
 
 // ── Re-diagnose ───────────────────────────────────────────────
@@ -1431,9 +1678,41 @@ document.getElementById('btn-rediagnose').addEventListener('click',function(){
   setTimeout(()=>document.getElementById('age').focus(),400);
 });
 
+// ── Filter state ──────────────────────────────────────────────
+let activeFilters = { category: 'all', search: '' };
+let currentPrograms = [];
+
+function setFilter(type, value, btn) {
+  activeFilters[type] = value;
+  btn.closest('.filter-row').querySelectorAll('[data-filter="'+type+'"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+function applyFilters() {
+  const searchEl = document.getElementById('filterSearch');
+  const sortEl = document.getElementById('filterSort');
+  if(!searchEl || !sortEl) return;
+  const search = searchEl.value.toLowerCase();
+  const sort = sortEl.value;
+  let filtered = currentPrograms.filter(p => {
+    if (activeFilters.category !== 'all' && p.category !== activeFilters.category) return false;
+    if (search && !p.name.toLowerCase().includes(search) && !p.summary.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if (sort === 'amount') filtered.sort((a,b) => (b.lossEstimate||0) - (a.lossEstimate||0));
+  renderCards(filtered);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const fs = document.getElementById('filterSearch');
+  if (fs) fs.addEventListener('input', applyFilters);
+});
+
 // ── Diagnosis ─────────────────────────────────────────────────
 function runDiagnosis(profile){
   matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
+  currentPrograms = matchedPrograms;
   const totalLoss = matchedPrograms.reduce((s,p)=>s+p.lossEstimate,0);
 
   document.getElementById('result-count').textContent = matchedPrograms.length;
@@ -1442,9 +1721,17 @@ function runDiagnosis(profile){
   updateFavCount();
   updateTodoCount();
 
+  // Reset filters
+  activeFilters = { category: 'all', search: '' };
+  const filterSearch = document.getElementById('filterSearch');
+  if(filterSearch) filterSearch.value = '';
+  document.querySelectorAll('.filter-chip').forEach(b => {
+    b.classList.toggle('active', b.dataset.value === 'all' && b.dataset.filter === 'category');
+  });
+
   const rs = document.getElementById('results-section');
   rs.style.display = 'block';
-  renderCards(matchedPrograms);
+  renderCards(currentPrograms);
   buildSimulator(matchedPrograms);
   document.getElementById('simulator-section').style.display = 'block';
 
@@ -1532,9 +1819,9 @@ function switchTab(tab){
   ['all','fav','todo'].forEach(t=>{
     document.getElementById('tab-'+t+'-btn').classList.toggle('active',t===tab);
   });
-  if(tab==='all') renderCards(matchedPrograms);
-  else if(tab==='fav') renderCards(matchedPrograms.filter(p=>favorites.includes(p.id)));
-  else renderCards(matchedPrograms.filter(p=>(progress[p.id]||0)>0));
+  if(tab==='all'){ currentPrograms=matchedPrograms; applyFilters(); }
+  else if(tab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
+  else { currentPrograms=matchedPrograms.filter(p=>(progress[p.id]||0)>0); renderCards(currentPrograms); }
 }
 
 // ── Favorites ─────────────────────────────────────────────────
@@ -1546,7 +1833,7 @@ function toggleFav(id,btn){
   btn.classList.toggle('active',isNow);
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
   updateFavCount();
-  if(activeTab==='fav') renderCards(matchedPrograms.filter(p=>favorites.includes(p.id)));
+  if(activeTab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
 }
 
 function updateFavCount(){
@@ -1607,15 +1894,36 @@ function buildSimulator(programs){
   const total=programs.reduce((s,p)=>s+p.lossEstimate,0);
   document.getElementById('sim-total').textContent=total;
 
+  // Per-item loss list
   programs.forEach(prog=>{
     const item=document.createElement('div'); item.className='sim-item';
+    item.style.cursor='pointer';
+    item.title='クリックして詳細を見る';
     const n=document.createElement('div'); n.className='sim-name'; n.textContent=prog.name;
-    const now=document.createElement('div'); now.className='sim-now'; now.textContent='現在の活用状況：未活用';
+    const catSpan=document.createElement('span');
+    catSpan.style.cssText='font-size:10px;font-family:"DM Mono",monospace;color:var(--text-muted);display:block;margin-bottom:6px';
+    catSpan.textContent=prog.categoryLabel;
     const gain=document.createElement('div'); gain.className='sim-gain'; gain.textContent='−'+prog.lossEstimate+'万円';
     const gl=document.createElement('div'); gl.className='sim-gain-label'; gl.textContent='年間損失額（推定）';
-    item.appendChild(n); item.appendChild(now); item.appendChild(gain); item.appendChild(gl);
+    const recovery=document.createElement('div');
+    recovery.style.cssText='font-size:11px;color:var(--success);font-family:"DM Mono",monospace;margin-top:6px';
+    recovery.textContent='今すぐ申請 → +'+prog.lossEstimate+'万円回収可';
+    item.appendChild(n); item.appendChild(catSpan); item.appendChild(gain); item.appendChild(gl); item.appendChild(recovery);
+    item.addEventListener('click',()=>openModal(prog.id));
     grid.appendChild(item);
   });
+
+  // Recovery summary row
+  const recRow=document.createElement('div');
+  recRow.style.cssText='grid-column:1/-1;background:rgba(46,196,160,0.08);border:1px solid rgba(46,196,160,0.25);border-radius:12px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:4px';
+  const recLabel=document.createElement('div');
+  recLabel.style.cssText='font-size:13px;color:var(--text-secondary)';
+  recLabel.textContent='今すぐ申請で回収できる金額';
+  const recVal=document.createElement('div');
+  recVal.style.cssText='font-family:"DM Mono",monospace;font-size:24px;font-weight:500;color:var(--success)';
+  recVal.textContent='約'+total+'万円';
+  recRow.appendChild(recLabel); recRow.appendChild(recVal);
+  grid.appendChild(recRow);
 }
 
 // ── Modal ──────────────────────────────────────────────────────
@@ -1653,6 +1961,31 @@ function openModal(id){
 
   // Calendar btn
   document.getElementById('modal-cal-btn').onclick=()=>downloadIcs(prog);
+
+  // 申請ステップ
+  const defaultSteps = [
+    '対象条件を確認する',
+    '必要書類を準備する',
+    '申請窓口・サイトにアクセスする',
+    '申請書類を提出する',
+    '審査結果を待つ'
+  ];
+  const steps = prog.steps || defaultSteps;
+  const stepsList = document.getElementById('modalStepsList');
+  while(stepsList.firstChild) stepsList.removeChild(stepsList.firstChild);
+  steps.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'step-item';
+    const num = document.createElement('div');
+    num.className = 'step-num';
+    num.textContent = i + 1;
+    const text = document.createElement('div');
+    text.className = 'step-text';
+    text.textContent = s;
+    item.appendChild(num);
+    item.appendChild(text);
+    stepsList.appendChild(item);
+  });
 
   // Progress tracker
   buildProgressTracker(prog.id);
@@ -1698,10 +2031,8 @@ function setProgress(id,step){
   localStorage.setItem('msa_progress',JSON.stringify(progress));
   buildProgressTracker(id);
   updateTodoCount();
-  if(activeTab==='all'||activeTab==='todo'){
-    const progs=activeTab==='todo'?matchedPrograms.filter(p=>(progress[p.id]||0)>0):matchedPrograms;
-    renderCards(progs);
-  }
+  if(activeTab==='all'){ currentPrograms=matchedPrograms; applyFilters(); }
+  else if(activeTab==='todo'){ currentPrograms=matchedPrograms.filter(p=>(progress[p.id]||0)>0); renderCards(currentPrograms); }
   showToast('申請ステータスを「'+PROGRESS_STEPS[step]+'」に更新しました');
 }
 
