@@ -420,6 +420,7 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
       <div class="user-menu">
         <button class="auth-btn" id="authBtn" onclick="openAuth()">ログイン</button>
         <div class="user-dropdown" id="userDropdown">
+          <button class="user-dropdown-item" onclick="openProfileEdit(); document.querySelector('.user-menu').classList.remove('open')">プロフィール編集</button>
           <button class="user-dropdown-item" onclick="signOut()">ログアウト</button>
         </div>
       </div>
@@ -579,7 +580,7 @@ footer{border-top:1px solid var(--border);padding:24px;text-align:center;font-si
       <div class="results-banner">
         <div>
           <div class="results-count-label">あなたに対象の制度</div>
-          <div class="results-count-main"><strong id="result-count">0</strong>件 見つかりました<span class="premium-lock" onclick="openPremium()"><span style="display:inline-block;width:12px;height:12px;background:var(--gold-400);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>プレミアム機能を見る</span></div>
+          <div class="results-count-main"><strong id="result-count">0</strong>件 見つかりました<button onclick="openProfileEdit()" style="background:none;border:1px solid var(--navy-600);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text-muted);cursor:pointer;margin-left:8px">プロフィール編集</button><span class="premium-lock" onclick="openPremium()"><span style="display:inline-block;width:12px;height:12px;background:var(--gold-400);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z%22 stroke=%22currentColor%22 stroke-width=%222%22 fill=%22none%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>プレミアム機能を見る</span></div>
         </div>
         <div class="loss-badge">
           <div class="loss-label">活用しない場合の推定損失</div>
@@ -1608,6 +1609,8 @@ document.getElementById('profile-form').addEventListener('submit',function(e){
   const p = getProfile();
   if(!p) return;
   currentProfile = p;
+  saveProfileLocally(p);
+  if(currentUser) saveProfileToCloud(p);
   runDiagnosis(p);
 });
 
@@ -2245,6 +2248,90 @@ async function syncFromCloud() {
     progData.forEach(r => { prog[r.program_id] = r.step; });
     localStorage.setItem('msa_progress', JSON.stringify(prog));
   }
+  await loadProfile();
+}
+
+async function loadProfile() {
+  let profile = null;
+
+  if (currentUser) {
+    const { data } = await sb.from('profiles').select('*').eq('user_id', currentUser.id).single();
+    if (data) profile = data;
+  }
+
+  if (!profile) {
+    const local = localStorage.getItem('msa_profile');
+    if (local) profile = JSON.parse(local);
+  }
+
+  if (!profile) return;
+
+  const fields = ['age','prefecture','city','income','job','family','housing','marriage','industry','employees','equipment','dx','disability','caregiving'];
+  fields.forEach(f => {
+    const el = document.getElementById('input' + f.charAt(0).toUpperCase() + f.slice(1)) ||
+               document.getElementById(f);
+    if (el && profile[f] != null) el.value = profile[f];
+  });
+
+  if (profile.prefecture && typeof updateCities === 'function') {
+    updateCities(profile.prefecture);
+    if (profile.city) {
+      setTimeout(() => {
+        const cityEl = document.getElementById('inputCity');
+        if (cityEl) cityEl.value = profile.city;
+      }, 50);
+    }
+  }
+
+  if (profile.job) {
+    const isFreelance = profile.job === 'freelance';
+    ['industryGroup','employeesGroup','equipmentGroup','dxGroup'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = isFreelance ? '' : 'none';
+    });
+  }
+
+  // Pre-fill radio buttons
+  ['housing','marriage','disability','caregiving','equipment','dx'].forEach(name => {
+    if (profile[name]) {
+      const el = document.querySelector('input[name="' + name + '"][value="' + profile[name] + '"]');
+      if (el) el.checked = true;
+    }
+  });
+  if (profile.family) {
+    const el = document.querySelector('input[name="family"][value="' + profile.family + '"]');
+    if (el) el.checked = true;
+  }
+  if (profile.employees) {
+    const el = document.querySelector('input[name="employees"][value="' + profile.employees + '"]');
+    if (el) el.checked = true;
+  }
+}
+
+function saveProfileLocally(profile) {
+  localStorage.setItem('msa_profile', JSON.stringify(profile));
+}
+
+async function saveProfileToCloud(profile) {
+  if (!currentUser) return;
+  await sb.from('profiles').upsert({
+    user_id: currentUser.id,
+    age: profile.age ? parseInt(profile.age) : null,
+    prefecture: profile.prefecture || null,
+    city: profile.city || null,
+    income: profile.income ? parseInt(profile.income) : null,
+    job: profile.job || null,
+    family: profile.family || null,
+    housing: profile.housing || null,
+    marriage: profile.marriage || null,
+    industry: profile.industry || null,
+    employees: profile.employees || null,
+    equipment: profile.equipment || null,
+    dx: profile.dx || null,
+    disability: profile.disability || null,
+    caregiving: profile.caregiving || null,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
 }
 
 window.addEventListener('load', async () => {
@@ -2253,6 +2340,8 @@ window.addEventListener('load', async () => {
     currentUser = session.user;
     updateAuthUI();
     await syncFromCloud();
+  } else {
+    await loadProfile();
   }
   sb.auth.onAuthStateChange((_event, session) => {
     currentUser = session?.user || null;
@@ -2369,6 +2458,192 @@ function hidePwaBanner() {
     </div>
   </div>
 </div>
+
+<!-- Profile Edit Modal -->
+<div class="legal-modal-overlay" id="profileEditOverlay" role="dialog" aria-modal="true">
+  <div class="legal-modal" style="max-width:560px">
+    <div class="legal-modal-header">
+      <h2 style="color:var(--gold-300)">プロフィール編集</h2>
+      <button class="modal-close" onclick="closeProfileEdit()" aria-label="閉じる">
+        <span style="display:block;width:18px;height:18px;background:var(--text-muted);-webkit-mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path d=%22M18 6L6 18M6 6l12 12%22 stroke=%22currentColor%22 stroke-width=%222%22 stroke-linecap=%22round%22/></svg>') center/contain no-repeat"></span>
+      </button>
+    </div>
+    <div class="legal-modal-body" style="padding:24px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="profileEditForm">
+        <div class="form-group">
+          <label class="form-label">年齢</label>
+          <input type="number" id="edit_age" class="form-control" placeholder="例：35" min="18" max="100">
+        </div>
+        <div class="form-group">
+          <label class="form-label">年収（万円）</label>
+          <input type="number" id="edit_income" class="form-control" placeholder="例：500" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">都道府県</label>
+          <select id="edit_prefecture" class="form-control" onchange="updateEditCities(this.value)">
+            <option value="">選択してください</option>
+            <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+          </select>
+        </div>
+        <div class="form-group" id="editCityGroup" style="display:none">
+          <label class="form-label">市区町村</label>
+          <select id="edit_city" class="form-control">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">職業</label>
+          <select id="edit_job" class="form-control">
+            <option value="">選択してください</option>
+            <option value="employee">会社員</option>
+            <option value="part">パート・アルバイト</option>
+            <option value="freelance">個人事業主・フリーランス</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">家族構成</label>
+          <select id="edit_family" class="form-control">
+            <option value="">選択してください</option>
+            <option value="single">独身</option>
+            <option value="married">既婚（子なし）</option>
+            <option value="children">子育て世帯</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">住宅購入予定</label>
+          <select id="edit_housing" class="form-control">
+            <option value="">選択してください</option>
+            <option value="yes">あり</option>
+            <option value="no">なし</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">結婚予定</label>
+          <select id="edit_marriage" class="form-control">
+            <option value="">選択してください</option>
+            <option value="yes">あり</option>
+            <option value="no">なし</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">障がい・難病</label>
+          <select id="edit_disability" class="form-control">
+            <option value="">選択してください</option>
+            <option value="yes">あり</option>
+            <option value="no">なし</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">介護中</label>
+          <select id="edit_caregiving" class="form-control">
+            <option value="">選択してください</option>
+            <option value="yes">あり</option>
+            <option value="no">なし</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-diagnose" onclick="saveProfileEdit()" style="width:100%;justify-content:center;margin-top:20px">保存して再診断</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openProfileEdit() {
+  const saved = localStorage.getItem('msa_profile');
+  const p = saved ? JSON.parse(saved) : {};
+  const map = {
+    edit_age: p.age, edit_income: p.income,
+    edit_prefecture: p.prefecture, edit_city: p.city,
+    edit_job: p.job, edit_family: p.family,
+    edit_housing: p.housing, edit_marriage: p.marriage,
+    edit_disability: p.disability, edit_caregiving: p.caregiving
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el && val != null) el.value = val;
+  });
+  if (p.prefecture) updateEditCities(p.prefecture, p.city);
+  document.getElementById('profileEditOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProfileEdit() {
+  document.getElementById('profileEditOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateEditCities(pref, selectedCity) {
+  const group = document.getElementById('editCityGroup');
+  const select = document.getElementById('edit_city');
+  const cities = (typeof CITIES !== 'undefined' && CITIES[pref]) || [];
+  select.innerHTML = '<option value="">選択してください（任意）</option>';
+  if (cities.length > 0) {
+    cities.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      if (c === selectedCity) opt.selected = true;
+      select.appendChild(opt);
+    });
+    group.style.display = '';
+  } else {
+    group.style.display = 'none';
+  }
+}
+
+async function saveProfileEdit() {
+  const profile = {
+    age: document.getElementById('edit_age').value,
+    income: document.getElementById('edit_income').value,
+    prefecture: document.getElementById('edit_prefecture').value,
+    city: document.getElementById('edit_city').value,
+    job: document.getElementById('edit_job').value,
+    family: document.getElementById('edit_family').value,
+    housing: document.getElementById('edit_housing').value,
+    marriage: document.getElementById('edit_marriage').value,
+    disability: document.getElementById('edit_disability').value,
+    caregiving: document.getElementById('edit_caregiving').value
+  };
+  saveProfileLocally(profile);
+  if (currentUser) await saveProfileToCloud(profile);
+
+  // Sync to main form
+  if (profile.age) document.getElementById('age').value = profile.age;
+  if (profile.income) document.getElementById('income').value = profile.income;
+  if (profile.prefecture) document.getElementById('prefecture').value = profile.prefecture;
+  if (profile.job) document.getElementById('job').value = profile.job;
+  ['housing','marriage','disability','caregiving'].forEach(name => {
+    if (profile[name]) {
+      const el = document.querySelector('input[name="' + name + '"][value="' + profile[name] + '"]');
+      if (el) el.checked = true;
+    }
+  });
+  if (profile.family) {
+    const el = document.querySelector('input[name="family"][value="' + profile.family + '"]');
+    if (el) el.checked = true;
+  }
+  if (profile.prefecture) {
+    updateCities(profile.prefecture);
+    setTimeout(() => {
+      const cityEl = document.getElementById('inputCity');
+      if (cityEl && profile.city) cityEl.value = profile.city;
+    }, 50);
+  }
+
+  closeProfileEdit();
+
+  // Re-run diagnosis if results are visible
+  const resultsSection = document.getElementById('results-section');
+  if (resultsSection && resultsSection.style.display !== 'none') {
+    const p = getProfile();
+    if (p) { currentProfile = p; saveProfileLocally(p); runDiagnosis(p); }
+  }
+}
+
+document.getElementById('profileEditOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeProfileEdit();
+});
+</script>
 
 <script>
 function openPremium() {
