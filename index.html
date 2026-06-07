@@ -2204,6 +2204,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Diagnosis ─────────────────────────────────────────────────
 function runDiagnosis(profile){
+  trackEvent('diagnosis_run', { job: profile.job, prefecture: profile.prefecture, family: profile.family });
+  showLoadingWithMessage('診断中...');
   showLoading();
   try {
     matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
@@ -2396,6 +2398,7 @@ function toggleFav(id,btn){
   btn.style.transform='scale(1.4)'; setTimeout(()=>{btn.style.transform='';},200);
   updateFavCount();
   showToast('お気に入りを更新しました', 'success');
+  trackEvent(isNow ? 'favorite_add' : 'favorite_remove', { prog_id: id });
   if(isNow){ requestNotificationPermission(); scheduleIfHasDeadline(id); }
   if(activeTab==='fav'){ currentPrograms=matchedPrograms.filter(p=>favorites.includes(p.id)); renderCards(currentPrograms); }
 }
@@ -3010,15 +3013,128 @@ function hidePwaBanner() {
   if(b) b.style.display = 'none';
   localStorage.setItem('pwaBannerDismissed','1');
 }
+
+// ── オンボーディング ────────────────────────────────────────────
+function initOnboarding() {
+  if (!localStorage.getItem('msa_onboarded')) {
+    const el = document.getElementById('onboardingOverlay');
+    if (el) { el.style.display = 'flex'; }
+  }
+}
+function closeOnboarding() {
+  const el = document.getElementById('onboardingOverlay');
+  if (el) el.style.display = 'none';
+  localStorage.setItem('msa_onboarded', '1');
+  // GA4イベント
+  if (typeof gtag !== 'undefined') gtag('event', 'onboarding_complete');
+}
+
+// ── オフライン検知 ─────────────────────────────────────────────
+function updateOnlineStatus() {
+  const banner = document.getElementById('offlineBanner');
+  if (!banner) return;
+  if (!navigator.onLine) {
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// ── グローバルエラーハンドラ ───────────────────────────────────
+window.addEventListener('unhandledrejection', (e) => {
+  console.error('Unhandled error:', e.reason);
+  // ネットワークエラーのみトースト表示（モーダルは出さない）
+  if (e.reason && (e.reason.message || '').includes('fetch')) {
+    showToast('通信エラーが発生しました。接続を確認してください。', 'error');
+  }
+});
+
+function showError(title, message) {
+  const screen = document.getElementById('errorScreen');
+  if (!screen) return;
+  document.getElementById('errorTitle').textContent = title || 'エラーが発生しました';
+  document.getElementById('errorMessage').textContent = message || 'しばらく時間をおいてから再度お試しください。';
+  screen.style.display = 'flex';
+}
+
+// ── ローディングメッセージ ─────────────────────────────────────
+function showLoadingWithMessage(msg) {
+  document.getElementById('loadingMessage').textContent = msg || '';
+  showLoading();
+}
+
+// ── GA4 イベントトラッキング ──────────────────────────────────
+function trackEvent(name, params) {
+  if (typeof gtag !== 'undefined') gtag('event', name, params || {});
+}
+
+// ── 初期化 ───────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  updateOnlineStatus();
+  initOnboarding();
+});
 </script>
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
+  <div id="loadingMessage" style="color:#fff;font-size:13px;margin-top:16px;font-family:'Noto Sans JP',sans-serif;opacity:0.8"></div>
 </div>
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- オフライン通知バナー -->
+<div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#8b4500;color:#fff;text-align:center;padding:10px 16px;font-size:13px;font-family:'Noto Sans JP',sans-serif;">
+  📡 オフラインです。一部の機能が使えない場合があります。
+  <button onclick="document.getElementById('offlineBanner').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;margin-left:12px;font-size:14px;">✕</button>
+</div>
+
+<!-- エラー画面 -->
+<div id="errorScreen" style="display:none;position:fixed;inset:0;z-index:9990;background:#f9f5ef;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;">
+  <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+  <div style="font-size:18px;font-weight:700;color:#2d3a2e;margin-bottom:8px;" id="errorTitle">エラーが発生しました</div>
+  <div style="font-size:14px;color:#7a9080;margin-bottom:24px;max-width:320px;" id="errorMessage">しばらく時間をおいてから再度お試しください。</div>
+  <button onclick="location.reload()" style="background:#1b5e20;color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">再読み込み</button>
+</div>
+
+<!-- オンボーディング -->
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;z-index:9980;background:rgba(27,94,32,0.92);backdrop-filter:blur(4px);flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:20px;max-width:360px;width:100%;padding:32px 28px;text-align:center;position:relative;">
+    <div style="font-size:48px;margin-bottom:12px;">¥</div>
+    <div style="font-size:20px;font-weight:700;color:#1b5e20;margin-bottom:8px;">もらえるお金診断へようこそ</div>
+    <div style="font-size:13px;color:#4a6050;line-height:1.8;margin-bottom:24px;">あなたのプロフィールを入力するだけで、<br>受け取れる補助金・給付金・節税制度を<br>自動で診断します。</div>
+
+    <div id="onboardingSteps" style="display:flex;flex-direction:column;gap:12px;margin-bottom:28px;text-align:left;">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f9f5ef;border-radius:10px;">
+        <span style="font-size:20px">📝</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#2d3a2e;">プロフィールを入力</div>
+          <div style="font-size:11px;color:#7a9080;">年齢・職業・家族構成など</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f9f5ef;border-radius:10px;">
+        <span style="font-size:20px">🔍</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#2d3a2e;">対象制度を自動診断</div>
+          <div style="font-size:11px;color:#7a9080;">108種類以上から対象を抽出</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f9f5ef;border-radius:10px;">
+        <span style="font-size:20px">🔔</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#2d3a2e;">期限前に通知</div>
+          <div style="font-size:11px;color:#7a9080;">申請期限の30日前・7日前・前日</div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeOnboarding()" style="width:100%;background:#1b5e20;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">はじめる</button>
+    <div style="font-size:11px;color:#b8d4b2;margin-top:10px;cursor:pointer;" onclick="closeOnboarding()">スキップ</div>
+  </div>
+</div>
 
 <!-- Contact Modal -->
 <div class="legal-modal-overlay" id="contactOverlay" role="dialog" aria-modal="true">
