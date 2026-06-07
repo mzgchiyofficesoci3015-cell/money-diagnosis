@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "mcp__Claude_in_Chrome__tabs_context_mcp",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(grep -v \"^.*//.*$\")",
+      "mcp__Claude_in_Chrome__switch_browser",
+      "mcp__Claude_in_Chrome__navigate",
+      "mcp__Claude_in_Chrome__computer",
+      "Bash(python3 -c ' *)",
+      "Bash(pbcopy)",
+      "mcp__Claude_in_Chrome__browser_batch",
+      "Bash(python3 -c \"from PIL import Image; print\\('ok'\\)\")"
     ]
   }
 }
