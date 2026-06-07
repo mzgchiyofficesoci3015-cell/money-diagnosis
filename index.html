@@ -795,6 +795,22 @@ select option{font-size:16px;padding:8px}
         </div>
       </div>
       <div class="cards-grid" id="cards-container"></div>
+
+      <!-- 市区町村制度バナー -->
+      <div id="local-search-banner" style="display:none;margin:16px 0 8px;background:#fff;border:1px solid #d4e8d0;border-radius:12px;padding:16px 20px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:20px">🏙️</span>
+          <div style="flex:1;min-width:180px;">
+            <div style="font-size:13px;font-weight:700;color:#2d3a2e;margin-bottom:2px;">市区町村独自の制度も確認しましょう</div>
+            <div style="font-size:12px;color:#7a9080;">お住まいの地域限定の補助金・助成金がある場合があります</div>
+          </div>
+          <button id="local-search-btn" onclick="openLocalSearch()" style="background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap;">地域の制度を検索 →</button>
+        </div>
+        <div id="local-links-premium" style="display:none;margin-top:14px;border-top:1px solid #d4e8d0;padding-top:14px;">
+          <div style="font-size:12px;font-weight:700;color:#2d3a2e;margin-bottom:8px;">📋 よく使われる申請窓口</div>
+          <div id="local-links-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
     </section>
 
     <!-- Simulator -->
@@ -2225,8 +2241,61 @@ function runDiagnosis(profile){
     }
 
     setTimeout(()=>rs.scrollIntoView({behavior:'smooth',block:'start'}),100);
+
+    // 市区町村バナー表示
+    showLocalSearchBanner(profile);
   } finally {
     hideLoading();
+  }
+}
+
+function showLocalSearchBanner(profile) {
+  const banner = document.getElementById('local-search-banner');
+  if (!banner) return;
+  banner.style.display = 'block';
+  banner._profile = profile;
+
+  // プレミアムユーザーはリンク集を展開表示
+  if (isPremium) {
+    const linksDiv = document.getElementById('local-links-premium');
+    const linksList = document.getElementById('local-links-list');
+    if (linksDiv && linksList) {
+      linksDiv.style.display = 'block';
+      const pref = profile.prefecture || '';
+      const city = profile.city || '';
+      const query = encodeURIComponent((city || pref) + ' 補助金 助成金 給付金');
+      const links = [
+        { label: (city || pref) + ' 補助金・助成金を検索', url: 'https://www.google.com/search?q=' + query },
+        { label: 'jGrants（経済産業省 補助金検索）', url: 'https://jgrants.go.jp/' },
+        { label: 'ミラサポplus（中小企業向け補助金）', url: 'https://mirasapo-plus.go.jp/subsidy/' },
+        { label: '子育て支援情報（こども家庭庁）', url: 'https://www.cfa.go.jp/policies/child-support/' },
+        { label: '地方移住支援情報（JOIN）', url: 'https://www.iju-join.jp/' },
+      ];
+      linksList.innerHTML = links.map(l =>
+        `<a href="${l.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1b5e20;text-decoration:none;padding:6px 10px;background:#f9f5ef;border-radius:6px;border:1px solid #d4e8d0;">
+          <span>🔗</span><span>${l.label}</span>
+        </a>`
+      ).join('');
+    }
+  }
+}
+
+function openLocalSearch() {
+  const banner = document.getElementById('local-search-banner');
+  const profile = banner ? banner._profile : null;
+  const pref = profile ? (profile.prefecture || '') : '';
+  const city = profile ? (profile.city || '') : '';
+  const q = encodeURIComponent((city || pref || '') + ' 補助金 助成金 給付金');
+
+  if (isPremium) {
+    // プレミアム：リンク集を展開
+    const linksDiv = document.getElementById('local-links-premium');
+    if (linksDiv) {
+      linksDiv.style.display = linksDiv.style.display === 'none' ? 'block' : 'none';
+    }
+  } else {
+    // 無料：Google検索へ
+    window.open('https://www.google.com/search?q=' + q, '_blank');
   }
 }
 
