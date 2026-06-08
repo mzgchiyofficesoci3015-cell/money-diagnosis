@@ -684,6 +684,13 @@ select option{font-size:16px;padding:8px}
                 <div class="radio-btn"><input type="radio" id="m_no" name="marriage" value="no" checked><label for="m_no">なし</label></div>
               </div>
             </div>
+            <div class="form-group">
+              <label>妊娠・出産の予定</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="preg_yes" name="hasPregnancy" value="yes"><label for="preg_yes">あり</label></div>
+                <div class="radio-btn"><input type="radio" id="preg_no" name="hasPregnancy" value="no" checked><label for="preg_no">なし</label></div>
+              </div>
+            </div>
             <!-- Freelance-only fields -->
             <div class="form-group" id="industryGroup" style="display:none">
               <label>業種</label>
@@ -2060,6 +2067,190 @@ const PROGRAMS = [
     deadline:'各コースの募集期間内',deadlineNote:'コースにより開始時期が異なる',icsDate:null,local:null,
     eligibility:(p)=>p.job==='unemployed',
   },
+
+  // ── 年金免除・猶予 ──────────────────────────────────────────
+  {
+    id:'nenkin_full_exempt',name:'国民年金保険料 全額免除制度',category:'pension',categoryLabel:'年金免除',
+    summary:'前年所得が基準以下の第1号被保険者は国民年金保険料が全額免除。老齢基礎年金には国庫負担分が反映される。',
+    desc:'個人事業主・無職など国民年金第1号被保険者で、前年所得が基準額（単身の場合目安：年収133万円以下）以下の場合、国民年金保険料（月約16,980円）が全額免除されます。免除期間も老齢基礎年金の受給資格期間に算入され、国庫負担分（1/2）が年金額に反映されます。',
+    amount:'年間約20.4万円の保険料免除',amountShort:'年間約20万円免除',lossEstimate:20,
+    conditions:['国民年金第1号被保険者（個人事業主・無職等）','前年所得が全額免除基準以下（単身：年収133万円以下の目安）','市区町村の国民年金担当窓口に申請'],
+    docs:['国民年金保険料免除・納付猶予申請書','所得証明書（未申告の場合は申告が必要）'],
+    deadline:'毎年7月〜翌年6月分を申請（2年前まで遡及可）',deadlineNote:'失業・廃業の場合は特例申請もあり',icsDate:null,local:null,
+    eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.income)<=133,
+  },
+  {
+    id:'nenkin_defer',name:'国民年金保険料 納付猶予制度',category:'pension',categoryLabel:'年金猶予',
+    summary:'50歳未満の第1号被保険者で所得が低い場合、保険料の納付を猶予。受給資格期間に算入される。',
+    desc:'50歳未満の国民年金第1号被保険者を対象に、所得が低い場合に保険料の納付を猶予する制度です。全額免除と同じ所得基準で申請でき、猶予期間は老齢基礎年金の受給資格期間に算入されます（ただし年金額への反映は全額免除より少ない）。後から追納することで年金額を増やすことも可能。',
+    amount:'年間約20.4万円の保険料猶予',amountShort:'年間約20万円猶予',lossEstimate:20,
+    conditions:['50歳未満の国民年金第1号被保険者','前年所得が納付猶予基準以下（単身：年収133万円以下の目安）'],
+    docs:['国民年金保険料免除・納付猶予申請書','所得証明書'],
+    deadline:'毎年7月〜翌年6月分を申請',deadlineNote:'追納は猶予承認月から10年以内',icsDate:null,local:null,
+    eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.age)<50&&parseInt(p.income)<=133,
+  },
+  {
+    id:'nenkin_student',name:'学生納付特例制度',category:'pension',categoryLabel:'年金猶予',
+    summary:'在学中の学生の国民年金保険料を猶予。在学中は保険料を払わなくてよい。',
+    desc:'大学・短大・専門学校等に在学中の20歳以上の学生で、前年所得が128万円以下の場合、国民年金保険料の納付が猶予されます。猶予期間は老齢基礎年金の受給資格期間に算入されます（年金額への反映は卒業後に追納しない場合は少ない）。学生証と申請書を日本年金機構またはねんきんネットで申請できます。',
+    amount:'年間約20.4万円の保険料猶予',amountShort:'在学中の保険料猶予',lossEstimate:20,
+    conditions:['大学・短大・専門学校等に在学中の20歳以上','前年所得が128万円以下','国民年金第1号被保険者'],
+    docs:['学生納付特例申請書','学生証または在学証明書'],
+    deadline:'毎年4月〜翌年3月分を申請',deadlineNote:'春と秋に年金機構から案内が届く場合あり',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='student'&&parseInt(p.age)>=20&&parseInt(p.age)<=29&&parseInt(p.income)<=128,
+  },
+  {
+    id:'nenkin_half_exempt',name:'国民年金保険料 半額免除制度',category:'pension',categoryLabel:'年金免除',
+    summary:'所得が一定基準以下の第1号被保険者は保険料が半額免除。',
+    desc:'個人事業主・無職等の国民年金第1号被保険者で、前年所得が半額免除基準以下（目安：年収133〜200万円程度）の場合、国民年金保険料の半額が免除されます。残り半額を納付することで、老齢基礎年金の受給額は全額納付時の3/4相当が保証されます。',
+    amount:'年間約10万円の保険料免除',amountShort:'年間約10万円免除',lossEstimate:10,
+    conditions:['国民年金第1号被保険者','前年所得が半額免除基準以下（年収133〜200万円の目安）'],
+    docs:['国民年金保険料免除・納付猶予申請書','所得証明書'],
+    deadline:'毎年7月〜翌年6月分を申請',deadlineNote:'市区町村窓口またはねんきんネットで申請',icsDate:null,local:null,
+    eligibility:(p)=>(['freelance','other','unemployed','leave'].includes(p.job))&&parseInt(p.income)>133&&parseInt(p.income)<=200,
+  },
+
+  // ── 国民健康保険 ──────────────────────────────────────────
+  {
+    id:'kokuho_reduction',name:'国民健康保険料 軽減措置',category:'tax',categoryLabel:'節税・軽減',
+    summary:'前年所得が一定以下の国民健康保険加入者は保険料が7割・5割・2割軽減される。',
+    desc:'国民健康保険では、前年の世帯所得が一定以下の場合に、均等割保険料が7割・5割・2割軽減される制度があります（法定軽減）。申請不要で自動判定される場合が多いですが、市区町村の国保窓口に確認することを推奨します。また、失業・廃業等の場合は特例軽減の申請も可能です。',
+    amount:'年間数万〜十数万円の保険料軽減（所得・世帯人数による）',amountShort:'年間数万〜10万円以上軽減',lossEstimate:12,
+    conditions:['国民健康保険加入者（個人事業主・無職等）','前年世帯所得が軽減基準以下（単身：年収200万円以下が目安）'],
+    docs:['国民健康保険の加入証明書','所得証明書（確定申告書）'],
+    deadline:'年度ごとに自動判定（失業等特例は別途申請）',deadlineNote:'市区町村の国保窓口に問い合わせを',icsDate:null,local:null,
+    eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.income)<=200,
+  },
+
+  // ── 生活支援・住居 ──────────────────────────────────────────
+  {
+    id:'seikatsu_hogo',name:'生活保護制度',category:'grant',categoryLabel:'給付金',
+    summary:'収入が最低生活費以下の世帯に、生活・住宅・医療等の扶助を支給。',
+    desc:'資産・能力などあらゆるものを活用しても最低生活費に満たない場合に、国が「最低限度の生活」を保障する制度です。生活扶助・住宅扶助・医療扶助・教育扶助など複数の扶助があり、状況に応じて支給されます。申請は居住地を管轄する福祉事務所（市区町村役場の生活保護担当窓口）で行います。',
+    amount:'最低生活費と収入の差額（世帯・地域により異なる）',amountShort:'最低生活費との差額を支給',lossEstimate:120,
+    conditions:['収入・資産が最低生活費以下','資産・預貯金がほぼない状態','扶養義務者からの援助が受けられない','就労能力がない・働けない状況'],
+    docs:['生活保護申請書','身分証明書','通帳','収入証明書','家賃契約書'],
+    deadline:'随時申請可（申請した月から支給開始が原則）',deadlineNote:'福祉事務所への相談から始めること',icsDate:null,local:null,
+    eligibility:(p)=>parseInt(p.income)<=100&&p.job!=='employee',
+  },
+  {
+    id:'juuyo_kyuufu',name:'住居確保給付金',category:'grant',categoryLabel:'給付金',
+    summary:'離職・廃業等で家賃支払いが困難な場合、最長9か月間家賃相当額を支給。',
+    desc:'離職・廃業から2年以内、または収入が急減し住居を失うおそれがある方に、一定期間（原則3か月、最長9か月）家賃相当額が支給されます。単身世帯は東京23区で上限5.3万円。ハローワークへの求職活動が条件です。市区町村の自立相談支援機関に申請します。',
+    amount:'月額上限：単身5.3万円（東京23区）〜3.5万円程度（地域による）',amountShort:'月最大5.3万円×最長9か月',lossEstimate:30,
+    conditions:['離職・廃業から2年以内または収入急減','住宅を失うおそれがある','収入・資産が一定基準以下','ハローワークで求職活動中'],
+    docs:['住居確保給付金申請書','離職票または廃業届','収入・資産確認書類','賃貸借契約書'],
+    deadline:'随時申請可',deadlineNote:'市区町村の自立相談支援機関に相談を',icsDate:null,local:null,
+    eligibility:(p)=>parseInt(p.income)<=200&&['unemployed','leave','freelance'].includes(p.job),
+  },
+
+  // ── 税控除 ──────────────────────────────────────────────
+  {
+    id:'self_medication',name:'セルフメディケーション税制（医療費控除特例）',category:'tax',categoryLabel:'節税',
+    summary:'OTC医薬品（市販薬）を年間12,000円超購入した場合、超過分（上限88,000円）を所得控除。',
+    desc:'健康診断等を受けた人が対象のOTC医薬品購入費の特例控除です。年間のOTC医薬品購入額が12,000円を超えた場合、超えた分（最大88,000円）が所得から控除されます。通常の医療費控除との選択制です。確定申告が必要です。',
+    amount:'最大88,000円の所得控除（税率20%なら最大約1.8万円節税）',amountShort:'超過分を最大88,000円控除',lossEstimate:2,
+    conditions:['健康診断・予防接種などを受けていること','OTC医薬品を年間12,000円超購入','確定申告が必要'],
+    docs:['レシート・領収書（OTC医薬品のもの）','健康診断受診証明書','確定申告書'],
+    deadline:'確定申告期間（2月〜3月）、過去5年まで遡及可',deadlineNote:'通常の医療費控除と選択適用',icsDate:'20270315',local:null,
+    eligibility:()=>true,
+  },
+  {
+    id:'zousson_koujyo',name:'雑損控除',category:'tax',categoryLabel:'節税',
+    summary:'災害・盗難・横領による損失を所得から控除できる。',
+    desc:'災害（地震・台風・火災等）、盗難、横領により生活に必要な資産が損害を受けた場合、損害額の一部を所得から控除できます。控除額は「損失額−保険補填額−総所得の10%」または「損失額のうち災害等に関連する支出−5万円」のいずれか大きい方です。',
+    amount:'損失額に応じた所得控除（損失が大きいほど節税効果も大）',amountShort:'損失額を所得控除',lossEstimate:5,
+    conditions:['災害・盗難・横領で資産に損失が生じた','生活に通常必要な資産が対象（投資用・事業用は別途）'],
+    docs:['確定申告書','損害額を証明する書類（罹災証明書・警察の被害届受理証明書等）','損失額の計算明細書'],
+    deadline:'確定申告期間（2月〜3月）',deadlineNote:'損失が所得を上回る場合は翌年以降3年間繰越可',icsDate:'20270315',local:null,
+    eligibility:()=>true,
+  },
+  {
+    id:'widow_koujyo',name:'寡婦（ひとり親）控除',category:'tax',categoryLabel:'節税',
+    summary:'ひとり親・寡婦の所得控除。ひとり親控除35万円、または寡婦控除27万円が適用される。',
+    desc:'婚姻関係がなく生計を一にする子を扶養するひとり親には「ひとり親控除」35万円、それ以外で夫と死別・離婚した女性には「寡婦控除」27万円が適用されます。所得税・住民税の軽減につながります。年末調整または確定申告で手続きできます。合計所得500万円以下が要件。',
+    amount:'ひとり親控除35万円または寡婦控除27万円の所得控除',amountShort:'最大35万円の所得控除',lossEstimate:7,
+    conditions:['ひとり親（子を扶養・婚姻なし）または寡婦（夫と死別・離婚）','合計所得500万円以下'],
+    docs:['ひとり親控除申告書（年末調整）または確定申告書','戸籍謄本・住民票'],
+    deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'ひとり親控除はhitorioyal_koujoと重複—両方表示しないよう注意',icsDate:'20261130',local:null,
+    eligibility:(p)=>p.family==='single_parent',
+  },
+
+  // ── 子ども・家族 ──────────────────────────────────────────
+  {
+    id:'shussan_ichijikin',name:'出産育児一時金（申請案内）',category:'grant',categoryLabel:'給付金',
+    summary:'妊娠・出産予定の方は出産育児一時金（1児50万円）の事前手続きを確認しておきましょう。',
+    desc:'健康保険・国民健康保険の被保険者が出産した場合、1児につき50万円が支給されます。多くの産科では直接支払制度を利用でき、出産費用から差し引かれます。妊娠が分かったら早めに加入保険に問い合わせ、直接支払制度の手続きを確認しておきましょう。',
+    amount:'1児につき50万円',amountShort:'1児につき50万円',lossEstimate:50,
+    conditions:['健康保険または国民健康保険に加入','妊娠85日（12週）以上の出産予定'],
+    docs:['出産育児一時金支給申請書（または直接支払制度合意書）','健康保険証','振込口座情報'],
+    deadline:'出産日翌日から2年以内（直接支払制度は分娩機関と事前手続き）',deadlineNote:'分娩予定の病院・助産院に早めに確認を',icsDate:null,local:null,
+    eligibility:(p)=>p.hasPregnancy==='yes'||(['children','single_parent'].includes(p.family)&&p.childrenAge==='0-2'),
+  },
+  {
+    id:'ikukyu_kyuufu',name:'育児休業給付金（申請確認）',category:'grant',categoryLabel:'給付金',
+    summary:'雇用保険加入の会社員が育休取得時に、休業前賃金の最大67〜80%が支給される。',
+    desc:'雇用保険に加入している会社員が育児休業を取得した場合、休業開始から180日間は休業前賃金の67%（約180日経過後は50%）が支給されます。2025年の制度改正で一定条件下では最大80%に拡充。子どもが1歳（最長2歳）になるまで受給可能。会社の人事担当に早めに相談しましょう。',
+    amount:'休業前賃金の67%（最長180日）〜80%（拡充後）',amountShort:'賃金の最大67〜80%',lossEstimate:0,
+    conditions:['雇用保険加入の会社員','育児休業を取得する','休業前2年間に11日以上働いた月が12か月以上'],
+    docs:['育児休業給付受給資格確認票','育児休業給付金支給申請書','母子健康手帳の写し'],
+    deadline:'育児休業開始後4か月以内に申請（会社経由でハローワーク手続き）',deadlineNote:'会社の人事・総務担当に早めに相談を',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='employee'&&(['children','single_parent'].includes(p.family)||p.hasPregnancy==='yes'),
+  },
+  {
+    id:'koudai_mushouka',name:'高等教育の修学支援制度（大学無償化）',category:'grant',categoryLabel:'給付金',
+    summary:'低所得世帯の大学・短大・専門学校の授業料が減免＋給付型奨学金が受けられる。',
+    desc:'住民税非課税世帯やそれに準ずる世帯（年収380万円以下が目安）の学生が大学・短大・高専・専門学校に進学する場合、入学金・授業料の減免と返済不要の給付型奨学金が受けられます。日本学生支援機構（JASSO）に申請します。2024年から多子世帯（第3子以降）は所得制限なしで適用。',
+    amount:'授業料減免（年最大70万円程度）＋給付型奨学金（月約4〜7万円）',amountShort:'年最大約70万円の授業料減免＋奨学金',lossEstimate:70,
+    conditions:['大学・短大・高専・専門学校に在学または進学予定','世帯年収380万円以下（目安）','学力要件あり（成績に一定の基準）'],
+    docs:['支援措置申請書','課税証明書','合格通知書（進学前の場合）','在学証明書'],
+    deadline:'各学期の申請期限あり（学校経由で申請）',deadlineNote:'進学前に高校経由で申請手続きを確認',icsDate:null,local:null,
+    eligibility:(p)=>(['children','single_parent'].includes(p.family))&&parseInt(p.income)<=380,
+  },
+
+  // ── 雇用・創業 ──────────────────────────────────────────
+  {
+    id:'koyou_chosei',name:'雇用調整助成金',category:'subsidy',categoryLabel:'補助金',
+    summary:'経済的事情で休業させた従業員の休業手当を国が一部助成。中小企業は最大90%助成。',
+    desc:'景気の変動等による経営上の理由から、従業員を一時的に休業・教育訓練・出向させた事業主に対し、休業手当等の一部を助成する制度です。中小企業は最大90%助成。雇用を維持しながら経営を立て直す期間を支援します。ハローワークに申請します。',
+    amount:'休業手当の最大90%（中小企業）',amountShort:'休業手当の最大90%助成',lossEstimate:30,
+    conditions:['労働保険（雇用保険・労災保険）に加入している事業主','売上または生産量が前年比10%以上減少','雇用保険加入の従業員を休業・教育訓練・出向させる'],
+    docs:['雇用調整助成金支給申請書','休業等実施状況確認書','賃金台帳','タイムカード','休業協定書'],
+    deadline:'休業実施の計画届は前日まで（支給申請は休業翌月から）',deadlineNote:'事前計画届が必要',icsDate:null,local:null,
+    eligibility:(p)=>p.job==='company_owner',
+  },
+  {
+    id:'sogyou_hojo',name:'創業補助金（スタートアップ創出促進事業等）',category:'subsidy',categoryLabel:'補助金',
+    summary:'新規創業・第二創業への設備費・広告費等を補助。最大200万円。',
+    desc:'経済産業省・中小企業庁が実施する創業・スタートアップ支援の補助金群です。開業から間もない事業者が新たに事業を始める際の費用（設備費・広告宣伝費・専門家費用等）を補助します。商工会議所・創業支援センター等を通じて申請することが多いです。',
+    amount:'最大200万円（補助率1/2〜2/3）',amountShort:'最大200万円',lossEstimate:50,
+    conditions:['新規創業（開業5年以内）または第二創業（事業転換）','事業計画書を提出','採択後に補助対象事業を実施'],
+    docs:['申請書','事業計画書','見積書','開業届または登記簿謄本'],
+    deadline:'年複数回の公募（詳細は中小企業庁・地域の商工会議所へ）',deadlineNote:'採択後の事前承認が必要',icsDate:null,local:null,
+    eligibility:(p)=>(['freelance','company_owner'].includes(p.job))&&parseInt(p.income)<=500,
+  },
+
+  // ── 高齢者・障害者 ──────────────────────────────────────────
+  {
+    id:'kaigo_keigen',name:'介護保険料 軽減措置',category:'tax',categoryLabel:'節税・軽減',
+    summary:'40歳以上の低所得者の介護保険料が最大7割軽減される。',
+    desc:'40歳以上の国民健康保険加入者・後期高齢者医療制度加入者で、所得が低い場合に介護保険料が軽減される制度があります。均等割軽減（2割・5割・7割）と、市区町村民税非課税の介護保険第1〜第3段階の特定基準額軽減があります。申請不要で自動判定される場合が多いですが、確認を推奨します。',
+    amount:'年間数万円〜十数万円の介護保険料軽減（所得・年齢による）',amountShort:'年間数万円の介護保険料軽減',lossEstimate:10,
+    conditions:['40歳以上の国民健康保険加入者または後期高齢者医療制度加入者','前年所得が軽減基準以下（年収200万円以下が目安）'],
+    docs:['介護保険料に関する問い合わせ（申請不要のケースが多い）','所得証明書（必要に応じて）'],
+    deadline:'毎年自動判定（変更時は市区町村窓口へ）',deadlineNote:'市区町村の介護保険担当窓口に確認を',icsDate:null,local:null,
+    eligibility:(p)=>parseInt(p.age)>=40&&parseInt(p.income)<=200,
+  },
+  {
+    id:'shougaisha_koujyo',name:'障害者控除',category:'tax',categoryLabel:'節税',
+    summary:'障害者手帳保有者は所得税・住民税で27〜75万円の所得控除が受けられる。',
+    desc:'障害者手帳（身体障害者手帳・療育手帳・精神障害者保健福祉手帳）を保有している場合、「障害者控除」として27万円（普通障害者）または40万円（特別障害者）、同居特別障害者は75万円の所得控除が受けられます。年末調整または確定申告で申告します。',
+    amount:'27〜75万円の所得控除（税率20%なら5.4〜15万円の節税）',amountShort:'27〜75万円の所得控除',lossEstimate:10,
+    conditions:['障害者手帳（身体・療育・精神）を保有している','納税者本人または扶養家族が対象'],
+    docs:['障害者手帳','年末調整書類または確定申告書'],
+    deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'手帳の交付を受けたら確認を',icsDate:'20261130',local:null,
+    eligibility:(p)=>p.disability==='yes',
+  },
 ];
 
 // ── State ─────────────────────────────────────────────────────
@@ -2069,6 +2260,7 @@ let favorites = JSON.parse(localStorage.getItem('msa_favorites')||'[]');
 let progress = JSON.parse(localStorage.getItem('msa_progress')||'{}');
 let currentProfile = null;
 let currentModalId = null;
+let isPremium = false; // Bug fix: was undefined, causing ReferenceError in openLocalSearch/showLocalSearchBanner
 
 // ── Form ──────────────────────────────────────────────────────
 document.getElementById('profile-form').addEventListener('submit',function(e){
@@ -2094,6 +2286,7 @@ function getProfile(){
   const eqEl = document.querySelector('input[name="equipment"]:checked');
   const dxEl = document.querySelector('input[name="dx"]:checked');
   const empEl = document.querySelector('input[name="employees"]:checked');
+  const pregEl = document.querySelector('input[name="hasPregnancy"]:checked');
   if(!age||!prefecture||isNaN(income)||!job||!fEl){alert('すべての必須項目を入力してください。');return null;}
   const city = document.getElementById('inputCity').value;
   const industry = document.getElementById('inputIndustry').value;
@@ -2106,6 +2299,7 @@ function getProfile(){
     dx: dxEl?dxEl.value:'no',
     disability: disEl?disEl.value:'no',
     caregiving: careEl?careEl.value:'no',
+    hasPregnancy: pregEl?pregEl.value:'no',
     childrenCount: document.getElementById('inputChildrenCount')?.value || '',
     childrenAge: document.getElementById('inputChildrenAge')?.value || '',
     spouse: document.getElementById('inputSpouse')?.value || '',
@@ -2259,7 +2453,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function runDiagnosis(profile){
   trackEvent('diagnosis_run', { job: profile.job, prefecture: profile.prefecture, family: profile.family });
   showLoadingWithMessage('診断中...');
-  showLoading();
   try {
     matchedPrograms = PROGRAMS.filter(p=>p.eligibility(profile));
     // デフォルト：損失額の大きい順
@@ -2898,7 +3091,7 @@ async function loadProfile() {
 
   if (!profile) return;
 
-  const fields = ['age','prefecture','city','income','job','family','housing','marriage','industry','employees','equipment','dx','disability','caregiving'];
+  const fields = ['age','prefecture','city','income','job','family','housing','marriage','industry','employees','equipment','dx','disability','caregiving','hasPregnancy'];
   fields.forEach(f => {
     const el = document.getElementById('input' + f.charAt(0).toUpperCase() + f.slice(1)) ||
                document.getElementById(f);
@@ -2924,7 +3117,7 @@ async function loadProfile() {
   }
 
   // Pre-fill radio buttons
-  ['housing','marriage','disability','caregiving','equipment','dx'].forEach(name => {
+  ['housing','marriage','disability','caregiving','equipment','dx','hasPregnancy'].forEach(name => {
     if (profile[name]) {
       const el = document.querySelector('input[name="' + name + '"][value="' + profile[name] + '"]');
       if (el) el.checked = true;
@@ -2980,8 +3173,8 @@ async function saveProfileToCloud(profile) {
     caregiving: profile.caregiving || null,
     children_count: profile.childrenCount || null,
     children_age: profile.childrenAge || null,
-    // Note: Run this SQL in Supabase: alter table profiles add column if not exists spouse text;
     spouse: profile.spouse || null,
+    has_pregnancy: profile.hasPregnancy || null,
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
 }
