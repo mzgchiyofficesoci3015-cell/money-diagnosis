@@ -2316,6 +2316,8 @@ function showLocalSearchBanner(profile) {
     const linksList = document.getElementById('local-links-list');
     if (linksDiv && linksList) {
       linksDiv.style.display = 'block';
+      const btn = document.getElementById('local-search-btn');
+      if (btn) btn.textContent = '閉じる ✕';
       const pref = profile.prefecture || '';
       const city = profile.city || '';
       const query = encodeURIComponent((city || pref) + ' 補助金 助成金 給付金');
@@ -2343,14 +2345,23 @@ function openLocalSearch() {
   const q = encodeURIComponent((city || pref || '') + ' 補助金 助成金 給付金');
 
   if (isPremium) {
-    // プレミアム：リンク集を展開
+    // プレミアム：リンク集を展開（既に表示中なら閉じる）
     const linksDiv = document.getElementById('local-links-premium');
+    const btn = document.getElementById('local-search-btn');
     if (linksDiv) {
-      linksDiv.style.display = linksDiv.style.display === 'none' ? 'block' : 'none';
+      const isOpen = linksDiv.style.display !== 'none';
+      linksDiv.style.display = isOpen ? 'none' : 'block';
+      if (btn) btn.textContent = isOpen ? '申請窓口を確認 →' : '閉じる ✕';
     }
   } else {
-    // 無料：Google検索へ
-    window.open('https://www.google.com/search?q=' + q, '_blank');
+    // 無料：Google検索へ（アンカータグ経由でポップアップブロッカー回避）
+    const a = document.createElement('a');
+    a.href = 'https://www.google.com/search?q=' + q;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 }
 
