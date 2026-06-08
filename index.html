@@ -742,6 +742,23 @@ select option{font-size:16px;padding:8px}
                 <div class="radio-btn"><input type="radio" id="care_no" name="caregiving" value="no" checked><label for="care_no">なし</label></div>
               </div>
             </div>
+            <div class="form-group">
+              <label>あなたは世帯主ですか？</label>
+              <div class="radio-group">
+                <div class="radio-btn"><input type="radio" id="householder_yes" name="isHouseholder" value="yes" checked><label for="householder_yes">はい（世帯主）</label></div>
+                <div class="radio-btn"><input type="radio" id="householder_no" name="isHouseholder" value="no"><label for="householder_no">いいえ（世帯員）</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>世帯の種類</label>
+              <select id="inputHouseholdType">
+                <option value="single_household">単独世帯（一人暮らし）</option>
+                <option value="nuclear" selected>核家族世帯（夫婦・親子のみ）</option>
+                <option value="two_generation">二世帯住宅（親と同居）</option>
+                <option value="separated">世帯分離済み（住民票を別世帯に分けている）</option>
+                <option value="extended">三世代同居（祖父母含む）</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="btn-diagnose">
             対象制度を自動診断する
@@ -2251,6 +2268,79 @@ const PROGRAMS = [
     deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'手帳の交付を受けたら確認を',icsDate:'20261130',local:null,
     eligibility:(p)=>p.disability==='yes',
   },
+
+  // ── 世帯分離・二世帯住宅・世帯主関連 ────────────────────────
+  {id:'setai_bunri_kaigo',name:'世帯分離による介護保険料・利用料軽減',category:'tax',categoryLabel:'節税・軽減',
+    summary:'世帯分離により介護保険の自己負担限度額が下がる場合があります',
+    desc:'親と同居しているが世帯を分けることで、介護保険の高額介護サービス費の自己負担限度額が低所得者区分に下がる場合があります。年間数万〜数十万円の負担軽減効果があります。',
+    amount:'年間数万〜数十万円軽減',amountShort:'数万〜数十万円/年',lossEstimate:15,
+    conditions:['親と同居または二世帯住宅','世帯分離を検討している','介護サービスを利用している（または予定）'],
+    docs:['住民異動届（世帯分離）','介護保険被保険者証'],
+    deadline:'随時申請（市区町村窓口）',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>['two_generation','extended'].includes(p.householdType)||p.householdType==='separated'},
+
+  {id:'setai_bunri_kokuho',name:'世帯分離による国民健康保険料軽減',category:'tax',categoryLabel:'節税・軽減',
+    summary:'世帯分離で国民健康保険料の所得割・均等割が軽減される場合があります',
+    desc:'国民健康保険料は世帯単位で計算されます。高収入の親と世帯を分けることで、子の世帯の保険料が大幅に下がる場合があります。',
+    amount:'年間数万円軽減（世帯収入により異なる）',amountShort:'数万円/年',lossEstimate:10,
+    conditions:['国民健康保険に加入している','同居の家族と所得差がある','世帯分離を検討中'],
+    docs:['住民異動届（世帯分離）','国民健康保険証'],
+    deadline:'随時',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>(['two_generation','extended','separated'].includes(p.householdType))&&['freelance','other'].includes(p.job)},
+
+  {id:'setai_bunri_jumin',name:'世帯分離による住民税非課税世帯給付金',category:'grant',categoryLabel:'給付金',
+    summary:'世帯分離により住民税非課税世帯として各種給付金の対象になる場合があります',
+    desc:'政府の物価高騰対策給付金（1世帯あたり3〜10万円）等は「住民税非課税世帯」が対象です。世帯分離により対象世帯となれる場合があります。',
+    amount:'給付金3〜10万円（制度による）',amountShort:'3〜10万円',lossEstimate:10,
+    conditions:['世帯分離後の世帯年収が住民税非課税基準以下','給付金受給要件を満たす'],
+    docs:['住民票','給付金申請書（市区町村発行）'],
+    deadline:'随時（各給付金の期限に準じる）',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>p.householdType==='separated'&&p.income<=200},
+
+  {id:'futasetai_jutaku_koujyo',name:'二世帯住宅 住宅ローン控除（親子ローン）',category:'tax',categoryLabel:'節税',
+    summary:'親子それぞれがローンを組む「親子リレーローン」「ペアローン」で両者が住宅ローン控除を受けられます',
+    desc:'二世帯住宅を親子でペアローンまたは親子リレーローンを組んで取得した場合、親・子それぞれが住宅ローン控除（年末ローン残高の0.7%、最大35万円/年×13年）を適用できます。',
+    amount:'最大35万円/年×13年（一人あたり）',amountShort:'最大35万円/年',lossEstimate:25,
+    conditions:['二世帯住宅を購入または建築予定','親子でローンを組む予定','入居から6ヶ月以内に申請'],
+    docs:['確定申告書','住宅借入金等特別控除申告書','登記事項証明書','住民票'],
+    deadline:'翌年3月15日（確定申告）',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>['two_generation','extended'].includes(p.householdType)&&p.buyHouse},
+
+  {id:'futasetai_souzoku',name:'小規模宅地等の特例（二世帯住宅）',category:'tax',categoryLabel:'節税',
+    summary:'親と同居（または二世帯住宅）の場合、相続時に土地評価額を最大80%減額できます',
+    desc:'被相続人と同居していた親族が自宅土地を相続する場合、330㎡まで評価額を80%減額できる「小規模宅地等の特例」が適用されます。二世帯住宅（区分所有でない場合）も対象です。',
+    amount:'土地評価額を最大80%減額（相続税の大幅軽減）',amountShort:'相続税を大幅軽減',lossEstimate:50,
+    conditions:['親と同居中または二世帯住宅','相続発生時も同居継続見込み','土地330㎡まで'],
+    docs:['相続税申告書','遺産分割協議書','住民票（同居証明）','登記事項証明書'],
+    deadline:'相続開始から10ヶ月以内',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>['two_generation','extended','separated'].includes(p.householdType)},
+
+  {id:'setainushi_shotoku_koujyo',name:'世帯主の配偶者控除・扶養控除',category:'tax',categoryLabel:'節税',
+    summary:'世帯主として配偶者や家族を扶養している場合、所得控除を受けられます',
+    desc:'世帯主が配偶者（年収103万円以下）を扶養している場合は配偶者控除38万円、配偶者特別控除（年収103〜201万円）も最大38万円の控除。扶養親族1人につき38〜63万円の扶養控除も適用できます。',
+    amount:'配偶者控除38万円＋扶養控除38〜63万円/人',amountShort:'数十万円の所得控除',lossEstimate:8,
+    conditions:['世帯主である','配偶者または扶養親族がいる','配偶者の年収が201万円以下'],
+    docs:['給与所得者の扶養控除等申告書（年末調整）','確定申告書（自営業の場合）'],
+    deadline:'年末調整（12月）または確定申告（3月15日）',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>p.isHouseholder&&(p.family==='married'||p.family==='children'||p.family==='single_parent')},
+
+  {id:'setainushi_jumin_tax',name:'住民税 非課税判定（世帯主基準）',category:'tax',categoryLabel:'節税・軽減',
+    summary:'世帯主の所得が基準以下なら住民税非課税世帯として各種優遇を受けられます',
+    desc:'住民税非課税世帯（目安：単身者で年収100万円以下、扶養家族1人で年収156万円以下等）は、国民健康保険料軽減・介護保険料軽減・教育費支援・給付金受給等の多数の優遇制度の対象となります。',
+    amount:'各種給付金・保険料軽減の対象（年間数万〜数十万円相当）',amountShort:'各種優遇の対象',lossEstimate:20,
+    conditions:['世帯主の前年所得が非課税基準以下','（単身）年収100万円以下目安','（扶養1人）年収156万円以下目安'],
+    docs:['確定申告書または住民税申告書','住民票'],
+    deadline:'随時（市区町村窓口で確認）',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>p.isHouseholder&&p.income<=200},
+
+  {id:'kodomo_teate_setainushi',name:'児童手当（世帯主名義で受給）',category:'grant',categoryLabel:'給付金',
+    summary:'中学生以下の子を養育する世帯主に月額1〜1.5万円支給（所得制限なし）',
+    desc:'2024年10月改正により所得制限が撤廃。0〜2歳：月1.5万円、3歳〜小学生：月1万円（第3子以降3万円）、中学生：月1万円。世帯主（または生計を維持する方）が受給者となります。',
+    amount:'月額1〜3万円（子の年齢・人数による）',amountShort:'月1〜3万円',lossEstimate:18,
+    conditions:['中学校修了前の子どもを養育している','日本国内に住所がある'],
+    docs:['児童手当認定請求書','戸籍謄本','住民票','健康保険証（写）','振込先口座'],
+    deadline:'出生・転入から15日以内に申請',deadlineNote:'',icsDate:null,local:'',
+    eligibility:p=>(p.family==='children'||p.family==='single_parent')&&p.isHouseholder},
 ];
 
 // ── State ─────────────────────────────────────────────────────
@@ -2287,9 +2377,11 @@ function getProfile(){
   const dxEl = document.querySelector('input[name="dx"]:checked');
   const empEl = document.querySelector('input[name="employees"]:checked');
   const pregEl = document.querySelector('input[name="hasPregnancy"]:checked');
+  const householderEl = document.querySelector('input[name="isHouseholder"]:checked');
   if(!age||!prefecture||isNaN(income)||!job||!fEl){alert('すべての必須項目を入力してください。');return null;}
   const city = document.getElementById('inputCity').value;
   const industry = document.getElementById('inputIndustry').value;
+  const householdType = document.getElementById('inputHouseholdType')?.value || 'nuclear';
   return{
     age, prefecture, city, income, job,
     family:fEl.value, housing:hEl?hEl.value:'no', marriage:mEl?mEl.value:'no',
@@ -2300,6 +2392,8 @@ function getProfile(){
     disability: disEl?disEl.value:'no',
     caregiving: careEl?careEl.value:'no',
     hasPregnancy: pregEl?pregEl.value:'no',
+    isHouseholder: householderEl?householderEl.value==='yes':true,
+    householdType: householdType,
     childrenCount: document.getElementById('inputChildrenCount')?.value || '',
     childrenAge: document.getElementById('inputChildrenAge')?.value || '',
     spouse: document.getElementById('inputSpouse')?.value || '',
@@ -3091,7 +3185,7 @@ async function loadProfile() {
 
   if (!profile) return;
 
-  const fields = ['age','prefecture','city','income','job','family','housing','marriage','industry','employees','equipment','dx','disability','caregiving','hasPregnancy'];
+  const fields = ['age','prefecture','city','income','job','family','housing','marriage','industry','employees','equipment','dx','disability','caregiving','hasPregnancy','householdType'];
   fields.forEach(f => {
     const el = document.getElementById('input' + f.charAt(0).toUpperCase() + f.slice(1)) ||
                document.getElementById(f);
@@ -3117,7 +3211,7 @@ async function loadProfile() {
   }
 
   // Pre-fill radio buttons
-  ['housing','marriage','disability','caregiving','equipment','dx','hasPregnancy'].forEach(name => {
+  ['housing','marriage','disability','caregiving','equipment','dx','hasPregnancy','isHouseholder'].forEach(name => {
     if (profile[name]) {
       const el = document.querySelector('input[name="' + name + '"][value="' + profile[name] + '"]');
       if (el) el.checked = true;
@@ -3147,6 +3241,18 @@ async function loadProfile() {
   if (profile.family) {
     updateFamilyFields(profile.family);
   }
+  // isHouseholder from cloud (boolean) or local (string 'yes'/'no')
+  if (profile.is_householder != null || profile.isHouseholder != null) {
+    const val = profile.is_householder != null ? (profile.is_householder ? 'yes' : 'no') : profile.isHouseholder;
+    const el = document.querySelector('input[name="isHouseholder"][value="' + val + '"]');
+    if (el) el.checked = true;
+  }
+  // household_type from cloud or householdType from local
+  const htVal = profile.household_type || profile.householdType;
+  if (htVal) {
+    const el = document.getElementById('inputHouseholdType');
+    if (el) el.value = htVal;
+  }
 }
 
 function saveProfileLocally(profile) {
@@ -3175,6 +3281,8 @@ async function saveProfileToCloud(profile) {
     children_age: profile.childrenAge || null,
     spouse: profile.spouse || null,
     has_pregnancy: profile.hasPregnancy || null,
+    is_householder: profile.isHouseholder != null ? profile.isHouseholder : null,
+    household_type: profile.householdType || null,
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
 }
