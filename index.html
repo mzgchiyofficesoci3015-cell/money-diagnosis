@@ -818,6 +818,12 @@ select option{font-size:16px;padding:8px}
           </div>
         </div>
       </div>
+      <div id="disclaimer-notice" style="background:#fffbeb;border:1px solid #f59e0b;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start;">
+        <span style="font-size:16px;flex-shrink:0;">⚠️</span>
+        <p style="font-size:12px;color:#92400e;margin:0;line-height:1.7;">
+          掲載している制度情報は参考情報です。金額・条件・期限は変更される場合があります。<strong>最新情報は各制度の公式サイトでご確認ください。</strong>診断結果は申請を保証するものではありません。
+        </p>
+      </div>
       <div class="cards-grid" id="cards-container"></div>
 
       <!-- 市区町村制度バナー -->
@@ -834,6 +840,21 @@ select option{font-size:16px;padding:8px}
           <div style="font-size:12px;font-weight:700;color:#2d3a2e;margin-bottom:8px;">📋 よく使われる申請窓口</div>
           <div id="local-links-list" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
+      </div>
+
+      <!-- jGrants Section -->
+      <div id="jgrants-section" style="display:none;margin-top:32px;">
+        <div class="section-header">
+          <div class="section-title">🏛️ 最新の補助金情報</div>
+          <div class="section-sub">jGrants（経済産業省）から取得</div>
+        </div>
+        <div id="jgrants-loading" style="display:none;text-align:center;padding:24px;background:#fff;border:1px solid #d4e8d0;border-radius:12px;">
+          <div style="font-size:14px;color:#4a6050;">🔄 最新の補助金情報を取得中...</div>
+        </div>
+        <div id="jgrants-error" style="display:none;padding:16px 20px;background:#fff;border:1px solid #d4e8d0;border-radius:12px;font-size:13px;color:#7a9080;">
+          ⚠️ 最新情報の取得に失敗しました。しばらく後にお試しください。
+        </div>
+        <div class="cards-grid" id="jgrants-cards"></div>
       </div>
     </section>
 
@@ -1005,32 +1026,32 @@ const PROGRESS_STEPS = ['未着手','制度確認済み','書類準備中','申�
 
 const PROGRAMS = [
   {
-    id:'nisa',name:'NISA（少額投資非課税制度）',category:'tax',categoryLabel:'節税',
+    id:'nisa',name:'NISA（少額投資非課税制度）',category:'tax',categoryLabel:'非課税枠',
     summary:'年間最大360万円まで投資利益が非課税。新NISAで恒久化・非課税保有限度額が大幅拡大。',
     desc:'2024年から始まった新NISAでは、つみたて投資枠（年120万円）と成長投資枠（年240万円）の合計年360万円まで投資し、利益・配当が非課税になります。非課税保有限度額は1,800万円で生涯活用できます。⚠️ NISAは投資の利益・配当に対する税金が非課税になる制度です。お金が「もらえる」制度ではなく、運用次第では損失が出ることもあります。',
     amount:'投資利益・配当が非課税（利益額は運用次第）',amountShort:'投資利益が非課税',lossEstimate:10,
     conditions:['18歳以上の日本在住者','つみたて投資枠：年間上限120万円','成長投資枠：年間上限240万円（合計年360万円）','生涯非課税枠1,800万円（うち成長投資枠1,200万円）'],
-    docs:['マイナンバー確認書類','本人確認書類','証券口座開設申込書'],
+    docs:['証券口座開設申込書（各金融機関）','本人確認書類','マイナンバー確認書類'],
     deadline:'通年申込可能',deadlineNote:'口座開設後すぐに利用可能',icsDate:null,local:null,
     eligibility:(p)=>parseInt(p.age)>=18,
   },
   {
-    id:'ideco',name:'iDeCo（個人型確定拠出年金）',category:'pension',categoryLabel:'年金・節税',
+    id:'ideco',name:'iDeCo（個人型確定拠出年金）',category:'pension',categoryLabel:'節税',
     summary:'掛金が全額所得控除。運用益非課税。老後資産形成と節税を同時に実現。',
-    desc:'掛金が全額所得控除になるため、拠出した分だけ所得税・住民税が軽減されます。会社員は月最大2.3万円、個人事業主は月最大6.8万円まで拠出可能。運用益も非課税です。⚠️ 受取時は退職所得控除または公的年金等控除の対象となります（非課税ではありません）。原則60歳まで引き出しできません。',
+    desc:'iDeCoは「控除」制度です。掛金が全額所得控除になるため、拠出した分だけ所得税・住民税が軽減されます（お金が「もらえる」制度ではありません）。会社員は月最大2.3万円、個人事業主は月最大6.8万円まで拠出可能。運用益も非課税です。⚠️ 受取時は退職所得控除または公的年金等控除の対象となります（受取時も非課税ではありません）。原則60歳まで引き出しできません。',
     amount:'年間 最大16〜82万円の所得控除',amountShort:'年間 最大82万円の所得控除',lossEstimate:15,
     conditions:['20〜65歳の国民年金加入者','会社員：月2.3万円まで','個人事業主：月6.8万円まで','⚠️ 受取時は退職所得控除または公的年金等控除の対象（非課税ではありません）'],
-    docs:['加入申込書','事業主証明書（会社員の場合）','本人確認書類','マイナンバー確認書類'],
+    docs:['個人型年金加入申出書','本人確認書類','基礎年金番号通知書またはマイナンバー書類','事業主証明書（会社員の場合）'],
     deadline:'通年申込可能',deadlineNote:'原則60歳まで引き出し不可',icsDate:null,local:null,
     eligibility:(p)=>['employee','part','freelance','other'].includes(p.job)&&parseInt(p.age)>=20&&parseInt(p.age)<=65,
   },
   {
-    id:'housing_loan',name:'住宅ローン控除（住宅借入金等特別控除）',category:'tax',categoryLabel:'税額控除',
+    id:'housing_loan',name:'住宅ローン控除（住宅借入金等特別控除）',category:'tax',categoryLabel:'節税',
     summary:'住宅ローン残高の0.7%が最大13年間、所得税・住民税から直接控除。',
     desc:'住宅ローンを借りて自宅を取得した場合、年末のローン残高の0.7%が所得税から控除されます（購入価格ではなく年末時点のローン残高が基準です）。新築・認定住宅では最大5,000万円の残高に対して適用、最大13年間で最大455万円の控除が受けられます。⚠️ 一部の住宅補助金と同年に併用できない場合があります。詳細は税務署または税理士にご確認ください。',
-    amount:'年間 最大35万円（最長13年間）',amountShort:'年間 最大35万円×13年',lossEstimate:35,
+    amount:'年間 最大35万円（最長13年間）',amountShort:'所得控除 最大35万円×13年',lossEstimate:35,
     conditions:['住宅ローンを利用した自宅取得','床面積50m²以上','合計所得2,000万円以下','取得後6ヶ月以内に入居','⚠️ 控除率は年末ローン残高の0.7%（購入価格ではありません）'],
-    docs:['確定申告書','住宅借入金等特別控除額の計算明細書','登記簿謄本','売買契約書','住宅ローン年末残高証明書'],
+    docs:['住宅借入金等特別控除申告書','登記事項証明書','売買契約書または工事請負契約書','住民票の写し','源泉徴収票','住宅ローン年末残高証明書'],
     deadline:'取得翌年の確定申告期間（2月〜3月）',deadlineNote:'初年度は確定申告必須',icsDate:'20270315',local:null,
     eligibility:(p)=>p.housing==='yes'&&parseInt(p.income)<=2600,
   },
@@ -1050,7 +1071,7 @@ const PROGRAMS = [
     desc:'2024年から児童手当が拡充。第3子以降は3万円/月、0〜2歳と高校生は1.5万円/月、3歳〜中学生は1万円/月（所得制限撤廃）。3〜5歳の保育料無償化も継続。各自治体の独自給付も多数あります。',
     amount:'年間 最大36〜72万円（子どもの人数・年齢により異なる）',amountShort:'年間 最大72万円',lossEstimate:36,
     conditions:['18歳以下の子どもがいる世帯','日本在住','申請者が子どもの生計を維持している'],
-    docs:['認定請求書','戸籍謄本','住民票','健康保険証'],
+    docs:['認定請求書','戸籍謄本','住民票','健康保険証','振込先口座情報','マイナンバーカードまたは通知カード'],
     deadline:'出生後・転入後15日以内に申請推奨',deadlineNote:'遅延すると翌月以降の受給開始に',icsDate:null,local:null,
     eligibility:(p)=>['children','single_parent'].includes(p.family),
   },
@@ -1109,7 +1130,7 @@ const PROGRAMS = [
     desc:'個人事業主が青色申告で確定申告をすると、事業所得から最大65万円を控除できます（65万円控除はe-Tax電子申告または電子帳簿保存が必須）。電子申告なしの複式簿記のみの場合は55万円控除。簡易簿記（現金主義）の場合は10万円控除となります。所得税率20%なら最大13万円の節税効果。',
     amount:'最大65万円の所得控除（電子申告または電子帳簿保存が条件）',amountShort:'最大65万円の所得控除',lossEstimate:13,
     conditions:['個人事業主（青色申告承認申請書提出済み）','65万円控除：複式簿記＋e-Tax電子申告または電子帳簿保存','55万円控除：複式簿記のみ（電子申告なし）','10万円控除：簡易簿記（現金主義）'],
-    docs:['確定申告書B','青色申告決算書','総勘定元帳','仕訳帳'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','青色申告決算書','総勘定元帳','仕訳帳'],
     deadline:'翌年2月16日〜3月15日',deadlineNote:'初年度は開業から2ヶ月以内に承認申請が必要',icsDate:'20270315',local:null,
     eligibility:(p)=>p.job==='freelance',
   },
@@ -1129,7 +1150,7 @@ const PROGRAMS = [
     desc:'小規模事業者が経営計画を作成し、販路開拓や生産性向上に取り組む際の費用を補助。通常枠で上限50万円・補助率2/3。特別枠では最大250万円に拡大。広告・宣伝費、ホームページ制作費等が対象。⚠️ 公募・審査制のため、申請しても採択されない場合があります。条件により金額は異なります。',
     amount:'最大50〜250万円（補助率2/3）',amountShort:'最大250万円（補助率2/3）',lossEstimate:33,
     conditions:['小規模事業者（従業員数の基準あり）','商工会議所・商工会の支援を受けた計画書を作成','補助事業終了後に成果報告が必要','⚠️ 公募・審査制のため採択されない場合があります'],
-    docs:['申請書','経営計画書・補助事業計画書','直近1期の確定申告書'],
+    docs:['申請書','経営計画書・補助事業計画書','決算書（直近2期分）または直近確定申告書','商工会議所・商工会の支援確認書'],
     deadline:'年3〜4回の公募',deadlineNote:'採択後の事前承認が必要。遡及支出は不可',icsDate:null,local:null,
     eligibility:(p)=>p.job==='freelance',
   },
@@ -1818,7 +1839,7 @@ const PROGRAMS = [
     desc:'納税者本人や控除対象配偶者、扶養親族が障害者である場合に適用できる所得控除です。障害の程度により控除額が異なります。',
     amount:'27万円〜75万円の所得控除',amountShort:'27〜75万円控除',lossEstimate:8,
     conditions:['障がい者手帳を保有','または医師の診断書がある','特別障害者は75万円控除'],
-    docs:['障がい者手帳（写し）','確定申告書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','障がい者手帳（写し）'],
     deadline:'確定申告期間（2月〜3月）',deadlineNote:'年末調整でも申告可能',icsDate:'20270315',local:null,
     eligibility: p => p.disability === 'yes'
   },
@@ -1828,7 +1849,7 @@ const PROGRAMS = [
     desc:'特定の介護サービスにかかった費用は医療費控除の対象となります。年間10万円超の医療費がある場合に適用できます。',
     amount:'介護費用の一部が控除対象（上限200万円）',amountShort:'最大200万円控除',lossEstimate:10,
     conditions:['介護認定を受けている家族がいる','年間医療費が10万円超（または所得の5%超）'],
-    docs:['医療費控除の明細書','介護サービス利用明細書','確定申告書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','医療費控除の明細書（介護サービス利用分）','介護サービス利用明細書'],
     deadline:'確定申告期間（2月〜3月）',deadlineNote:'5年間遡って申告可能',icsDate:'20270315',local:null,
     eligibility: p => p.caregiving === 'yes'
   },
@@ -1838,7 +1859,7 @@ const PROGRAMS = [
     desc:'中小企業・個人事業主のデジタル化を支援する補助金。会計ソフト・受発注システム・ECサイト等の導入費用が対象です。⚠️ 公募・審査制のため、申請しても採択されない場合があります。条件により異なります。',
     amount:'最大350万円（補助率3/4）',amountShort:'最大350万円',lossEstimate:50,
     conditions:['個人事業主または中小企業','DX推進計画の策定','認定ITベンダーのツール導入','⚠️ 公募・審査制のため採択されない場合があります'],
-    docs:['事業計画書','見積書','直近の確定申告書'],
+    docs:['事業計画書','見積書','直近の確定申告書','マイナンバーカードまたは本人確認書類'],
     deadline:'年複数回公募',deadlineNote:'IT導入補助金の枠として申請',icsDate:null,local:null,
     eligibility: p => (p.job==='freelance') && p.dx==='yes'
   },
@@ -1848,7 +1869,7 @@ const PROGRAMS = [
     desc:'個人事業主が新たな設備・機械・システムを導入する際の費用を補助します。生産性向上・新サービス開発が目的。⚠️ 公募・審査制のため、申請しても採択されない場合があります。条件により異なります。',
     amount:'最大750万円（補助率1/2）',amountShort:'最大750万円',lossEstimate:50,
     conditions:['個人事業主','設備投資予定がある','事業計画書の提出','⚠️ 公募・審査制のため採択されない場合があります'],
-    docs:['事業計画書','見積書','直近2期分の確定申告書'],
+    docs:['事業計画書','見積書','直近2期分の確定申告書','法人登記簿謄本（法人の場合）'],
     deadline:'年複数回公募（3〜4ヶ月ごと）',deadlineNote:'採択率約50%',icsDate:null,local:null,
     eligibility: p => p.job==='freelance' && p.equipment==='yes'
   },
@@ -1968,7 +1989,7 @@ const PROGRAMS = [
     desc:'ひとり親控除は、婚姻関係になく生計を一にする子（総所得48万円以下）を扶養しているひとり親に適用される所得控除です。控除額は35万円で、所得税・住民税が軽減されます。年末調整または確定申告で申請できます。所得制限は合計所得500万円以下。',
     amount:'35万円の所得控除（税率20%なら約7万円の節税）',amountShort:'35万円の所得控除',lossEstimate:7,
     conditions:['婚姻関係にないひとり親','生計を一にする子（総所得48万円以下）を扶養','合計所得500万円以下'],
-    docs:['ひとり親控除申告書（年末調整）または確定申告書','戸籍謄本・住民票'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）またはひとり親控除申告書（年末調整）','戸籍謄本','住民票'],
     deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'',icsDate:'20261130',local:null,
     eligibility:(p)=>p.family==='single_parent',
   },
@@ -1988,7 +2009,7 @@ const PROGRAMS = [
     id:'furusato_nozei',name:'ふるさと納税',category:'tax',categoryLabel:'節税',
     summary:'全国の自治体に寄附することで、住民税・所得税の控除が受けられ、返礼品も受け取れる。',
     desc:'ふるさと納税は、好きな自治体に寄附を行い、寄附額から2,000円を除いた全額が所得税・住民税から控除される制度（お金が「もらえる」制度ではなく、実質2,000円の自己負担で返礼品が受け取れる仕組みです）。年収・家族構成によって控除上限額は異なります。会社員なら手続き簡単なワンストップ特例も利用できます。⚠️ ワンストップ特例は確定申告不要ですが、寄附先が5自治体以内の場合のみ利用可能です。6自治体以上に寄附した場合や確定申告が必要な方は、ワンストップ特例は使えません。',
-    amount:'実質自己負担2,000円で節税・返礼品受取（控除額は年収・家族構成により異なる）',amountShort:'実質自己負担2,000円で節税',lossEstimate:6,
+    amount:'実質自己負担2,000円で節税・返礼品受取（控除額は年収・家族構成により異なる）',amountShort:'実質2,000円で返礼品',lossEstimate:6,
     conditions:['日本在住の納税者（所得税・住民税を払っている人）','年収に応じた控除上限あり','ワンストップ特例は5自治体以内の場合のみ（6自治体以上は確定申告が必要）'],
     docs:['寄附金受領証明書','ワンストップ特例申請書（確定申告不要な会社員）または確定申告書'],
     deadline:'毎年12月31日までの寄附が当年度の控除対象',deadlineNote:'ワンストップ特例は翌年1月10日必着',icsDate:'20261231',local:null,
@@ -2000,7 +2021,7 @@ const PROGRAMS = [
     desc:'本人と生計を一にする家族全員の医療費を合算し、10万円（所得が200万円未満の場合は所得の5%）を超えた部分が所得から控除されます。病院の窓口負担・市販薬・交通費なども対象に含まれます。確定申告により還付を受けられます。⚠️ 医療費控除とセルフメディケーション税制はどちらか一方のみ選択適用（併用不可）。',
     amount:'控除額 × 所得税率分が還付（例：控除20万円・税率20%なら4万円還付）',amountShort:'超過分を所得控除',lossEstimate:4,
     conditions:['年間医療費が10万円超（または所得の5%超）','家族全員分を合算可能','⚠️ 医療費控除とセルフメディケーション税制はどちらか一方のみ選択適用（併用不可）'],
-    docs:['医療費の領収書（5年間保存）','確定申告書','医療費控除の明細書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','医療費控除の明細書','医療費の領収書（5年間保存）'],
     deadline:'確定申告期間（2月〜3月）、過去5年分まで遡及申請可',deadlineNote:'医療費の領収書は5年間保存を',icsDate:'20270315',local:null,
     eligibility:()=>true,
   },
@@ -2010,7 +2031,7 @@ const PROGRAMS = [
     desc:'民間の生命保険・介護医療保険・個人年金保険に加入している場合、支払った保険料に応じて所得控除が受けられます。それぞれ最大4万円（新契約）の控除で合計最大12万円の控除が可能。年末調整または確定申告で手続きします。',
     amount:'最大12万円の所得控除（税率20%なら最大約2.4万円の税軽減）',amountShort:'最大12万円の所得控除',lossEstimate:2,
     conditions:['生命保険・医療保険・個人年金保険に加入している','日本在住の納税者'],
-    docs:['保険料控除証明書（保険会社から10月頃送付）','年末調整書類または確定申告書'],
+    docs:['保険料控除証明書（保険会社から10月頃送付）','確定申告書（国税庁e-Taxまたは税務署）または年末調整書類'],
     deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'証明書が届いたら保管しておくこと',icsDate:'20261130',local:null,
     eligibility:()=>true,
   },
@@ -2087,54 +2108,54 @@ const PROGRAMS = [
 
   // ── 年金免除・猶予 ──────────────────────────────────────────
   {
-    id:'nenkin_full_exempt',name:'国民年金保険料 全額免除制度',category:'pension',categoryLabel:'年金免除',
+    id:'nenkin_full_exempt',name:'国民年金保険料 全額免除制度',category:'pension',categoryLabel:'軽減・免除',
     summary:'前年所得が基準以下の第1号被保険者は国民年金保険料が全額免除。老齢基礎年金には国庫負担分が反映される。',
-    desc:'個人事業主・無職など国民年金第1号被保険者で、前年所得が基準額（単身の場合目安：年収133万円以下）以下の場合、国民年金保険料（月約16,980円）が全額免除されます。免除期間も老齢基礎年金の受給資格期間に算入され、国庫負担分（1/2）が年金額に反映されます。⚠️ 全額免除期間の老齢基礎年金は満額の約1/2となります（国庫負担分のみ反映）。追納は免除承認月から10年以内に行うことで年金額を増やすことができます。',
-    amount:'年間約20.4万円の保険料免除',amountShort:'年間約20万円免除',lossEstimate:20,
+    desc:'個人事業主・無職など国民年金第1号被保険者で、前年所得が基準額（単身の場合目安：年収133万円以下）以下の場合、国民年金保険料（月約16,590円）が全額免除されます。「免除」とは保険料を払わなくてよい制度ですが、将来の年金が減ります。免除期間も老齢基礎年金の受給資格期間に算入され、国庫負担分（1/2）が年金額に反映されます。⚠️ 免除期間中の老齢基礎年金は、保険料を納付した場合の約1/2になります（国庫負担分のみ反映）。将来の年金額を確保したい場合は10年以内の追納をご検討ください。',
+    amount:'月額約16,590円全額免除',amountShort:'月約16,590円免除',lossEstimate:20,
     conditions:['国民年金第1号被保険者（個人事業主・無職等）','前年所得が全額免除基準以下（単身：年収133万円以下の目安）','市区町村の国民年金担当窓口に申請','⚠️ 免除期間の老齢基礎年金は満額の約1/2になります','⚠️ 追納は10年以内に行うことで年金額を増やすことが可能です'],
-    docs:['国民年金保険料免除・納付猶予申請書','所得証明書（未申告の場合は申告が必要）'],
+    docs:['国民年金保険料免除・納付猶予申請書（市区町村窓口またはねんきんネット）','前年所得を証明する書類（必要な場合）','マイナンバーカードまたは基礎年金番号通知書'],
     deadline:'毎年7月〜翌年6月分を申請（2年前まで遡及可）',deadlineNote:'失業・廃業の場合は特例申請もあり',icsDate:null,local:null,
     eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.income)<=133,
   },
   {
-    id:'nenkin_defer',name:'国民年金保険料 納付猶予制度',category:'pension',categoryLabel:'年金猶予',
+    id:'nenkin_defer',name:'国民年金保険料 納付猶予制度',category:'pension',categoryLabel:'軽減・免除',
     summary:'50歳未満の第1号被保険者で所得が低い場合、保険料の納付を猶予。受給資格期間に算入される。',
-    desc:'50歳未満の国民年金第1号被保険者を対象に、所得が低い場合に保険料の納付を猶予する制度です。猶予期間は老齢基礎年金の受給資格期間に算入されます。⚠️ 猶予期間は将来の老齢基礎年金額に反映されません（追納しない場合、年金額はゼロ扱いです）。追納は猶予承認月から10年以内に行うことで年金額を増やすことができます。',
-    amount:'年間約20.4万円の保険料猶予',amountShort:'年間約20万円猶予',lossEstimate:20,
+    desc:'50歳未満の国民年金第1号被保険者を対象に、所得が低い場合に保険料の納付を猶予する制度です。「猶予」とは今は払わなくていいが、将来の年金に反映されない制度です（「免除」とは異なります）。猶予期間は老齢基礎年金の受給資格期間（10年）にはカウントされます。⚠️ 猶予期間は老齢基礎年金額に反映されません。10年以内に追納しない場合、その期間分の年金が減額されます。受給資格期間（10年）にはカウントされます。',
+    amount:'月額約16,590円猶予',amountShort:'月約16,590円猶予',lossEstimate:20,
     conditions:['50歳未満の国民年金第1号被保険者','前年所得が納付猶予基準以下（単身：年収133万円以下の目安）','⚠️ 猶予期間は追納しない場合、年金額に反映されません','⚠️ 追納は10年以内に行うことで年金額を増やすことが可能です'],
-    docs:['国民年金保険料免除・納付猶予申請書','所得証明書'],
+    docs:['国民年金保険料免除・納付猶予申請書（市区町村窓口またはねんきんネット）','前年所得を証明する書類（必要な場合）','マイナンバーカードまたは基礎年金番号通知書'],
     deadline:'毎年7月〜翌年6月分を申請',deadlineNote:'追納は猶予承認月から10年以内',icsDate:null,local:null,
     eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.age)<50&&parseInt(p.income)<=133,
   },
   {
-    id:'nenkin_student',name:'学生納付特例制度',category:'pension',categoryLabel:'年金猶予',
+    id:'nenkin_student',name:'学生納付特例制度',category:'pension',categoryLabel:'軽減・免除',
     summary:'在学中の学生の国民年金保険料を猶予。在学中は保険料を払わなくてよい。',
-    desc:'大学・短大・専門学校等に在学中の20歳以上の学生で、前年所得が128万円以下の場合、国民年金保険料の納付が猶予されます。猶予期間は老齢基礎年金の受給資格期間に算入されます。⚠️ 猶予期間は追納しない場合、将来の年金額に反映されません。追納は猶予承認月から10年以内に行うことで年金額を増やすことができます。学生証と申請書を日本年金機構またはねんきんネットで申請できます。',
-    amount:'年間約20.4万円の保険料猶予',amountShort:'在学中の保険料猶予',lossEstimate:20,
+    desc:'大学・短大・専門学校等に在学中の20歳以上の学生で、前年所得が128万円以下の場合、国民年金保険料の納付が猶予されます。「猶予」とは今は払わなくていいが、将来の年金に反映されない制度です。猶予期間は老齢基礎年金の受給資格期間（10年）にはカウントされます。⚠️ 猶予期間は老齢基礎年金額に反映されません。10年以内に追納しない場合、その期間分の年金が減額されます。受給資格期間（10年）にはカウントされます。',
+    amount:'在学中の国民年金保険料を猶予',amountShort:'在学中の保険料猶予',lossEstimate:20,
     conditions:['大学・短大・専門学校等に在学中の20歳以上','前年所得が128万円以下','国民年金第1号被保険者','⚠️ 猶予期間は追納しない場合、将来の年金額に反映されません','⚠️ 追納は10年以内に行うことで年金額を増やすことが可能です'],
-    docs:['学生納付特例申請書','学生証または在学証明書'],
+    docs:['学生納付特例申請書（市区町村窓口またはねんきんネット）','学生証または在学証明書','マイナンバーカードまたは基礎年金番号通知書'],
     deadline:'毎年4月〜翌年3月分を申請',deadlineNote:'春と秋に年金機構から案内が届く場合あり',icsDate:null,local:null,
     eligibility:(p)=>p.job==='student'&&parseInt(p.age)>=20&&parseInt(p.age)<=29&&parseInt(p.income)<=128,
   },
   {
-    id:'nenkin_half_exempt',name:'国民年金保険料 半額免除制度',category:'pension',categoryLabel:'年金免除',
+    id:'nenkin_half_exempt',name:'国民年金保険料 半額免除制度',category:'pension',categoryLabel:'軽減・免除',
     summary:'所得が一定基準以下の第1号被保険者は保険料が半額免除。',
-    desc:'個人事業主・無職等の国民年金第1号被保険者で、前年所得が半額免除基準以下（目安：年収133〜200万円程度）の場合、国民年金保険料の半額が免除されます。残り半額を納付することで、老齢基礎年金の受給額は全額納付時の3/4相当が保証されます。',
-    amount:'年間約10万円の保険料免除',amountShort:'年間約10万円免除',lossEstimate:10,
-    conditions:['国民年金第1号被保険者','前年所得が半額免除基準以下（年収133〜200万円の目安）'],
-    docs:['国民年金保険料免除・納付猶予申請書','所得証明書'],
+    desc:'個人事業主・無職等の国民年金第1号被保険者で、前年所得が半額免除基準以下（目安：年収133〜200万円程度）の場合、国民年金保険料の半額が免除されます。「免除」とは保険料を払わなくてよい制度ですが、将来の年金が減ります。残り半額を納付することで、老齢基礎年金の受給額は全額納付時の3/4相当が保証されます。⚠️ 免除期間中は将来の年金額が減ります。追納することで年金額を回復できます（10年以内）。',
+    amount:'月額約9,950円免除（半額）',amountShort:'月約9,950円免除',lossEstimate:12,
+    conditions:['国民年金第1号被保険者','前年所得が半額免除基準以下（年収133〜200万円の目安）','⚠️ 免除期間は将来の年金額が約3/4になります（追納で回復可能）'],
+    docs:['国民年金保険料免除・納付猶予申請書（市区町村窓口またはねんきんネット）','前年所得を証明する書類（必要な場合）','マイナンバーカードまたは基礎年金番号通知書'],
     deadline:'毎年7月〜翌年6月分を申請',deadlineNote:'市区町村窓口またはねんきんネットで申請',icsDate:null,local:null,
     eligibility:(p)=>(['freelance','other','unemployed','leave'].includes(p.job))&&parseInt(p.income)>133&&parseInt(p.income)<=200,
   },
 
   // ── 国民健康保険 ──────────────────────────────────────────
   {
-    id:'kokuho_reduction',name:'国民健康保険料 軽減措置',category:'tax',categoryLabel:'節税・軽減',
+    id:'kokuho_reduction',name:'国民健康保険料 軽減措置',category:'tax',categoryLabel:'軽減・免除',
     summary:'前年所得が一定以下の国民健康保険加入者は保険料が7割・5割・2割軽減される。',
     desc:'国民健康保険では、前年の世帯所得が一定以下の場合に、均等割保険料が7割・5割・2割軽減される制度があります（法定軽減）。申請不要で自動判定される場合が多いですが、市区町村の国保窓口に確認することを推奨します。また、失業・廃業等の場合は特例軽減の申請も可能です。',
-    amount:'年間数万〜十数万円の保険料軽減（所得・世帯人数による）',amountShort:'年間数万〜10万円以上軽減',lossEstimate:12,
+    amount:'年間数万〜十数万円の保険料軽減（所得・世帯人数による）',amountShort:'保険料7割・5割・2割軽減',lossEstimate:12,
     conditions:['国民健康保険加入者（個人事業主・無職等）','前年世帯所得が軽減基準以下（単身：年収200万円以下が目安）'],
-    docs:['国民健康保険の加入証明書','所得証明書（確定申告書）'],
+    docs:['国民健康保険証','所得証明書（確定申告書など）'],
     deadline:'年度ごとに自動判定（失業等特例は別途申請）',deadlineNote:'市区町村の国保窓口に問い合わせを',icsDate:null,local:null,
     eligibility:(p)=>(['freelance','other','unemployed','leave','student'].includes(p.job))&&parseInt(p.income)<=200,
   },
@@ -2168,7 +2189,7 @@ const PROGRAMS = [
     desc:'健康診断等を受けた人が対象のOTC医薬品購入費の特例控除です。年間のOTC医薬品購入額が12,000円を超えた場合、超えた分（最大88,000円）が所得から控除されます。⚠️ 医療費控除とセルフメディケーション税制はどちらか一方のみ選択適用（併用不可）。確定申告が必要です。',
     amount:'最大88,000円の所得控除（税率20%なら最大約1.8万円節税）',amountShort:'超過分を最大88,000円控除',lossEstimate:2,
     conditions:['健康診断・予防接種などを受けていること','OTC医薬品を年間12,000円超購入','確定申告が必要','⚠️ 医療費控除とセルフメディケーション税制はどちらか一方のみ選択適用（併用不可）'],
-    docs:['レシート・領収書（OTC医薬品のもの）','健康診断受診証明書','確定申告書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','OTC医薬品のレシート・領収書','健康診断受診証明書'],
     deadline:'確定申告期間（2月〜3月）、過去5年まで遡及可',deadlineNote:'通常の医療費控除と選択適用',icsDate:'20270315',local:null,
     eligibility:()=>true,
   },
@@ -2178,7 +2199,7 @@ const PROGRAMS = [
     desc:'災害（地震・台風・火災等）、盗難、横領により生活に必要な資産が損害を受けた場合、損害額の一部を所得から控除できます。控除額は「損失額−保険補填額−総所得の10%」または「損失額のうち災害等に関連する支出−5万円」のいずれか大きい方です。',
     amount:'損失額に応じた所得控除（損失が大きいほど節税効果も大）',amountShort:'損失額を所得控除',lossEstimate:5,
     conditions:['災害・盗難・横領で資産に損失が生じた','生活に通常必要な資産が対象（投資用・事業用は別途）'],
-    docs:['確定申告書','損害額を証明する書類（罹災証明書・警察の被害届受理証明書等）','損失額の計算明細書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）','損害額を証明する書類（罹災証明書・警察の被害届受理証明書等）','損失額の計算明細書'],
     deadline:'確定申告期間（2月〜3月）',deadlineNote:'損失が所得を上回る場合は翌年以降3年間繰越可',icsDate:'20270315',local:null,
     eligibility:()=>true,
   },
@@ -2188,7 +2209,7 @@ const PROGRAMS = [
     desc:'婚姻関係がなく生計を一にする子を扶養するひとり親には「ひとり親控除」35万円、それ以外で夫と死別・離婚した女性には「寡婦控除」27万円が適用されます。所得税・住民税の軽減につながります。年末調整または確定申告で手続きできます。合計所得500万円以下が要件。',
     amount:'ひとり親控除35万円または寡婦控除27万円の所得控除',amountShort:'最大35万円の所得控除',lossEstimate:7,
     conditions:['ひとり親（子を扶養・婚姻なし）または寡婦（夫と死別・離婚）','合計所得500万円以下'],
-    docs:['ひとり親控除申告書（年末調整）または確定申告書','戸籍謄本・住民票'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）またはひとり親控除申告書（年末調整）','戸籍謄本','住民票'],
     deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'ひとり親控除はhitorioyal_koujoと重複—両方表示しないよう注意',icsDate:'20261130',local:null,
     eligibility:(p)=>p.family==='single_parent',
   },
@@ -2242,7 +2263,7 @@ const PROGRAMS = [
     desc:'経済産業省・中小企業庁が実施する創業・スタートアップ支援の補助金群です。開業から間もない事業者が新たに事業を始める際の費用（設備費・広告宣伝費・専門家費用等）を補助します。商工会議所・創業支援センター等を通じて申請することが多いです。⚠️ 公募・審査制のため、申請しても採択されない場合があります。条件により異なります。',
     amount:'最大200万円（補助率1/2〜2/3）',amountShort:'最大200万円',lossEstimate:50,
     conditions:['新規創業（開業5年以内）または第二創業（事業転換）','事業計画書を提出','採択後に補助対象事業を実施','⚠️ 公募・審査制のため採択されない場合があります'],
-    docs:['申請書','事業計画書','見積書','開業届または登記簿謄本'],
+    docs:['申請書','事業計画書','見積書','開業届または法人登記簿謄本（法人の場合）','決算書（直近2期分）'],
     deadline:'年複数回の公募（詳細は中小企業庁・地域の商工会議所へ）',deadlineNote:'採択後の事前承認が必要',icsDate:null,local:null,
     eligibility:(p)=>(['freelance','company_owner'].includes(p.job))&&parseInt(p.income)<=500,
   },
@@ -2264,7 +2285,7 @@ const PROGRAMS = [
     desc:'障害者手帳（身体障害者手帳・療育手帳・精神障害者保健福祉手帳）を保有している場合、「障害者控除」として27万円（普通障害者）または40万円（特別障害者）、同居特別障害者は75万円の所得控除が受けられます。年末調整または確定申告で申告します。',
     amount:'27〜75万円の所得控除（税率20%なら5.4〜15万円の節税）',amountShort:'27〜75万円の所得控除',lossEstimate:10,
     conditions:['障害者手帳（身体・療育・精神）を保有している','納税者本人または扶養家族が対象'],
-    docs:['障害者手帳','年末調整書類または確定申告書'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）または年末調整書類','障害者手帳（身体・療育・精神）'],
     deadline:'年末調整（10〜11月）または確定申告（2〜3月）',deadlineNote:'手帳の交付を受けたら確認を',icsDate:'20261130',local:null,
     eligibility:(p)=>p.disability==='yes',
   },
@@ -2302,7 +2323,7 @@ const PROGRAMS = [
     desc:'二世帯住宅を親子でペアローンまたは親子リレーローンを組んで取得した場合、親・子それぞれが住宅ローン控除（年末ローン残高の0.7%、最大35万円/年×13年）を適用できます。',
     amount:'最大35万円/年×13年（一人あたり）',amountShort:'最大35万円/年',lossEstimate:25,
     conditions:['二世帯住宅を購入または建築予定','親子でローンを組む予定','入居から6ヶ月以内に申請'],
-    docs:['確定申告書','住宅借入金等特別控除申告書','登記事項証明書','住民票'],
+    docs:['住宅借入金等特別控除申告書','登記事項証明書','売買契約書または工事請負契約書','住民票の写し','源泉徴収票'],
     deadline:'翌年3月15日（確定申告）',deadlineNote:'',icsDate:null,local:'',
     eligibility:p=>['two_generation','extended'].includes(p.householdType)&&p.buyHouse},
 
@@ -2320,7 +2341,7 @@ const PROGRAMS = [
     desc:'世帯主が配偶者（年収103万円以下）を扶養している場合は配偶者控除38万円、配偶者特別控除（年収103〜201万円）も最大38万円の控除。扶養親族1人につき38〜63万円の扶養控除も適用できます。',
     amount:'配偶者控除38万円＋扶養控除38〜63万円/人',amountShort:'数十万円の所得控除',lossEstimate:8,
     conditions:['世帯主である','配偶者または扶養親族がいる','配偶者の年収が201万円以下'],
-    docs:['給与所得者の扶養控除等申告書（年末調整）','確定申告書（自営業の場合）'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）または給与所得者の扶養控除等申告書（年末調整）','配偶者・扶養親族の収入証明書'],
     deadline:'年末調整（12月）または確定申告（3月15日）',deadlineNote:'',icsDate:null,local:'',
     eligibility:p=>p.isHouseholder&&(p.family==='married'||p.family==='children'||p.family==='single_parent')},
 
@@ -2329,7 +2350,7 @@ const PROGRAMS = [
     desc:'住民税非課税世帯（目安：単身者で年収100万円以下、扶養家族1人で年収156万円以下等）は、国民健康保険料軽減・介護保険料軽減・教育費支援・給付金受給等の多数の優遇制度の対象となります。',
     amount:'各種給付金・保険料軽減の対象（年間数万〜数十万円相当）',amountShort:'各種優遇の対象',lossEstimate:20,
     conditions:['世帯主の前年所得が非課税基準以下','（単身）年収100万円以下目安','（扶養1人）年収156万円以下目安'],
-    docs:['確定申告書または住民税申告書','住民票'],
+    docs:['確定申告書（国税庁e-Taxまたは税務署）または住民税申告書','住民票'],
     deadline:'随時（市区町村窓口で確認）',deadlineNote:'',icsDate:null,local:'',
     eligibility:p=>p.isHouseholder&&p.income<=200},
 
@@ -2586,9 +2607,163 @@ function runDiagnosis(profile){
 
     // 市区町村バナー表示
     showLocalSearchBanner(profile);
+
+    // jGrants API から最新補助金情報を取得
+    fetchJGrantsPrograms(profile);
   } finally {
     hideLoading();
   }
+}
+
+// ── jGrants API Integration ────────────────────────────────────
+async function fetchJGrantsPrograms(profile) {
+  const section = document.getElementById('jgrants-section');
+  const loadingEl = document.getElementById('jgrants-loading');
+  const errorEl = document.getElementById('jgrants-error');
+  const cardsEl = document.getElementById('jgrants-cards');
+  if (!section || !loadingEl || !errorEl || !cardsEl) return;
+
+  // Reset state
+  section.style.display = 'block';
+  loadingEl.style.display = 'block';
+  errorEl.style.display = 'none';
+  while (cardsEl.firstChild) cardsEl.removeChild(cardsEl.firstChild);
+
+  try {
+    // Build keyword based on profile
+    const keywordParts = [];
+    if (profile.job === 'freelance') keywordParts.push('個人事業主');
+    else if (profile.job === 'sme') keywordParts.push('中小企業');
+    else if (profile.job === 'employee') keywordParts.push('雇用');
+    else if (profile.job === 'unemployed') keywordParts.push('求職');
+    if (['children', 'single_parent'].includes(profile.family)) keywordParts.push('子育て');
+    if (profile.age >= 60) keywordParts.push('高齢者');
+    const keyword = keywordParts.length > 0 ? keywordParts[0] : '補助金';
+
+    const params = new URLSearchParams({
+      keyword: keyword,
+      acceptance_status: 'accepting',
+      sort: '-created_date',
+      limit: '10',
+      offset: '0',
+    });
+
+    const url = 'https://api.jgrants-portal.go.jp/api/v1/public/subsidies?' + params.toString();
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const data = await response.json();
+
+    loadingEl.style.display = 'none';
+
+    const subsidies = data.result || data.subsidies || data.data || [];
+    if (!subsidies.length) {
+      // Try a broader search if first attempt returned nothing
+      const fallbackUrl = 'https://api.jgrants-portal.go.jp/api/v1/public/subsidies?acceptance_status=accepting&sort=-created_date&limit=10&offset=0';
+      const r2 = await fetch(fallbackUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
+      if (r2.ok) {
+        const d2 = await r2.json();
+        const s2 = d2.result || d2.subsidies || d2.data || [];
+        renderJGrantsCards(s2, cardsEl, section);
+        return;
+      }
+      section.style.display = 'none';
+      return;
+    }
+
+    renderJGrantsCards(subsidies, cardsEl, section);
+  } catch (err) {
+    console.warn('jGrants API error:', err);
+    loadingEl.style.display = 'none';
+    errorEl.style.display = 'block';
+    // Hide section after a moment if no cards
+    setTimeout(() => {
+      if (!cardsEl.firstChild) section.style.display = 'none';
+    }, 4000);
+  }
+}
+
+function renderJGrantsCards(subsidies, cardsEl, section) {
+  if (!subsidies || !subsidies.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  subsidies.forEach((sub, i) => {
+    const card = document.createElement('div');
+    card.className = 'program-card';
+    card.style.animationDelay = (i * 0.06) + 's';
+
+    // Header with category badge and jGrants badge
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    const cat = document.createElement('span');
+    cat.className = 'card-category cat-subsidy';
+    cat.textContent = '補助金';
+    const jgBadge = document.createElement('span');
+    jgBadge.style.cssText = 'font-size:10px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:10px;padding:2px 8px;font-family:"DM Mono",monospace;letter-spacing:0.04em;white-space:nowrap;';
+    jgBadge.textContent = '出典: jGrants（経産省）';
+    header.appendChild(cat);
+    header.appendChild(jgBadge);
+
+    // Name
+    const name = document.createElement('div');
+    name.className = 'card-name';
+    name.textContent = sub.title || sub.name || '（タイトルなし）';
+
+    // Summary
+    const summary = document.createElement('div');
+    summary.className = 'card-summary';
+    const rawSummary = sub.summary || sub.detail || sub.description || '';
+    summary.textContent = rawSummary.length > 80 ? rawSummary.slice(0, 80) + '…' : rawSummary || '詳細はjGrantsサイトをご確認ください。';
+
+    // Data rows
+    const dataBox = document.createElement('div');
+    dataBox.className = 'card-data';
+
+    const maxLimit = sub.subsidy_max_limit;
+    const amountText = maxLimit
+      ? '最大 ' + Number(maxLimit).toLocaleString('ja-JP') + '円'
+      : '金額は公式サイト参照';
+    const r1 = mkRow('想定効果', amountText, true);
+    dataBox.appendChild(r1);
+
+    const endDate = sub.acceptance_end_datetime || sub.deadline || '';
+    let deadlineText = '公式サイト参照';
+    if (endDate) {
+      try { deadlineText = endDate.slice(0, 10); } catch(e) {}
+    }
+    const r2 = mkRow('申請期限', deadlineText, false);
+    dataBox.appendChild(r2);
+
+    // CTA - link to jGrants detail page
+    const cta = document.createElement('div');
+    cta.className = 'card-cta';
+    const cl = document.createElement('span'); cl.className = 'cta-link'; cl.textContent = 'jGrantsで詳細を見る';
+    const ca = document.createElement('span'); ca.className = 'cta-arrow'; ca.textContent = '→';
+    cta.appendChild(cl); cta.appendChild(ca);
+
+    card.appendChild(header);
+    card.appendChild(name);
+    card.appendChild(summary);
+    card.appendChild(dataBox);
+    card.appendChild(cta);
+
+    // Click to open jGrants portal
+    const subId = sub.id || sub.subsidy_id || '';
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const detailUrl = subId
+        ? 'https://jgrants.go.jp/subsidy/' + subId
+        : 'https://jgrants.go.jp/';
+      window.open(detailUrl, '_blank', 'noopener');
+    });
+
+    cardsEl.appendChild(card);
+  });
 }
 
 function showLocalSearchBanner(profile) {
