@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>プライバシーポリシー・利用規約 | もらえるお金診断</title>
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1b5e20;
+  --green-mid:#2e7d32;
+  --gold:#d4a339;
+  --bg:#f9f5ef;
+  --text-primary:#2d3a2e;
+  --text-secondary:#4a6050;
+  --text-muted:#7a9080;
+  --border:#d4e8d0;
+  --card-bg:#ffffff;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text-primary);line-height:1.8;font-size:15px}
+header{background:var(--bg);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.logo-mark{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0}
+.logo-text{font-size:15px;font-weight:700;color:var(--text-primary)}
+.logo-sub{font-size:9px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase}
+.back-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;color:var(--text-secondary);cursor:pointer;font-family:'Noto Sans JP',sans-serif;text-decoration:none;display:inline-block}
+.back-btn:hover{background:var(--border)}
+.container{max-width:800px;margin:0 auto;padding:40px 24px 80px}
+.tab-nav{display:flex;gap:8px;margin-bottom:32px;border-bottom:2px solid var(--border);padding-bottom:0}
+.tab-btn{background:none;border:none;padding:12px 20px;font-size:14px;font-weight:500;color:var(--text-muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.2s}
+.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+h1{font-size:22px;font-weight:700;color:var(--text-primary);margin-bottom:8px}
+.updated{font-size:12px;color:var(--text-muted);margin-bottom:32px}
+h2{font-size:16px;font-weight:700;color:var(--green);margin:32px 0 12px;padding-left:12px;border-left:3px solid var(--green)}
+h3{font-size:14px;font-weight:700;color:var(--text-primary);margin:20px 0 8px}
+p{color:var(--text-secondary);margin-bottom:12px;font-size:14px}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{color:var(--text-secondary);font-size:14px;margin-bottom:6px}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.contact-box{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:24px;margin-top:32px}
+.contact-box p{margin-bottom:4px}
+a{color:var(--green-mid);text-decoration:none}
+a:hover{text-decoration:underline}
+@media(max-width:600px){
+  .container{padding:24px 16px 60px}
+  h1{font-size:18px}
+  .tab-btn{padding:10px 14px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-mark">¥</div>
+  <div>
+    <div class="logo-text">もらえるお金診断</div>
+    <div class="logo-sub">MONEY SUPPORT AI</div>
+  </div>
+  <a href="index.html" class="back-btn">← アプリに戻る</a>
+</header>
+
+<div class="container">
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('privacy',this)">プライバシーポリシー</button>
+    <button class="tab-btn" onclick="switchTab('terms',this)">利用規約</button>
+    <button class="tab-btn" onclick="switchTab('tokutei',this)">特定商取引法</button>
+  </div>
+
+  <!-- プライバシーポリシー -->
+  <div id="tab-privacy" class="tab-content active">
+    <h1>プライバシーポリシー</h1>
+    <p class="updated">最終更新日：2026年6月7日</p>
+
+    <h2>1. 基本方針</h2>
+    <p>もらえるお金診断（以下「本サービス」）は、ユーザーの個人情報の保護を重要な責務と考え、個人情報保護法その他の法令を遵守し、適切に管理・保護します。</p>
+
+    <h2>2. 収集する情報</h2>
+    <p>本サービスでは以下の情報を収集します。</p>
+    <ul>
+      <li>メールアドレス（アカウント登録時）</li>
+      <li>年齢・居住地・職業・年収・家族構成（診断入力時）</li>
+      <li>利用履歴・お気に入り情報（localStorage・クラウド同期）</li>
+      <li>プッシュ通知トークン（通知機能利用時）</li>
+      <li>決済情報（Stripeが管理。本サービスはカード番号等を保持しません）</li>
+    </ul>
+
+    <h2>3. 利用目的</h2>
+    <ul>
+      <li>補助金・給付金の診断結果の提供</li>
+      <li>申請期限のプッシュ通知送信</li>
+      <li>サービスの改善・機能開発</li>
+      <li>お問い合わせへの対応</li>
+      <li>不正利用の防止</li>
+    </ul>
+
+    <h2>4. 第三者提供</h2>
+    <p>以下の場合を除き、収集した個人情報を第三者に提供しません。</p>
+    <ul>
+      <li>ユーザーの同意がある場合</li>
+      <li>法令に基づく場合</li>
+      <li>人の生命・身体・財産の保護のために必要な場合</li>
+    </ul>
+
+    <h2>5. 利用する外部サービス</h2>
+    <div class="card">
+      <h3>Supabase（データベース・認証）</h3>
+      <p>ユーザー情報・診断データの保存に使用。<a href="https://supabase.com/privacy" target="_blank">Supabase プライバシーポリシー</a></p>
+      <h3>Stripe（決済）</h3>
+      <p>プレミアムプランの決済処理に使用。カード情報はStripeが管理します。<a href="https://stripe.com/jp/privacy" target="_blank">Stripe プライバシーポリシー</a></p>
+      <h3>OneSignal（プッシュ通知）</h3>
+      <p>申請期限通知の送信に使用。<a href="https://onesignal.com/privacy_policy" target="_blank">OneSignal プライバシーポリシー</a></p>
+    </div>
+
+    <h2>6. データの保管・削除</h2>
+    <p>収集したデータはSupabaseのサーバー（米国）に保管されます。アカウント削除をご希望の場合は、お問い合わせフォームよりご連絡ください。</p>
+
+    <h2>7. Cookie・ローカルストレージ</h2>
+    <p>本サービスはlocalStorageを使用してお気に入り・診断結果・設定を端末に保存します。ブラウザの設定により削除可能です。</p>
+
+    <h2>8. プライバシーポリシーの変更</h2>
+    <p>本ポリシーは予告なく変更される場合があります。重要な変更の際はサービス内でお知らせします。</p>
+
+    <div class="contact-box">
+      <h3>サポート・お問い合わせ</h3>
+      <p>ご質問・ご要望・不具合のご報告は、下記メールアドレスまでご連絡ください。</p>
+      <p style="margin-top:12px"><strong>サポートメール：</strong> <a href="mailto:mzgchiy.office.soci3015@gmail.com" style="color:var(--green)">mzgchiy.office.soci3015@gmail.com</a></p>
+      <p style="margin-top:8px;font-size:13px;color:var(--text-muted)">通常2〜3営業日以内にご返答いたします。</p>
+      <p style="margin-top:12px"><strong>アカウント削除：</strong> アプリ内のメニュー「アカウントを削除」からいつでも削除できます。</p>
+    </div>
+  </div>
+
+  <!-- 利用規約 -->
+  <div id="tab-terms" class="tab-content">
+    <h1>利用規約</h1>
+    <p class="updated">最終更新日：2026年6月7日</p>
+
+    <h2>第1条（適用）</h2>
+    <p>本規約は、もらえるお金診断（以下「本サービス」）の利用に関する条件を定めるものです。ユーザーは本規約に同意の上、本サービスをご利用ください。</p>
+
+    <h2>第2条（サービスの内容）</h2>
+    <p>本サービスは、ユーザーのプロフィール情報に基づき、利用可能な補助金・給付金・税制優遇制度の情報を提供するものです。本サービスが提供する情報は参考情報であり、法律・税務・ファイナンシャルアドバイスではありません。</p>
+
+    <h2>第3条（免責事項）</h2>
+    <ul>
+      <li>制度情報は公的機関の発表に基づいていますが、最新性・正確性を保証するものではありません</li>
+      <li>診断結果はあくまで目安であり、実際の受給・申請可否は各機関にご確認ください</li>
+      <li>本サービスの利用により生じた損害について、運営者は責任を負いません</li>
+    </ul>
+
+    <h2>第4条（禁止事項）</h2>
+    <ul>
+      <li>虚偽の情報によるアカウント登録</li>
+      <li>本サービスへの不正アクセス・リバースエンジニアリング</li>
+      <li>他のユーザーへの迷惑行為</li>
+      <li>本サービスのコンテンツの無断転載・商用利用</li>
+      <li>法令または公序良俗に反する行為</li>
+    </ul>
+
+    <h2>第5条（プレミアムプラン）</h2>
+    <p>プレミアムプランは月額480円（税込）です。Stripeを通じて決済が行われます。解約はいつでも可能で、解約後は当該請求期間終了まで利用できます。</p>
+
+    <h2>第6条（サービスの変更・終了）</h2>
+    <p>運営者は、ユーザーへの事前通知なしにサービスの内容を変更・終了する場合があります。</p>
+
+    <h2>第7条（準拠法・管轄）</h2>
+    <p>本規約は日本法に準拠し、東京地方裁判所を第一審の専属的合意管轄裁判所とします。</p>
+  </div>
+
+  <!-- 特定商取引法 -->
+  <div id="tab-tokutei" class="tab-content">
+    <h1>特定商取引法に基づく表記</h1>
+    <p class="updated">最終更新日：2026年6月7日</p>
+
+    <div class="card">
+      <table style="width:100%;border-collapse:collapse;font-size:14px">
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);width:40%;vertical-align:top;font-weight:500">サービス名</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">もらえるお金診断</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">販売価格</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">プレミアムプラン：月額480円（税込）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">支払方法</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">クレジットカード（Visa・Mastercard・American Express・JCB）</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">支払時期</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">月次自動更新。初回は登録日に課金、以降は毎月同日に自動課金</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">サービス提供時期</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">決済完了後、即時利用可能</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">返品・キャンセル</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">デジタルコンテンツの性質上、決済完了後の返金は原則承れません。ただし、サービス上の重大な不具合があった場合はこの限りではありません。解約はいつでも可能です。</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">動作環境</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">最新のChrome・Safari・Firefox・Edge</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 8px;color:var(--text-muted);vertical-align:top;font-weight:500">お問い合わせ</td>
+          <td style="padding:12px 8px;color:var(--text-secondary)">アプリ内のお問い合わせフォームよりご連絡ください</td>
+        </tr>
+      </table>
+    </div>
+
+    <p style="margin-top:16px;font-size:12px;color:var(--text-muted)">※ 販売業者の氏名・住所・電話番号については、お問い合わせいただいた際に遅滞なく開示いたします。</p>
+  </div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

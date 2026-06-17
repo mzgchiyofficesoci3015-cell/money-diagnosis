@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>アカウント削除 | もらえるお金診断</title>
+<link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans JP',sans-serif;background:#f9f5ef;color:#2d3a2e;line-height:1.8;font-size:15px;padding:40px 24px}
+.container{max-width:600px;margin:0 auto}
+h1{font-size:22px;font-weight:700;margin-bottom:8px;color:#1b5e20}
+.card{background:#fff;border:1px solid #d4e8d0;border-radius:12px;padding:28px;margin-top:24px}
+.warning{background:#fff3f3;border:1px solid #f5c6c6;border-radius:8px;padding:16px;margin-bottom:20px;color:#c0392b;font-size:14px}
+label{display:block;font-weight:600;margin-bottom:6px;font-size:14px}
+input{width:100%;padding:12px;border:1px solid #d4e8d0;border-radius:8px;font-size:15px;margin-bottom:16px;font-family:inherit}
+textarea{width:100%;padding:12px;border:1px solid #d4e8d0;border-radius:8px;font-size:14px;margin-bottom:16px;font-family:inherit;resize:vertical;min-height:80px}
+.btn{display:block;width:100%;padding:14px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:hover{background:#a93226}
+.btn-secondary{background:#fff;color:#2d3a2e;border:1px solid #d4e8d0;margin-top:10px}
+.btn-secondary:hover{background:#f0f0f0}
+.success{display:none;text-align:center;padding:32px 0}
+.success h2{color:#1b5e20;margin-bottom:8px}
+.success p{color:#4a6050;font-size:14px}
+footer{margin-top:32px;text-align:center;font-size:12px;color:#7a9080}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>アカウント削除リクエスト</h1>
+  <p style="color:#4a6050;font-size:14px">もらえるお金診断</p>
+
+  <div class="card" id="formCard">
+    <div class="warning">
+      ⚠️ アカウントを削除すると、お気に入りや設定などのすべてのデータが完全に削除されます。この操作は取り消せません。
+    </div>
+
+    <form id="deleteForm" onsubmit="submitRequest(event)">
+      <label for="email">登録メールアドレス <span style="color:#c0392b">*</span></label>
+      <input type="email" id="email" required placeholder="example@email.com">
+
+      <label for="reason">削除理由（任意）</label>
+      <textarea id="reason" placeholder="アプリを使わなくなった、個人情報を削除したい、など"></textarea>
+
+      <button type="submit" class="btn">アカウント削除を申請する</button>
+      <a href="javascript:history.back()" style="text-decoration:none">
+        <button type="button" class="btn btn-secondary">キャンセル</button>
+      </a>
+    </form>
+  </div>
+
+  <div class="success" id="successCard">
+    <div style="font-size:48px;margin-bottom:16px">✅</div>
+    <h2>削除リクエストを受け付けました</h2>
+    <p style="margin-top:8px">登録メールアドレスに確認メールをお送りします。<br>3営業日以内にアカウントを削除いたします。</p>
+    <p style="margin-top:16px;font-size:13px;color:#7a9080">お問い合わせ: mzgchiy.office.soci3015@gmail.com</p>
+  </div>
+
+  <footer>
+    <p>© 2026 Yuuki Mizoguchi | <a href="legal.html" style="color:#1b5e20">プライバシーポリシー</a></p>
+  </footer>
+</div>
+
+<script>
+function submitRequest(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value;
+  const reason = document.getElementById('reason').value;
+  // Send deletion request via mailto
+  const subject = encodeURIComponent('アカウント削除リクエスト');
+  const body = encodeURIComponent(`アカウント削除をリクエストします。\n\nメールアドレス: ${email}\n理由: ${reason || '未記入'}\n\nこのメールを受信した場合、3営業日以内にアカウントを削除してください。`);
+  window.location.href = `mailto:mzgchiy.office.soci3015@gmail.com?subject=${subject}&body=${body}`;
+  // Show success
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+}
+</script>
+</body>
+</html>
